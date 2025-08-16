@@ -1,39 +1,62 @@
 import express from "express";
 import multer from "multer";
 import fs from "fs";
-import fetch from "node-fetch"; // ✅ Needed to call OpenAI API in Node
 import dotenv from "dotenv";
 import Question from "../models/Question.js";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
 // ✅ Sample questions endpoint
 router.get("/questions/sample", (req, res) => {
   const sample = [
-    {
-      id: "s1",
-      question: "What is the capital of France?",
-      options: ["Paris", "London", "Berlin", "Rome"],
-      answer: 0,
-    },
-    {
-      id: "s2",
-      question: "What does HTML stand for?",
-      options: [
-        "HyperText Markup Language",
-        "Home Tool Markup",
-        "Hyperlink and Text Mark",
-        "HighText Markup Language",
-      ],
-      answer: 0,
-    },
-  ];
+  {
+    id: "s1",
+    question: "What is the capital of France?",
+    options: ["Paris", "London", "Berlin", "Rome"],
+    answer: 0,
+  },
+  {
+    id: "s2",
+    question: "What does HTML stand for?",
+    options: [
+      "HyperText Markup Language",
+      "Home Tool Markup",
+      "Hyperlink and Text Mark",
+      "HighText Markup Language",
+    ],
+    answer: 0,
+  },
+  // {
+  //   id: "s3",
+  //   question: "Which planet is known as the Red Planet?",
+  //   options: ["Earth", "Mars", "Jupiter", "Venus"],
+  //   answer: 1,
+  // },
+  // {
+  //   id: "s4",
+  //   question: "What is the largest mammal in the world?",
+  //   options: ["African Elephant", "Blue Whale", "Giraffe", "Orca"],
+  //   answer: 1,
+  // },
+  // {
+  //   id: "s5",
+  //   question: "Which language is primarily used for styling web pages?",
+  //   options: ["HTML", "CSS", "JavaScript", "Python"],
+  //   answer: 1,
+  // },
+];
+
   res.json({ success: true, questions: sample });
 });
 
-// ✅ Upload notes (text or file) and generate quiz
+// ✅ Upload notes (text or file) and generate quiz using Gemini
 router.post("/upload-notes", upload.single("file"), async (req, res) => {
   try {
     let text = req.body.text || "";
@@ -67,37 +90,24 @@ router.post("/upload-notes", upload.single("file"), async (req, res) => {
       Return ONLY a JSON array, no extra text.
     `;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.7,
-      }),
-    });
+    // Call Gemini API
+    const result = await model.generateContent(prompt);
+    let output = result.response.text().trim();
 
-    const data = await response.json();
+    // 🛠 Remove markdown code fences if present
+    output = output
+      .replace(/```json\s*/i, "")
+      .replace(/```/g, "")
+      .trim();
 
-    if (!data.choices?.length) {
-      return res
-        .status(500)
-        .json({ success: false, message: "Failed to generate questions" });
-    }
-
-    let rawOutput = data.choices[0].message.content.trim();
-
-    // Try to parse JSON
     let questions;
     try {
-      questions = JSON.parse(rawOutput);
-    } catch {
+      questions = JSON.parse(output);
+    } catch (e) {
+      console.error("❌ JSON parse error:", e);
       return res
         .status(500)
-        .json({ success: false, message: "Invalid JSON from AI" });
+        .json({ success: false, message: "Invalid JSON from AI", raw: output });
     }
 
     // Optional: Save to MongoDB

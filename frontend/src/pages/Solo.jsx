@@ -10,26 +10,25 @@ export default function Solo() {
   const [loading, setLoading] = useState(false)
 
   async function generate() {
-    setLoading(true)
-    try {
-      let res
-      if (file) {
-        const formData = new FormData()
-        formData.append('file', file)
-        res = await axios.post('http://localhost:5000/api/upload-file', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
-      } else {
-        res = await axios.post('http://localhost:5000/api/upload-notes', { text: notes })
-      }
-      setQuestions(res.data.questions)
-      setIndex(0)
-      setScore(0)
-    } catch (err) {
-      alert('Generation failed')
-    }
-    setLoading(false)
+  setLoading(true)
+  try {
+    const formData = new FormData()
+    if (file) formData.append('file', file)
+    else formData.append('text', notes)
+
+    const res = await axios.post('http://localhost:5000/api/upload-notes', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+
+    setQuestions(res.data.questions)
+    setIndex(0)
+    setScore(0)
+  } catch (err) {
+    alert('Generation failed')
   }
+  setLoading(false)
+}
+
 
   function selectAnswer(i) {
     const q = questions[index]
