@@ -18,11 +18,11 @@ app.use(express.json());
 app.use('/api', apiRouter);
 
 // connect to MongoDB if provided (optional)
-if (process.env.MONGO_URI) {
-  mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('Mongo connect error', err.message));
-}
+// if (process.env.MONGO_URI) {
+//   mongoose.connect(process.env.MONGO_URI)
+//     .then(() => console.log('MongoDB connected'))
+//     .catch(err => console.error('Mongo connect error', err.message));
+// }
 
 // initialize sockets
 sockets(io);
