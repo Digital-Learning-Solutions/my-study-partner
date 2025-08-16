@@ -6,10 +6,8 @@ import './index.css'
 import Quiz from './Quiz'
 
 createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
     <BrowserRouter>
       {/* <App /> */}
       <Quiz/>
     </BrowserRouter>
-  </React.StrictMode>
 )

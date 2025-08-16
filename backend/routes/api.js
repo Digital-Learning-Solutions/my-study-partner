@@ -33,12 +33,12 @@ router.get("/questions/sample", (req, res) => {
     ],
     answer: 0,
   },
-  // {
-  //   id: "s3",
-  //   question: "Which planet is known as the Red Planet?",
-  //   options: ["Earth", "Mars", "Jupiter", "Venus"],
-  //   answer: 1,
-  // },
+  {
+    id: "s3",
+    question: "Which planet is known as the Red Planet?",
+    options: ["Earth", "Mars", "Jupiter", "Venus"],
+    answer: 1,
+  },
   // {
   //   id: "s4",
   //   question: "What is the largest mammal in the world?",

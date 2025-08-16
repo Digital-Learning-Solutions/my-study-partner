@@ -38,7 +38,7 @@ export default function Game() {
       setQuestion(question);
       setIndex(index);
       setSelectedAnswer(null);
-      setTimer(question?.time || 10);
+      setTimer(question?.time || 5);
     });
 
     s.off("leaderboard").on("leaderboard", ({ players }) => {
@@ -47,19 +47,42 @@ export default function Game() {
     });
 
     // Game over event now includes only *this player's* answers
-    s.off("game-over").on("game-over", ({ leaderboard, answers, allQuestions }) => {
-      const unique = [...new Map(leaderboard.map((p) => [p.name, p])).values()];
-      setLeaderboard(unique.sort((a, b) => b.score - a.score));
-      setQuestion(null);
-      setTimer(0);
+    s.off("game-over").on(
+      "game-over",
+      ({ leaderboard, answers, allQuestions }) => {
+        const unique = [
+          ...new Map(leaderboard.map((p) => [p.name, p])).values(),
+        ];
+        setLeaderboard(unique.sort((a, b) => b.score - a.score));
+        setQuestion(null);
+        setTimer(0);
 
-      if (Array.isArray(allQuestions)) {
-        setQuestionsBank(allQuestions);
+        if (Array.isArray(allQuestions)) {
+          setQuestionsBank(allQuestions);
+
+          // Merge answers with questions
+          const merged = allQuestions.map((q, i) => {
+            const selected = answers?.[i]?.selected ?? null;
+            return {
+              ...q,
+              selected, // player's selected answer index
+            };
+          });
+          setMyAnswers(merged);
+        } else {
+          setQuestionsBank([]);
+          setMyAnswers([]);
+        }
       }
-      setMyAnswers(Array.isArray(answers) ? answers : []);
-    });
+    );
 
-    return () => s.disconnect();
+    return () => {
+      s.disconnect();
+      sessionStorage.removeItem("socketId");
+      sessionStorage.removeItem("roomCode");
+      sessionStorage.removeItem("playerName");
+      sessionStorage.removeItem("isHost");
+    };
   }, [code]);
 
   useEffect(() => {
@@ -72,11 +95,11 @@ export default function Game() {
   }, [timer, question, socket, code]);
 
   // Auto-load questions if host joins
-  useEffect(() => {
-    if (isHost) {
-      loadQuestionsForHost();
-    }
-  }, [isHost]);
+  // useEffect(() => {
+  //   if (isHost) {
+  //     loadQuestionsForHost();
+  //   }
+  // }, [isHost]);
 
   async function loadQuestionsForHost() {
     try {
@@ -153,8 +176,10 @@ export default function Game() {
               <h2 className="font-semibold">{question.question}</h2>
               <div className="mt-4 grid gap-2">
                 {question.options.map((o, i) => {
-                  const isCorrect = selectedAnswer !== null && i === question.correctIndex;
-                  const isWrongChoice = selectedAnswer === i && i !== question.correctIndex;
+                  const isCorrect =
+                    selectedAnswer !== null && i === question.correctIndex;
+                  const isWrongChoice =
+                    selectedAnswer === i && i !== question.correctIndex;
                   return (
                     <button
                       key={i}
@@ -183,59 +208,123 @@ export default function Game() {
 
       {/* Leaderboard & My Answer Review */}
       {leaderboard.length > 0 && !question && (
-        <div className="p-4 bg-white rounded shadow">
-          <h3 className="font-semibold">Leaderboard</h3>
-          <ol className="mt-2">
-            {leaderboard.map((p, i) => (
-              <li key={i}>
-                {p.name} — {p.score}
-              </li>
-            ))}
+        <div className="relative p-6 bg-white rounded-xl shadow-md border border-gray-200 w-4/6 mx-auto">
+          {/* Corner Badge for Leaderboard */}
+          <span className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold bg-indigo-100 text-indigo-700 rounded-full">
+            Leaderboard
+          </span>
+
+          {/* Leaderboard Section */}
+          <h3 className="text-lg font-bold text-gray-800 mb-3">
+            🏆 Top Players
+          </h3>
+          <ol className="space-y-2 w-2/3 mx-auto">
+            {leaderboard.map((p, i) => {
+              let bg = "bg-gray-50"; // default
+              let text = "text-gray-700";
+              let medal = null;
+
+              if (i === 0) {
+                bg = "bg-yellow-100 border-yellow-400";
+                text = "text-yellow-800 font-semibold";
+                medal = "🥇";
+              } else if (i === 1) {
+                bg = "bg-gray-200 border-gray-400";
+                text = "text-gray-800 font-semibold";
+                medal = "🥈";
+              } else if (i === 2) {
+                bg = "bg-orange-100 border-orange-400";
+                text = "text-orange-800 font-semibold";
+                medal = "🥉";
+              }
+
+              return (
+                <li
+                  key={i}
+                  className={`flex justify-between items-center px-3 py-2 border rounded-lg text-sm ${bg}`}
+                >
+                  <span className={`${text} flex items-center gap-2`}>
+                    {medal && <span>{medal}</span>}
+                    {i + 1}. {p.name}
+                  </span>
+                  <span className="font-semibold text-indigo-700">
+                    {p.score}
+                  </span>
+                </li>
+              );
+            })}
           </ol>
 
+          {/* Answer Review Section */}
           {myAnswers.length > 0 && (
-            <div className="mt-6">
-              <h4 className="text-lg font-semibold mb-4">📋 Your Answer Review</h4>
-              <div className="space-y-3">
+            <div className="mt-28">
+              <h4 className="text-base font-semibold mb-4 text-gray-800">
+                📋 Your Answer Review
+              </h4>
+              <div className="space-y-4">
                 {myAnswers.map((ans, qIndex) => {
-                  const isCorrect = ans.selected === ans.correctIndex;
+                  const didNotAnswer = ans.selected === null;
+                  const isCorrect =
+                    !didNotAnswer && ans.selected === ans.answer;
+
+                  // Decide corner badge content + color
+                  let badgeIcon = "⏺️";
+                  let badgeColor = "bg-gray-200 text-gray-700";
+                  if (!didNotAnswer && isCorrect) {
+                    badgeIcon = "✅";
+                    badgeColor = "bg-green-100 text-green-700";
+                  } else if (!didNotAnswer && !isCorrect) {
+                    badgeIcon = "❌";
+                    badgeColor = "bg-red-100 text-red-700";
+                  } else {
+                    badgeIcon = "⏺️";
+                    badgeColor = "bg-gray-200 text-gray-700";
+                  }
+
                   return (
                     <div
                       key={qIndex}
-                      className={`p-4 rounded-lg shadow-md border-l-8 ${
-                        isCorrect
-                          ? "border-green-500 bg-green-50"
-                          : "border-red-500 bg-red-50"
-                      }`}
+                      className="relative p-4 border rounded-lg bg-gray-50"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-bold text-gray-700">Q{qIndex + 1}:</span>
-                        <span
-                          className={`px-3 py-1 text-sm font-medium rounded-full ${
-                            isCorrect
-                              ? "bg-green-500 text-white"
-                              : "bg-red-500 text-white"
-                          }`}
-                        >
-                          {isCorrect ? "Correct ✅" : "Wrong ❌"}
-                        </span>
-                      </div>
+                      {/* Corner Badge for Each Answer */}
+                      <span
+                        className={`absolute top-2 right-2 px-2 py-1 text-xs rounded-full font-bold ${badgeColor}`}
+                      >
+                        {badgeIcon}
+                      </span>
 
+                      {/* Question */}
+                      <h3 className="font-medium text-gray-900 mb-2">
+                        Q{qIndex + 1}. {ans.question}
+                      </h3>
+
+                      {/* Your Answer */}
                       <p className="mb-1">
-                        <span className="font-medium text-gray-700">Your Answer: </span>
+                        <span className="font-medium text-gray-700">
+                          Your Answer:{" "}
+                        </span>
                         <span
-                          className={`font-semibold ${
-                            isCorrect ? "text-green-700" : "text-red-700"
-                          }`}
+                          className={
+                            didNotAnswer
+                              ? "text-gray-500 italic"
+                              : isCorrect
+                              ? "text-green-700 font-semibold"
+                              : "text-red-700 font-semibold"
+                          }
                         >
-                          {questionsBank[qIndex]?.options[ans.selected] || "No Answer"}
+                          {didNotAnswer
+                            ? "You didn’t answer"
+                            : ans.options[ans.selected]}
                         </span>
                       </p>
 
+                      {/* Correct Answer */}
                       <p>
-                        <span className="font-medium text-gray-700">Correct Answer: </span>
-                        <span className="font-semibold text-green-700">
-                          {questionsBank[qIndex]?.options[ans.correctIndex]}
+                        <span className="font-medium text-gray-700">
+                          Correct Answer:{" "}
+                        </span>
+                        <span className="text-green-700 font-semibold">
+                          {ans.options[ans.answer]}
                         </span>
                       </p>
                     </div>
