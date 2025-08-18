@@ -7,7 +7,7 @@ import Quiz from './Quiz'
 
 createRoot(document.getElementById('root')).render(
     <BrowserRouter>
-      {/* <App /> */}
-      <Quiz/>
+      <App />
+      {/* <Quiz/> */}
     </BrowserRouter>
 )
