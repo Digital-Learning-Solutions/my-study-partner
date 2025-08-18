@@ -1,18 +1,22 @@
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-* {
-  margin: 0px;
-  padding: 0px;
-  box-sizing: border-box;
-}
-html,
-body,
-#root {
-  height: 100%;
-  background-image: url('assets/canvas.jpg');
-}
-body {
-  @apply bg-slate-50 text-slate-900;
+@layer base {
+  body {
+    /* Apply the animated gradient using the 'animate-gradient' utility class */
+    @apply animate-gradient;
+    background: linear-gradient(-45deg, #a78bfa, #7c3aed, #4f46e5, #3b82f6);
+    background-size: 400% 400%;
+    
+    @apply text-slate-900; 
+    font-family: 'Inter', sans-serif;
+  }
+
+  html, body, #root {
+    @apply h-full;
+  }
 }
