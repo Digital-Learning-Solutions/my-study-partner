@@ -12,7 +12,8 @@
     background: linear-gradient(-45deg, #a78bfa, #7c3aed, #4f46e5, #3b82f6);
     background-size: 400% 400%;
     
-    @apply text-slate-900; 
+    /* UPDATED: Changed text color to be light for better readability */
+    @apply text-slate-200; 
     font-family: 'Inter', sans-serif;
   }
 

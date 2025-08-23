@@ -1,120 +1,80 @@
-// src/components/Layout.jsx
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Link, NavLink } from 'react-router-dom';
-import reactLogo from '../assets/react.svg'; // Ensure path is correct
 
-const StyledNavLink = ({ to, children }) => (
-  <NavLink
-    to={to}
-    className={({ isActive }) =>
-      `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-        isActive
-          ? 'bg-slate-700 text-white' // Style for active link on dark background
-          : 'text-slate-300 hover:bg-slate-800 hover:text-white' // Style for inactive link
-      }`
+function Layout() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const toggleMenu = () => setIsMenuOpen(prev => !prev);
+
+    if (mobileMenuButton) {
+      mobileMenuButton.addEventListener('click', toggleMenu);
     }
-  >
-    {children}
-  </NavLink>
-);
 
-function Header() {
-  const [isOpen, setIsOpen] = useState(false);
+    return () => {
+      if (mobileMenuButton) {
+        mobileMenuButton.removeEventListener('click', toggleMenu);
+      }
+    };
+  }, []);
 
   return (
-    // UPDATED: Changed background to be dark and semi-transparent
-    <header className="bg-slate-900/70 backdrop-blur-lg shadow-lg sticky top-0 z-50">
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex-shrink-0">
-              <img src={reactLogo} alt="Logo" className="h-9" />
-            </Link>
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
-                <StyledNavLink to="/courses">Courses</StyledNavLink>
-                <StyledNavLink to="/quiz">Quiz</StyledNavLink>
-                <StyledNavLink to="/discussions">Discussions</StyledNavLink>
-              </div>
-            </div>
-          </div>
-          <div className="hidden md:block">
-            <Link
-              to="/login"
-              className="bg-blue-500 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-blue-400 transition-colors"
-            >
-              Sign In
+    <div className="flex flex-col min-h-screen">
+      <header className="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex-shrink-0">
+            <Link to="/">
+              <img
+                className="h-10 w-auto"
+                src="https://placehold.co/150x50/3b82f6/ffffff?text=YourLogo"
+                alt="Your Company Logo"
+              />
             </Link>
           </div>
-          {/* Mobile Menu Button - styling updated for dark theme */}
-          <div className="-mr-2 flex md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              type="button"
-              className="bg-slate-800 inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white"
-              aria-controls="mobile-menu"
-              aria-expanded="false"
-            >
-              <span className="sr-only">Open main menu</span>
-              <svg className={`${isOpen ? 'hidden' : 'block'} h-6 w-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-              <svg className={`${isOpen ? 'block' : 'hidden'} h-6 w-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-6">
+            <NavLink to="/" className="text-slate-600 hover:text-blue-600 transition">Home</NavLink>
+            <NavLink to="/courses" className="text-slate-600 hover:text-blue-600 transition">Courses</NavLink>
+            <NavLink to="/quiz" className="text-slate-600 hover:text-blue-600 transition">Quizzes</NavLink>
+            <NavLink to="/discussions" className="text-slate-600 hover:text-blue-600 transition">Discussions</NavLink>
+            <Link to="/login" className="text-slate-600 font-medium hover:text-blue-600 transition">Login</Link>
+            <Link to="/register" className="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-blue-700 transition">Sign Up</Link>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden">
+            <button id="mobile-menu-button" className="text-slate-700 focus:outline-none">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
               </svg>
             </button>
           </div>
-        </div>
-      </nav>
-      {/* Mobile Menu - styling updated for dark theme */}
-      <div className={`${isOpen ? 'block' : 'hidden'} md:hidden bg-slate-900/95`} id="mobile-menu">
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <StyledNavLink to="/courses">Courses</StyledNavLink>
-          <StyledNavLink to="/quiz">Quiz</StyledNavLink>
-          <StyledNavLink to="/discussions">Discussions</StyledNavLink>
-        </div>
-        <div className="pt-4 pb-3 border-t border-slate-700">
-          <div className="px-2">
-             <Link
-              to="/login"
-              className="w-full block text-center bg-blue-500 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-blue-400"
-            >
-              Sign In
-            </Link>
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
+        </nav>
 
-function Footer() {
-  // Footer can remain the same as it's already dark
-  return (
-    <footer className="bg-slate-800 text-slate-300">
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="text-sm">&copy; {new Date().getFullYear()} AI Learning Platform. All rights reserved.</p>
-          <div className="flex space-x-6">
-            <a href="#" className="hover:text-white transition-colors">About</a>
-            <a href="#" className="hover:text-white transition-colors">Contact</a>
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-          </div>
+        {/* Mobile Navigation */}
+        <div id="mobile-menu" className={isMenuOpen ? 'block' : 'hidden'}>
+          <Link to="/" className="block py-2 px-6 text-slate-700 hover:bg-slate-100">Home</Link>
+          <Link to="/courses" className="block py-2 px-6 text-slate-700 hover:bg-slate-100">Courses</Link>
+          <Link to="/quiz" className="block py-2 px-6 text-slate-700 hover:bg-slate-100">Quiz</Link>
+          <Link to="/discussions" className="block py-2 px-6 text-slate-700 hover:bg-slate-100">Discussions</Link>
+          <Link to="/login" className="block py-2 px-6 text-slate-700 hover:bg-slate-100">Login</Link>
+          <Link to="/register" className="block py-2 px-6 bg-blue-50 text-blue-600 font-semibold">Sign Up</Link>
         </div>
-      </div>
-    </footer>
-  );
-}
+      </header>
 
-function Layout() {
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Header />
       <main className="flex-grow">
         <Outlet />
       </main>
-      <Footer />
+
+      <footer className="bg-slate-800 text-slate-300">
+        <div className="container mx-auto px-6 py-8">
+          <div className="text-center">
+            <p>&copy; {new Date().getFullYear()} AI Learning Partner. All Rights Reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
