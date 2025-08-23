@@ -19,6 +19,7 @@ export default function Game() {
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [isHost, setIsHost] = useState(false);
 
+  // Initialize socket and listeners
   useEffect(() => {
     const s = io(SOCKET_URL, { transports: ["websocket"] });
     setSocket(s);
@@ -27,7 +28,6 @@ export default function Game() {
     const hostFlag = sessionStorage.getItem("isHost") === "true";
     setIsHost(hostFlag);
 
-    // Pass isHost to server on join
     s.emit("join-room", { code, name, isHost: hostFlag });
 
     s.off("room-update").on("room-update", ({ players }) => {
@@ -46,7 +46,6 @@ export default function Game() {
       setLeaderboard(unique.sort((a, b) => b.score - a.score));
     });
 
-    // Game over event now includes only *this player's* answers
     s.off("game-over").on(
       "game-over",
       ({ leaderboard, answers, allQuestions }) => {
@@ -58,16 +57,11 @@ export default function Game() {
         setTimer(0);
 
         if (Array.isArray(allQuestions)) {
-          setQuestionsBank(allQuestions);
-
-          // Merge answers with questions
           const merged = allQuestions.map((q, i) => {
             const selected = answers?.[i]?.selected ?? null;
-            return {
-              ...q,
-              selected, // player's selected answer index
-            };
+            return { ...q, selected };
           });
+          setQuestionsBank(allQuestions);
           setMyAnswers(merged);
         } else {
           setQuestionsBank([]);
@@ -78,13 +72,11 @@ export default function Game() {
 
     return () => {
       s.disconnect();
-      sessionStorage.removeItem("socketId");
-      sessionStorage.removeItem("roomCode");
-      sessionStorage.removeItem("playerName");
-      sessionStorage.removeItem("isHost");
+      sessionStorage.clear();
     };
   }, [code]);
 
+  // Handle countdown timer
   useEffect(() => {
     if (question && timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
@@ -93,13 +85,6 @@ export default function Game() {
       socket?.emit("next-question", { code });
     }
   }, [timer, question, socket, code]);
-
-  // Auto-load questions if host joins
-  // useEffect(() => {
-  //   if (isHost) {
-  //     loadQuestionsForHost();
-  //   }
-  // }, [isHost]);
 
   async function loadQuestionsForHost() {
     try {
@@ -123,40 +108,49 @@ export default function Game() {
   }
 
   function submitAnswer(i) {
-    if (!socket || !question) return;
-    if (selectedAnswer !== null) return;
+    if (!socket || !question || selectedAnswer !== null) return;
     setSelectedAnswer(i);
     socket.emit("submit-answer", { code, selectedIndex: i });
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Room: {code}</h1>
+    <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+      {/* Room Info */}
+      <h1 className="text-3xl md:text-4xl font-bold text-indigo-700 text-center">
+        Room Code: {code}
+      </h1>
 
-      <div className="grid md:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-3 gap-6">
         {/* Player List & Host Controls */}
-        <div className="p-4 bg-white rounded shadow">
-          <h3 className="font-semibold">Players</h3>
-          <ul className="mt-2">
+        <div className="p-5 bg-white rounded-xl shadow-md border">
+          <h3 className="text-xl font-semibold text-gray-800">Players</h3>
+          <ul className="mt-3 space-y-1">
             {players.map((p, i) => (
-              <li key={i}>
-                {p.name} {p.isHost && "(Host)"}
+              <li key={i} className="text-gray-700">
+                {p.name}{" "}
+                {p.isHost && (
+                  <span className="text-indigo-500 font-medium">(Host)</span>
+                )}
               </li>
             ))}
           </ul>
 
           {isHost && (
-            <div className="mt-4 space-x-2">
+            <div className="mt-5 flex flex-col gap-3">
               <button
                 onClick={loadQuestionsForHost}
                 disabled={loadingQuestions}
-                className="px-3 py-2 bg-indigo-600 text-white rounded disabled:opacity-50"
+                className={`px-4 py-2 rounded-lg font-medium shadow transition ${
+                  loadingQuestions
+                    ? "bg-indigo-300 cursor-not-allowed"
+                    : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                }`}
               >
                 {loadingQuestions ? "Loading..." : "Load Questions"}
               </button>
               <button
                 onClick={startGame}
-                className="px-3 py-2 bg-green-600 text-white rounded"
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow transition"
               >
                 Start Game
               </button>
@@ -165,30 +159,37 @@ export default function Game() {
         </div>
 
         {/* Live Question Area */}
-        <div className="p-4 bg-white rounded shadow col-span-2">
-          <h3 className="font-semibold">Live</h3>
+        <div className="p-5 bg-white rounded-xl shadow-md border md:col-span-2">
+          <h3 className="text-xl font-semibold text-gray-800">Live Question</h3>
           {question ? (
-            <div>
-              <div className="text-sm text-slate-500 flex justify-between mb-2">
-                <span>Q {index + 1}</span>
+            <div className="mt-4">
+              <div className="flex justify-between text-sm text-gray-500 mb-2">
+                <span>Question {index + 1}</span>
                 <span>⏳ {timer}s</span>
               </div>
-              <h2 className="font-semibold">{question.question}</h2>
-              <div className="mt-4 grid gap-2">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                {question.question}
+              </h2>
+              <div className="grid gap-3">
                 {question.options.map((o, i) => {
                   const isCorrect =
                     selectedAnswer !== null && i === question.correctIndex;
                   const isWrongChoice =
                     selectedAnswer === i && i !== question.correctIndex;
+
                   return (
                     <button
                       key={i}
                       onClick={() => submitAnswer(i)}
                       disabled={selectedAnswer !== null}
-                      className={`text-left p-3 border rounded transition-colors duration-200
-                        ${selectedAnswer === i ? "ring-2 ring-blue-400" : ""}
-                        ${isCorrect ? "bg-green-200" : ""}
-                        ${isWrongChoice ? "bg-red-200" : ""}
+                      className={`p-3 text-left rounded-lg border shadow-sm transition
+                        ${
+                          selectedAnswer === i
+                            ? "ring-2 ring-indigo-400"
+                            : "hover:bg-indigo-50"
+                        }
+                        ${isCorrect ? "bg-green-100" : ""}
+                        ${isWrongChoice ? "bg-red-100" : ""}
                       `}
                     >
                       {o}
@@ -198,29 +199,27 @@ export default function Game() {
               </div>
             </div>
           ) : (
-            <div>
-              No live question.{" "}
-              {isHost ? "Start the game when ready." : "Waiting for host..."}
-            </div>
+            <p className="mt-4 text-gray-500 text-center">
+              {isHost
+                ? "No live question. Start the game when ready."
+                : "Waiting for host to start the game..."}
+            </p>
           )}
         </div>
       </div>
 
-      {/* Leaderboard & My Answer Review */}
+      {/* Leaderboard & Review */}
       {leaderboard.length > 0 && !question && (
-        <div className="relative p-6 bg-white rounded-xl shadow-md border border-gray-200 w-4/6 mx-auto">
-          {/* Corner Badge for Leaderboard */}
+        <div className="p-6 bg-white rounded-xl shadow-md border max-w-4xl mx-auto relative">
           <span className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold bg-indigo-100 text-indigo-700 rounded-full">
             Leaderboard
           </span>
-
-          {/* Leaderboard Section */}
-          <h3 className="text-lg font-bold text-gray-800 mb-3">
+          <h3 className="text-lg font-bold text-gray-800 mb-3 text-center">
             🏆 Top Players
           </h3>
           <ol className="space-y-2 w-2/3 mx-auto">
             {leaderboard.map((p, i) => {
-              let bg = "bg-gray-50"; // default
+              let bg = "bg-gray-50";
               let text = "text-gray-700";
               let medal = null;
 
@@ -241,7 +240,7 @@ export default function Game() {
               return (
                 <li
                   key={i}
-                  className={`flex justify-between items-center px-3 py-2 border rounded-lg text-sm ${bg}`}
+                  className={`flex justify-between items-center px-3 py-2 border rounded-lg text-sm shadow-sm ${bg}`}
                 >
                   <span className={`${text} flex items-center gap-2`}>
                     {medal && <span>{medal}</span>}
@@ -257,7 +256,7 @@ export default function Game() {
 
           {/* Answer Review Section */}
           {myAnswers.length > 0 && (
-            <div className="mt-28">
+            <div className="mt-8">
               <h4 className="text-base font-semibold mb-4 text-gray-800">
                 📋 Your Answer Review
               </h4>
@@ -267,7 +266,6 @@ export default function Game() {
                   const isCorrect =
                     !didNotAnswer && ans.selected === ans.answer;
 
-                  // Decide corner badge content + color
                   let badgeIcon = "⏺️";
                   let badgeColor = "bg-gray-200 text-gray-700";
                   if (!didNotAnswer && isCorrect) {
@@ -276,33 +274,25 @@ export default function Game() {
                   } else if (!didNotAnswer && !isCorrect) {
                     badgeIcon = "❌";
                     badgeColor = "bg-red-100 text-red-700";
-                  } else {
-                    badgeIcon = "⏺️";
-                    badgeColor = "bg-gray-200 text-gray-700";
                   }
 
                   return (
                     <div
                       key={qIndex}
-                      className="relative p-4 border rounded-lg bg-gray-50"
+                      className="relative p-4 border rounded-lg bg-gray-50 shadow-sm"
                     >
-                      {/* Corner Badge for Each Answer */}
                       <span
                         className={`absolute top-2 right-2 px-2 py-1 text-xs rounded-full font-bold ${badgeColor}`}
                       >
                         {badgeIcon}
                       </span>
-
-                      {/* Question */}
                       <h3 className="font-medium text-gray-900 mb-2">
                         Q{qIndex + 1}. {ans.question}
                       </h3>
-
-                      {/* Your Answer */}
                       <p className="mb-1">
                         <span className="font-medium text-gray-700">
-                          Your Answer:{" "}
-                        </span>
+                          Your Answer:
+                        </span>{" "}
                         <span
                           className={
                             didNotAnswer
@@ -317,12 +307,10 @@ export default function Game() {
                             : ans.options[ans.selected]}
                         </span>
                       </p>
-
-                      {/* Correct Answer */}
                       <p>
                         <span className="font-medium text-gray-700">
-                          Correct Answer:{" "}
-                        </span>
+                          Correct Answer:
+                        </span>{" "}
                         <span className="text-green-700 font-semibold">
                           {ans.options[ans.answer]}
                         </span>

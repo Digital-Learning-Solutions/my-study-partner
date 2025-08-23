@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import reactLogo from '../assets/react.svg'; // Ensure path is correct
+// Make sure to place your logo in the assets folder and import it
+// import logo from '../assets/your-logo.png'; 
 
 function LoginPage() {
   return (
@@ -12,7 +13,8 @@ function LoginPage() {
           
           {/* Branding Panel (Left Side) */}
           <div className="hidden md:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-            <img src={reactLogo} alt="Logo" className="h-16 mb-6" />
+            {/* <img src={logo} alt="Logo" className="h-16 mb-6" /> */}
+            <img src="https://placehold.co/150x60/ffffff/3b82f6?text=YourLogo" alt="Logo" className="h-16 mb-6 rounded-lg" />
             <h1 className="text-3xl font-bold text-center mb-3">Welcome Back</h1>
             <p className="text-center text-blue-200">
               Sign in to continue your personalized learning journey.
