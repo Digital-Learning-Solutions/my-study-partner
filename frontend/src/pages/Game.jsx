@@ -130,12 +130,12 @@ export default function Game() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 dark:bg-gray-900 dark:text-gray-100 min-h-screen p-4">
       <h1 className="text-2xl font-bold">Room: {code}</h1>
 
       <div className="grid md:grid-cols-3 gap-4">
         {/* Player List & Host Controls */}
-        <div className="p-4 bg-white rounded shadow">
+        <div className="p-4 bg-white dark:bg-gray-800 rounded shadow">
           <h3 className="font-semibold">Players</h3>
           <ul className="mt-2">
             {players.map((p, i) => (
@@ -165,11 +165,11 @@ export default function Game() {
         </div>
 
         {/* Live Question Area */}
-        <div className="p-4 bg-white rounded shadow col-span-2">
+        <div className="p-4 bg-white dark:bg-gray-800 rounded shadow col-span-2">
           <h3 className="font-semibold">Live</h3>
           {question ? (
             <div>
-              <div className="text-sm text-slate-500 flex justify-between mb-2">
+              <div className="text-sm text-slate-500 dark:text-slate-300 flex justify-between mb-2">
                 <span>Q {index + 1}</span>
                 <span>⏳ {timer}s</span>
               </div>
@@ -186,10 +186,11 @@ export default function Game() {
                       onClick={() => submitAnswer(i)}
                       disabled={selectedAnswer !== null}
                       className={`text-left p-3 border rounded transition-colors duration-200
-                        ${selectedAnswer === i ? "ring-2 ring-blue-400" : ""}
-                        ${isCorrect ? "bg-green-200" : ""}
-                        ${isWrongChoice ? "bg-red-200" : ""}
-                      `}
+                    dark:border-gray-600
+                    ${selectedAnswer === i ? "ring-2 ring-blue-400" : ""}
+                    ${isCorrect ? "bg-green-200 dark:bg-green-700" : ""}
+                    ${isWrongChoice ? "bg-red-200 dark:bg-red-700" : ""}
+                  `}
                     >
                       {o}
                     </button>
@@ -208,14 +209,12 @@ export default function Game() {
 
       {/* Leaderboard & My Answer Review */}
       {leaderboard.length > 0 && !question && (
-        <div className="relative p-6 bg-white rounded-xl shadow-md border border-gray-200 w-4/6 mx-auto">
-          {/* Corner Badge for Leaderboard */}
-          <span className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold bg-indigo-100 text-indigo-700 rounded-full">
+        <div className="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 w-4/6 mx-auto">
+          <span className="absolute top-3 right-3 px-3 py-1 text-xs font-semibold bg-indigo-100 text-indigo-700 dark:bg-indigo-700 dark:text-indigo-100 rounded-full">
             Leaderboard
           </span>
 
-          {/* Leaderboard Section */}
-          <h3 className="text-lg font-bold text-gray-800 mb-3">
+          <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-3">
             🏆 Top Players
           </h3>
           <ol className="space-y-2 w-2/3 mx-auto">

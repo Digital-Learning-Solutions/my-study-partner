@@ -19,7 +19,7 @@ export default function Lobby() {
         sessionStorage.setItem("roomCode", code);
         sessionStorage.setItem("playerName", name);
         sessionStorage.setItem("isHost", true);
-        navigate(`/game/${code}`);
+        navigate(`/quiz/game/${code}`);
       } else alert("Create failed");
     });
   }
@@ -31,7 +31,7 @@ export default function Lobby() {
         sessionStorage.setItem("socketId", socket.id);
         sessionStorage.setItem("roomCode", code);
         sessionStorage.setItem("playerName", name);
-        navigate(`/game/${code}`);
+        navigate(`/quiz/game/${code}`);
       } else {
         alert(res.message || "Could not join room");
       }
@@ -39,9 +39,10 @@ export default function Lobby() {
   }
 
   return (
-    <div className="grid md:grid-cols-2 h-96 w-screen place-items-center">
+    <div className="grid md:grid-cols-2 h-96 w-screen place-items-center dark:bg-gray-900 dark:text-gray-100">
+      {/* Create Room */}
       <div
-        className="p-6 bg-white rounded shadow w-2/3"
+        className="p-6 bg-white dark:bg-gray-800 rounded shadow w-2/3"
         onMouseEnter={() => setCreateRoom(true)}
         onMouseLeave={() => setCreateRoom(false)}
       >
@@ -51,7 +52,7 @@ export default function Lobby() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="border p-2 mt-4 w-full"
+              className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 p-2 mt-4 w-full rounded"
               placeholder="Your name"
             />
             <button
@@ -63,8 +64,10 @@ export default function Lobby() {
           </>
         )}
       </div>
+
+      {/* Join Room */}
       <div
-        className="p-6 bg-white rounded shadow w-2/3"
+        className="p-6 bg-white dark:bg-gray-800 rounded shadow w-2/3"
         onMouseMoveCapture={() => setJoinRoom(true)}
         onMouseOutCapture={() => setJoinRoom(false)}
       >
@@ -74,13 +77,13 @@ export default function Lobby() {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="border p-2 mt-4 w-full"
+              className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 p-2 mt-4 w-full rounded"
               placeholder="Your name"
             />
             <input
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              className="border p-2 mt-4 w-full"
+              className="border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 p-2 mt-4 w-full rounded"
               placeholder="Room code"
             />
             <button
