@@ -43,9 +43,11 @@ function App() {
           />
         </div>
         <div className="flex gap-6">
-          <button className="bg-white/35 dark:bg-[#2a2a44]/40 border border-[#646cff22] text-base text-[#2a2a44] dark:text-[#e6e6f0] font-medium cursor-pointer py-2 px-6 rounded-lg transition hover:bg-[#646cff1a] hover:shadow-[0_2px_8px_rgba(100,108,255,0.13)] mx-0.5">
-            Courses
-          </button>
+          <Link to="/courses">
+            <button className="bg-white/35 dark:bg-[#2a2a44]/40 border border-[#646cff22] text-base text-[#2a2a44] dark:text-[#e6e6f0] font-medium cursor-pointer py-2 px-6 rounded-lg transition hover:bg-[#646cff1a] hover:shadow-[0_2px_8px_rgba(100,108,255,0.13)] mx-0.5">
+              Courses
+            </button>
+          </Link>
           <Link to="/quiz">
             <button className="bg-white/35 dark:bg-[#2a2a44]/40 border border-[#646cff22] text-base text-[#2a2a44] dark:text-[#e6e6f0] font-medium cursor-pointer py-2 px-6 rounded-lg transition hover:bg-[#646cff1a] hover:shadow-[0_2px_8px_rgba(100,108,255,0.13)] mx-0.5">
               Quiz
