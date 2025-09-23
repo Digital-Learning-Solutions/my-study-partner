@@ -1,9 +1,9 @@
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
-import Home from "./pages/Home";
-import Solo from "./pages/Solo";
-import Lobby from "./pages/Lobby";
-import Game from "./pages/Game";
+import Home from "./pages/Quiz/Home";
+import Solo from "./pages/Quiz/Solo";
+import Lobby from "./pages/Quiz/Lobby";
+import Game from "./pages/Quiz/Game";
 import ThemeToggler from "./components/ThemeToggler";
 
 function Quiz() {
