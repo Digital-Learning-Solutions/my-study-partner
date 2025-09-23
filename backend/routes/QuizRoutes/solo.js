@@ -1,6 +1,6 @@
 // backend/routes/solo.js
 import express from "express";
-import { generateQuestionsFromText } from "../services/openaiService.js";
+import { generateQuestionsFromText } from "../../services/openaiService.js";
 
 const router = express.Router();
 
@@ -9,13 +9,17 @@ router.post("/generate", async (req, res) => {
     const { topicOrNotes } = req.body;
 
     if (!topicOrNotes || topicOrNotes.trim() === "") {
-      return res.status(400).json({ error: "Please provide a topic or notes." });
+      return res
+        .status(400)
+        .json({ error: "Please provide a topic or notes." });
     }
 
     const questions = await generateQuestionsFromText(topicOrNotes);
 
     if (!Array.isArray(questions) || questions.length === 0) {
-      return res.status(500).json({ error: "Failed to generate valid questions." });
+      return res
+        .status(500)
+        .json({ error: "Failed to generate valid questions." });
     }
 
     res.json({ questions });

@@ -104,7 +104,9 @@ export default function Game() {
   async function loadQuestionsForHost() {
     try {
       setLoadingQuestions(true);
-      const res = await axios.get("http://localhost:5000/api/questions/sample");
+      const res = await axios.get(
+        `{process.env.VITE_BACKEND_URL}/api/questions/sample`
+      );
       setQuestionsBank(res.data.questions);
     } catch (err) {
       console.error("Error loading questions", err);
