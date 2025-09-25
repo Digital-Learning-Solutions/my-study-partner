@@ -1,21 +1,20 @@
-import express from 'express';
-import http from 'http';
-import { Server } from 'socket.io';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import apiRouter from './routes/api.js';
-import sockets from './sockets.js';
+import express from "express";
+import http from "http";
+import { Server } from "socket.io";
+import cors from "cors";
+import dotenv from "dotenv";
+import apiRouter from "./routes/QuizRoutes/api.js";
+import sockets from "./sockets.js";
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
+const io = new Server(server, { cors: { origin: "*" } });
 
 app.use(cors());
 app.use(express.json());
-app.use('/api', apiRouter);
+app.use("/api", apiRouter);
 
 // connect to MongoDB if provided (optional)
 // if (process.env.MONGO_URI) {

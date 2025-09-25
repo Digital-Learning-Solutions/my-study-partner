@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 import dotenv from "dotenv";
-import Question from "../models/Question.js";
+import Question from "../../models/QuizModel/Question.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
@@ -16,42 +16,42 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 // ✅ Sample questions endpoint
 router.get("/questions/sample", (req, res) => {
   const sample = [
-  {
-    id: "s1",
-    question: "What is the capital of France?",
-    options: ["Paris", "London", "Berlin", "Rome"],
-    answer: 0,
-  },
-  {
-    id: "s2",
-    question: "What does HTML stand for?",
-    options: [
-      "HyperText Markup Language",
-      "Home Tool Markup",
-      "Hyperlink and Text Mark",
-      "HighText Markup Language",
-    ],
-    answer: 0,
-  },
-  {
-    id: "s3",
-    question: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Jupiter", "Venus"],
-    answer: 1,
-  },
-  // {
-  //   id: "s4",
-  //   question: "What is the largest mammal in the world?",
-  //   options: ["African Elephant", "Blue Whale", "Giraffe", "Orca"],
-  //   answer: 1,
-  // },
-  // {
-  //   id: "s5",
-  //   question: "Which language is primarily used for styling web pages?",
-  //   options: ["HTML", "CSS", "JavaScript", "Python"],
-  //   answer: 1,
-  // },
-];
+    {
+      id: "s1",
+      question: "What is the capital of France?",
+      options: ["Paris", "London", "Berlin", "Rome"],
+      answer: 0,
+    },
+    {
+      id: "s2",
+      question: "What does HTML stand for?",
+      options: [
+        "HyperText Markup Language",
+        "Home Tool Markup",
+        "Hyperlink and Text Mark",
+        "HighText Markup Language",
+      ],
+      answer: 0,
+    },
+    {
+      id: "s3",
+      question: "Which planet is known as the Red Planet?",
+      options: ["Earth", "Mars", "Jupiter", "Venus"],
+      answer: 1,
+    },
+    // {
+    //   id: "s4",
+    //   question: "What is the largest mammal in the world?",
+    //   options: ["African Elephant", "Blue Whale", "Giraffe", "Orca"],
+    //   answer: 1,
+    // },
+    // {
+    //   id: "s5",
+    //   question: "Which language is primarily used for styling web pages?",
+    //   options: ["HTML", "CSS", "JavaScript", "Python"],
+    //   answer: 1,
+    // },
+  ];
 
   res.json({ success: true, questions: sample });
 });

@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+// import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 const categories = [
@@ -28,7 +28,9 @@ export default function WhatWeProvide() {
       viewport={{ once: true }}
       className="mt-16 px-6"
     >
-      <h2 className="text-2xl font-semibold text-center mb-6">What We Provide</h2>
+      <h2 className="text-2xl font-semibold text-center mb-6">
+        What We Provide
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
         {categories.map((cat, idx) => (
           <Link

@@ -3,10 +3,10 @@ import { Route, Routes } from "react-router-dom";
 import CourseLanding from "./pages/Courses/CourceLanding";
 import Subjects from "./pages/Courses/Subjects";
 
-export default function LandingPage() {
+export default function Cource() {
   return (
     <div>
-      <CoursesNavbar />
+      {/* <CoursesNavbar /> */}
 
       <main className="flex-1 container mx-auto p-4">
         <Routes>
