@@ -11,7 +11,7 @@ const upload = multer({ dest: "uploads/" });
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // ✅ Sample questions endpoint
 router.get("/questions/sample", (req, res) => {
@@ -111,17 +111,17 @@ router.post("/upload-notes", upload.single("file"), async (req, res) => {
     }
 
     // Optional: Save to MongoDB
-    try {
-      await Question.insertMany(
-        questions.map((q) => ({
-          question: q.question,
-          options: q.options,
-          answer: q.answer,
-        }))
-      );
-    } catch (dbErr) {
-      console.warn("⚠️ DB insert failed:", dbErr.message);
-    }
+    // try {
+    //   await Question.insertMany(
+    //     questions.map((q) => ({
+    //       question: q.question,
+    //       options: q.options,
+    //       answer: q.answer,
+    //     }))
+    //   );
+    // } catch (dbErr) {
+    //   console.warn("⚠️ DB insert failed:", dbErr.message);
+    // }
 
     res.json({ success: true, questions });
   } catch (err) {
