@@ -1,20 +1,20 @@
-// import { motion } from "framer-motion";
+/* eslint-disable no-unused-vars */
 import { Link } from "react-router-dom";
-
+import { motion } from "framer-motion";
 const categories = [
   {
     name: "Maths",
-    img: "https://source.unsplash.com/800x400/?math,study",
+    img: "https://lipsum.app/random/1600x900",
     desc: "Learn concepts of algebra, calculus, and problem solving with interactive lessons.",
   },
   {
     name: "Science",
-    img: "https://source.unsplash.com/800x400/?science,lab",
+    img: "https://lipsum.app/random/1600x900",
     desc: "Explore physics, chemistry, and biology with practical experiments and real-life examples.",
   },
   {
     name: "Social Science",
-    img: "https://source.unsplash.com/800x400/?history,geography",
+    img: "https://lipsum.app/random/1600x900",
     desc: "Understand history, geography, and civics with engaging and simplified lessons.",
   },
 ];
@@ -35,7 +35,7 @@ export default function WhatWeProvide() {
         {categories.map((cat, idx) => (
           <Link
             key={idx}
-            to={`category/${cat.name.toLowerCase()}`}
+            to={`${cat.name.toLowerCase().split(" ").join("-")}`}
             state={cat} // pass data to new page
             className="p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg text-center text-lg font-medium hover:scale-105 transition block"
           >
