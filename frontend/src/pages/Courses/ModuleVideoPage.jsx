@@ -1,14 +1,27 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom"; // ✅ for React Router
-// ❗ if you’re using Next.js, keep: import { useParams } from "next/navigation";
+import { useLocation } from "react-router-dom";
 import ReactPlayer from "react-player";
 import QuizSection from "./QuizSection";
 
 export default function ModuleVideosPage() {
   const location = useLocation();
-  const { classes, title, content } = location.state;
+  const { title, content } = location.state;
+  const classes = [
+    {
+      id: 1,
+      title: "What is Algebra?",
+      duration: 12,
+      videoUrl: "https://www.youtube.com/watch?v=QnQe0xW_JY4",
+    },
+    {
+      id: 2,
+      title: "Variables and Constants",
+      duration: 15,
+      videoUrl: "https://www.youtube.com/watch?v=7sGv1Up6cV0",
+    },
+  ];
   const [activeVideo, setActiveVideo] = useState(classes[0] || null);
-  console.log(classes);
+
   function extractYouTubeId(url) {
     const regExp =
       /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\\s]{11})/;
@@ -17,25 +30,32 @@ export default function ModuleVideosPage() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-gray-200">
       {/* Left Sidebar */}
-      <aside className="md:w-1/4 w-full bg-white border-r shadow-md">
-        <div className="p-4 border-b">
-          <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
-          <p className="text-sm text-gray-500">{content}</p>
+      <aside className="md:w-1/4 w-full bg-white dark:bg-slate-800 border-r shadow-md">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+            {title}
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{content}</p>
         </div>
-        <ul className="divide-y">
-          {classes.map((cls) => (
+        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+          {classes?.map((cls) => (
             <li
               key={cls.id}
               onClick={() => setActiveVideo(cls)}
-              className={`p-4 cursor-pointer hover:bg-blue-50 transition ${
-                activeVideo?.id === cls.id ? "bg-blue-100" : ""
-              }`}
+              className={`p-4 cursor-pointer transition-colors duration-200 
+                ${
+                  activeVideo?.id === cls.id
+                    ? "bg-blue-100 dark:bg-blue-700"
+                    : "hover:bg-blue-50 dark:hover:bg-blue-800"
+                }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-medium text-gray-700">{cls.title}</span>
-                <span className="text-xs text-gray-500">
+                <span className="font-medium text-gray-700 dark:text-gray-100">
+                  {cls.title}
+                </span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   {cls.duration} min
                 </span>
               </div>
@@ -48,7 +68,9 @@ export default function ModuleVideosPage() {
       <main className="flex-1 p-6">
         {activeVideo ? (
           <>
-            <h1 className="text-2xl font-bold mb-4">{activeVideo.title}</h1>
+            <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
+              {activeVideo.title}
+            </h1>
             <div className="relative w-full rounded-xl overflow-hidden shadow-lg aspect-video">
               <iframe
                 key={activeVideo.id}
@@ -62,14 +84,16 @@ export default function ModuleVideosPage() {
               ></iframe>
             </div>
 
-            {/* Quiz Section Placeholder */}
+            {/* Quiz Section */}
             <QuizSection
               title={activeVideo.title}
               videoUrl={activeVideo.videoUrl}
             />
           </>
         ) : (
-          <p>Select a video from the sidebar to start learning.</p>
+          <p className="text-gray-700 dark:text-gray-400">
+            Select a video from the sidebar to start learning.
+          </p>
         )}
       </main>
     </div>

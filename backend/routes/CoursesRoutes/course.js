@@ -23,6 +23,16 @@ courseRouter.get("/all", (req, res) => {
   }
 });
 
+courseRouter.get("/get-course/:id", (req, res) => {
+  const { id } = req.params;
+  const course = Course.find((c) => c.id === parseInt(id));
+  if (course) {
+    res.status(200).json({ success: true, course });
+  } else {
+    res.status(404).json({ success: false, message: "Course not found" });
+  }
+});
+
 // ✅ Get transcript (official captions → fallback to AssemblyAI → cached)
 courseRouter.post("/get-transcript", async (req, res) => {
   try {

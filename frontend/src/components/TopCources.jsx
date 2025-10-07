@@ -23,7 +23,6 @@ export default function TopCourses() {
           throw new Error("Failed to fetch courses");
         }
         const data = await response.json();
-        console.log(data.courses);
         setCourseList(data.courses);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -44,7 +43,7 @@ export default function TopCourses() {
       <h2 className="text-2xl font-semibold text-center mb-6">Top Courses</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
         {courseList.map((c, i) => (
-          <Link key={i} to={`${c.courceType}/${c.id}`} state={c.modules}>
+          <Link key={i} to={`${c.courceType}/${c.id}`}>
             <CourseCard course={c} />
           </Link>
         ))}
