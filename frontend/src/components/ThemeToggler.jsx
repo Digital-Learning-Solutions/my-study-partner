@@ -1,43 +1,45 @@
 import React, { useEffect, useState } from "react";
-import { Sun, Moon } from "lucide-react"; // install with: npm install lucide-react
+import { Sun, Moon } from "lucide-react";
 
 function ThemeToggler() {
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") ||
-      window.matchMedia("(prefers-color-scheme: dark)").matches
+  // Correct initial theme function
+  const getInitialTheme = () => {
+    if (typeof window === "undefined") return "light"; // SSR safe
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme) return storedTheme;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
-      : "light"
-  );
+      : "light";
+  };
 
+  const [theme, setTheme] = useState(getInitialTheme);
+
+  // Apply theme class to <html>
   useEffect(() => {
+    const root = document.documentElement;
     if (theme === "dark") {
-      document.documentElement.classList.add("dark");
+      root.classList.add("dark");
     } else {
-      document.documentElement.classList.remove("dark");
+      root.classList.remove("dark");
     }
     localStorage.setItem("theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return (
     <button
       onClick={toggleTheme}
-      className="relative inline-flex h-6 w-12 items-center rounded-full transition-colors duration-300
-      bg-gray-300 dark:bg-gray-700"
+      className="relative inline-flex h-6 w-12 items-center rounded-full transition-colors duration-300 bg-gray-300 dark:bg-gray-700"
     >
-      {/* Sun Icon (left side) */}
       <Sun className="absolute left-1 text-yellow-500" size={14} />
-
-      {/* Moon Icon (right side) */}
-      <Moon className="absolute right-1 text-gray-500" size={14} />
-
-      {/* Knob */}
+      <Moon className="absolute right-1 text-gray-400" size={14} />
       <span
-        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-300
-        ${theme === "dark" ? "translate-x-6" : "translate-x-1"}`}
+        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform duration-300 ${
+          theme === "dark" ? "translate-x-6" : "translate-x-1"
+        }`}
       />
     </button>
   );

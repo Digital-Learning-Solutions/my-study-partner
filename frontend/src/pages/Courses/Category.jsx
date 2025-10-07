@@ -29,7 +29,6 @@ export default function Subjects() {
           throw new Error("Failed to fetch courses");
         }
         const data = await response.json();
-        console.log(data.courses);
         setCourseList(data.courses);
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -66,7 +65,7 @@ export default function Subjects() {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {courseList.map((c, i) => (
-          <Link key={i} to={`${c.id}`} state={c.modules}>
+          <Link key={i} to={`${c.id}`}>
             <CourseCard course={c} />
           </Link>
         ))}
