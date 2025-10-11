@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
 
 const CourseSchema = new mongoose.Schema({
-  id: { type: Number, required: true, unique: true },
   title: { type: String, required: true },
   description: { type: String },
-  courceType: { type: String },
+  courseType: { type: String },
   image: { type: String },
   enrollCount: { type: Number, default: 4.2 },
   rating: { type: Number, default: 0 },

@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Outlet, Link, NavLink, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, Routes, Route } from "react-router-dom";
 import Home from "./Home";
 import LoginPage from "./LoginPage";
 import RegistrationPage from "./RegistrationPage";
 import Quiz from "./Quiz";
-import Discussion from "./pages/Discussions/Discussion";
 import Cource from "./Course";
 import ThemeToggler from "./components/ThemeToggler";
 import Navbar from "./components/Navbar";
+import Discussion from "./Discussion";
 
 function Layout() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -81,7 +81,7 @@ function Layout() {
           <Route path="register" element={<RegistrationPage />} />
           <Route path="/quiz/*" element={<Quiz />} />
           <Route path="/courses/*" element={<Cource />} />
-          <Route path="/discussion/*" element={<Discussion />} />
+          <Route path="/discussions/*" element={<Discussion />} />
         </Routes>
       </main>
 

@@ -17,7 +17,7 @@ export default function Subjects() {
     async function fetchCourses() {
       try {
         const response = await fetch(
-          `http://localhost:5000/course/${subject}`,
+          `http://localhost:5000/api/course/category/${subject}`,
           {
             method: "GET",
             headers: {
@@ -65,7 +65,7 @@ export default function Subjects() {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
         {courseList.map((c, i) => (
-          <Link key={i} to={`${c.id}`}>
+          <Link key={i} to={`${c._id}`}>
             <CourseCard course={c} />
           </Link>
         ))}
