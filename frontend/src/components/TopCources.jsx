@@ -13,7 +13,7 @@ export default function TopCourses() {
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const response = await fetch("http://localhost:5000/course/all", {
+        const response = await fetch("http://localhost:5000/api/course/all", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export default function TopCourses() {
       <h2 className="text-2xl font-semibold text-center mb-6">Top Courses</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
         {courseList.map((c, i) => (
-          <Link key={i} to={`${c.courceType}/${c.id}`}>
+          <Link key={i} to={`${c.courseType}/${c._id}`}>
             <CourseCard course={c} />
           </Link>
         ))}

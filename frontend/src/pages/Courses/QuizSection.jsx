@@ -13,7 +13,7 @@ export default function QuizSection({ videoUrl, title }) {
     setError("");
     try {
       const transcriptRes = await fetch(
-        "http://localhost:5000/course/get-transcript",
+        "http://localhost:5000/api/course/get-transcript",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

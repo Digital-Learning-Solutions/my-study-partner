@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { motion } from "framer-motion";
 import SearchBar from "./SearchBar";
 
@@ -12,7 +13,7 @@ export default function Hero() {
       <h1 className="text-4xl md:text-5xl font-bold text-sky-600 dark:text-sky-400">
         What you want to learn
       </h1>
-      <SearchBar/>
+      <SearchBar />
     </motion.div>
   );
 }

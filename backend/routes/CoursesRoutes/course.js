@@ -1,35 +1,45 @@
 import express from "express";
-import Course from "../../database/Course.js";
+import CourseModel from "../../models/CourseModel/Course.js"; // your mongoose model
 import fs from "fs";
 import path from "path";
 import fetch from "node-fetch";
-import FormData from "form-data";
 import { YoutubeTranscript } from "youtube-transcript";
 import { downloadAudio } from "./audio_download.js";
+import Course from "../../models/CourseModel/Course.js";
+import { rateCourse } from "../../controllers/courses/courceEnroll.js";
 
 const courseRouter = express.Router();
 
-// ✅ Directory to cache transcripts
+// Directory to cache transcripts
 const transcriptDir = path.join(process.cwd(), "transcripts");
 if (!fs.existsSync(transcriptDir)) fs.mkdirSync(transcriptDir);
 
 // ✅ Fetch all courses
-courseRouter.get("/all", (req, res) => {
+courseRouter.get("/all", async (req, res) => {
   try {
-    res.status(200).json({ success: true, courses: Course });
+    const courses = await CourseModel.find({});
+    res.status(200).json({ success: true, courses });
   } catch (error) {
     console.error("Error fetching courses:", error);
     res.status(500).json({ success: false, message: "Server Error" });
   }
 });
 
-courseRouter.get("/get-course/:id", (req, res) => {
+courseRouter.post("/rate/:courseId", rateCourse);
+
+// ✅ Get a single course by MongoDB _id
+courseRouter.get("/get-course/:id", async (req, res) => {
   const { id } = req.params;
-  const course = Course.find((c) => c.id === parseInt(id));
-  if (course) {
-    res.status(200).json({ success: true, course });
-  } else {
-    res.status(404).json({ success: false, message: "Course not found" });
+  try {
+    const course = await CourseModel.findById(id);
+    if (course) {
+      res.status(200).json({ success: true, course });
+    } else {
+      res.status(404).json({ success: false, message: "Course not found" });
+    }
+  } catch (err) {
+    console.error("Error fetching course:", err);
+    res.status(400).json({ success: false, message: "Invalid course ID" });
   }
 });
 
@@ -41,18 +51,17 @@ courseRouter.post("/get-transcript", async (req, res) => {
 
     console.log("[LOG] Received videoUrl:", videoUrl);
 
-    // Generate a safe filename for caching
     const videoId = extractYouTubeId(videoUrl);
     const transcriptPath = path.join(transcriptDir, `${videoId}.txt`);
 
-    // 🧠 1️⃣ If transcript already exists — return cached
+    // 1️⃣ Cached transcript
     if (fs.existsSync(transcriptPath)) {
       console.log("[CACHE HIT] Returning saved transcript:", transcriptPath);
       const cachedText = fs.readFileSync(transcriptPath, "utf8");
       return res.json({ text: cachedText, cached: true });
     }
 
-    // 🧠 2️⃣ Try official captions
+    // 2️⃣ Try official captions
     try {
       console.log("[LOG] Attempting to fetch official captions...");
       const transcript = await YoutubeTranscript.fetchTranscript(videoUrl);
@@ -64,21 +73,19 @@ courseRouter.post("/get-transcript", async (req, res) => {
       }
       console.log("[LOG] No official captions found.");
     } catch (err) {
-      console.log(
-        "[LOG] No official captions found, falling back to AssemblyAI."
-      );
+      console.log("[LOG] Falling back to AssemblyAI.");
     }
 
-    // 🧠 3️⃣ Download audio
+    // 3️⃣ Download audio
     const tempFile = path.join(process.cwd(), "temp_audio.wav");
     console.log("[LOG] Downloading audio to:", tempFile);
     await downloadAudio(videoUrl, tempFile);
 
-    // 🧠 4️⃣ Upload to AssemblyAI
+    // 4️⃣ Upload to AssemblyAI
     console.log("[LOG] Uploading audio to AssemblyAI...");
     const uploadUrl = await uploadToAssemblyAI(tempFile);
 
-    // 🧠 5️⃣ Start transcription
+    // 5️⃣ Start transcription
     console.log("[LOG] Starting transcription job...");
     const transcriptText = await transcribeWithAssemblyAI(uploadUrl);
 
@@ -96,14 +103,51 @@ courseRouter.post("/get-transcript", async (req, res) => {
   }
 });
 
+courseRouter.post("/rate/:courseId", async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const { rating } = req.body;
+
+    if (!rating || rating < 1 || rating > 5)
+      return res.status(400).json({ message: "Invalid rating" });
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: "Course not found" });
+
+    // Average rating (simple incremental average)
+    course.ratingCount = (course.ratingCount || 0) + 1;
+    course.totalRating = (course.totalRating || 0) + rating;
+    course.rating = Number(
+      (course.totalRating / course.ratingCount).toFixed(1)
+    );
+
+    await course.save();
+
+    res.status(200).json({
+      message: "Rating added successfully",
+      newRating: course.rating,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // ✅ Filter by category
-courseRouter.get("/:category", (req, res) => {
-  const category = req.params.category;
-  const courses = Course.filter((c) => c.courceType === category);
-  if (courses.length > 0) {
-    res.status(200).json({ success: true, courses });
-  } else {
-    res.status(404).json({ success: false, message: "Course not found" });
+courseRouter.get("/category/:category", async (req, res) => {
+  const { category } = req.params;
+  try {
+    const courses = await CourseModel.find({ courseType: category });
+    if (courses.length > 0) {
+      res.status(200).json({ success: true, courses });
+    } else {
+      res
+        .status(404)
+        .json({ success: false, message: "No courses found in this category" });
+    }
+  } catch (err) {
+    console.error("Error fetching category courses:", err);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 });
 
