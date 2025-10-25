@@ -8,6 +8,7 @@ import Cource from "./Course";
 import ThemeToggler from "./components/ThemeToggler";
 import Navbar from "./components/Navbar";
 import Discussion from "./Discussion";
+import ProfilePage from "./pages/Profile/ProfilePage";
 
 function Layout() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -82,6 +83,7 @@ function Layout() {
           <Route path="/quiz/*" element={<Quiz />} />
           <Route path="/courses/*" element={<Cource />} />
           <Route path="/discussions/*" element={<Discussion />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </main>
 

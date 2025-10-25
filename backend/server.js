@@ -12,6 +12,7 @@ import authRoutes from "./routes/UserRoutes/authRoutes.js";
 import connectDB from "./config/database.js";
 import enrollRoutes from "./routes/CoursesRoutes/enrollRoutes.js";
 import userRoutes from "./routes/UserRoutes/userRoutes.js";
+import discussionRoutes from "./routes/DiscussionRoutes/discussionRoutes.js";
 
 // ✅ Import your DB connection utility
 
@@ -36,7 +37,8 @@ app.use("/api", apiRouter);
 app.use("/api/course", courseRouter);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api", enrollRoutes); // new
+app.use("/api", enrollRoutes);
+app.use("/api/discussions", discussionRoutes);
 
 // ✅ Initialize sockets
 sockets(io);
