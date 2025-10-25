@@ -13,3 +13,23 @@ export async function getUser(req, res) {
     return res.status(500).json({ message: "Server error" });
   }
 }
+
+export async function updateUserProfile(req, res) {
+  try {
+    const { userId } = req.params;
+    const { fullName, bio, avatarUrl } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.profile.fullName = fullName || user.profile.fullName;
+    user.profile.bio = bio || user.profile.bio;
+    user.profile.avatarUrl = avatarUrl || user.profile.avatarUrl;
+
+    await user.save();
+    return res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+}
