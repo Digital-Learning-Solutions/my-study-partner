@@ -4,7 +4,9 @@ import mongoose from "mongoose";
 const AnswerSchema = new mongoose.Schema({
   id: { type: Number, required: true },
   answer: { type: String, required: true },
-  author: { type: String, required: true },
+  authorId: { type: String, required: true },
+  authorName: { type: String },
+  authorAvatar: { type: String },
   createdAt: { type: Date, default: Date.now },
   report_count: { type: Number, default: 0 },
   is_highlighted: { type: Boolean, default: false },
@@ -15,9 +17,11 @@ const AnswerSchema = new mongoose.Schema({
 const DiscussionSchema = new mongoose.Schema({
   id: { type: Number, required: true, unique: true },
   section: { type: String, required: true }, // which section key (frontend/backend/cloud)
+  title: { type: String, required: true },
   question: { type: String, required: true },
   authorId: { type: String, required: true }, // store user id
   authorName: { type: String },
+  authorAvatar: { type: String }, // Add this field
   createdAt: { type: Date, default: Date.now },
   no_of_answers: { type: Number, default: 0 },
   report_count: { type: Number, default: 0 },

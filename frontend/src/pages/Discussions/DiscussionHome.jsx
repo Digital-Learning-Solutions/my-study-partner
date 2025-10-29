@@ -1,14 +1,15 @@
 // src/pages/DiscussionHome.jsx
 import React, { useEffect, useState } from "react";
-import { useDiscussion } from "../../context/DiscussionContext";
 import SidebarSections from "../../components/Discussion/SidebarSections";
 import DiscussionCard from "../../components/Discussion/DiscussionCard";
 import Pagination from "../../components/Discussion/Pagination";
 import NewQuestionModal from "../../components/Discussion/NewQuestionModal";
 import { useParams } from "react-router-dom";
+import { useDiscussionContext } from "../../context/useDiscussionContext";
 
 export default function DiscussionHome() {
-  const { fetchDiscussions, listState } = useDiscussion();
+  const { fetchDiscussions, listState, urlParamToTitle } =
+    useDiscussionContext();
   const { sectionKey } = useParams();
   const [selectedSection, setSelectedSection] = useState(sectionKey || null);
   const [showNew, setShowNew] = useState(false);
@@ -17,17 +18,38 @@ export default function DiscussionHome() {
     limit: 10,
     sort: "recent",
   });
+  const [showReminder, setShowReminder] = useState(false);
 
   // Keep selectedSection in sync with the URL (handles browser back/forward)
   useEffect(() => {
     setSelectedSection(sectionKey || null);
-    // reset to first page when section changes via routing
     setFilters((prev) => ({ ...prev, page: 1 }));
   }, [sectionKey]);
 
   useEffect(() => {
-    fetchDiscussions({ ...filters, section: selectedSection });
+    fetchDiscussions(filters, selectedSection);
   }, [filters.page, selectedSection, filters.sort]);
+
+  const handleNewQuestionClick = () => {
+    const hideReminder = localStorage.getItem("hideReminder");
+    if (!hideReminder) {
+      setShowReminder(true);
+    } else {
+      setShowNew(true);
+    }
+  };
+
+  const handleReminderClose = (dontShowAgain) => {
+    setShowReminder(false);
+    if (dontShowAgain) localStorage.setItem("hideReminder", "true");
+    setShowNew(true);
+  };
+
+  // handle page change and scroll to top
+  const handlePage = (p) => {
+    setFilters((prev) => ({ ...prev, page: p }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="p-6 flex gap-6">
@@ -38,7 +60,9 @@ export default function DiscussionHome() {
       <main className="flex-1">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold dark:text-white">
-            {selectedSection ? selectedSection : "All Discussions"}
+            {selectedSection
+              ? urlParamToTitle(selectedSection)
+              : "All Discussions"}
           </h2>
           <div className="flex gap-2">
             <select
@@ -53,7 +77,7 @@ export default function DiscussionHome() {
               <option value="trending">Trending</option>
             </select>
             <button
-              onClick={() => setShowNew(true)}
+              onClick={handleNewQuestionClick}
               className="px-3 py-1 bg-blue-600 text-white rounded"
             >
               New Question
@@ -71,14 +95,48 @@ export default function DiscussionHome() {
           page={listState.page}
           total={listState.total}
           limit={listState.limit}
-          onPage={(p) => setFilters((prev) => ({ ...prev, page: p }))}
+          onPage={handlePage}
         />
       </main>
+
+      {showReminder && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">
+              Please post thoughtfully
+            </h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-4">
+              We encourage respectful and clear communication. Questions that
+              receive valid reports or are identified as containing
+              inappropriate or harmful language may lead to a temporary
+              restriction on posting.
+            </p>
+            <div className="flex justify-between items-center">
+              <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <input
+                  type="checkbox"
+                  onChange={(e) =>
+                    localStorage.setItem("hideReminder", e.target.checked)
+                  }
+                />
+                Don’t show this reminder again
+              </label>
+              <button
+                onClick={() => handleReminderClose()}
+                className="bg-blue-600 text-white px-4 py-1.5 rounded"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showNew && (
         <NewQuestionModal
-          section={selectedSection || "general"}
+          section={selectedSection || ""}
           onClose={() => setShowNew(false)}
-          onCreated={() => fetchDiscussions(filters)}
+          onCreated={() => fetchDiscussions(filters, selectedSection)}
         />
       )}
     </div>
