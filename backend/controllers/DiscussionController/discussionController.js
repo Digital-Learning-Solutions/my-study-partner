@@ -1,5 +1,6 @@
 // backend/controllers/discussionController.js
 import Discussion from "../../models/DiscussionModel/Discussion.js";
+import Section from "../../models/DiscussionModel/Section.js";
 import UserEnrollment from "../../models/DiscussionModel/UserEnrollment.js";
 import User from "../../models/UserModel/User.js";
 
@@ -21,22 +22,26 @@ async function ensureCounters() {
     : 1;
 }
 
-export const getSections = (sectionsStatic) => async (req, res) => {
+export const getSections = async (req, res) => {
   // returns static sections + counts / trending sample
+  console.log("getSections called");
+
   try {
-    // you can compute counts per section quickly:
+    const sections = await Section.find({}).lean();
+    console.log("sections retrieved:", sections);
+
     const counts = await Discussion.aggregate([
       { $group: { _id: "$section", count: { $sum: 1 } } },
     ]);
     const map = {};
     counts.forEach((c) => (map[c._id] = c.count));
-    const enriched = sectionsStatic.map((s) => ({
+    const enriched = sections.map((s) => ({
       ...s,
       discussionCount: map[s.key] || 0,
     }));
     return res.json({ sections: enriched });
   } catch (err) {
-    console.error(err);
+    console.error("getSections error:", err);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -44,9 +49,33 @@ export const getSections = (sectionsStatic) => async (req, res) => {
 export const listDiscussions = async (req, res) => {
   // supports: page, limit, section, tags (comma), q text search, sort=recent|popular|trending
   try {
-    const page = Math.max(1, parseInt(req.query.page || "1"));
-    const limit = Math.min(50, parseInt(req.query.limit || "10"));
-    const section = req.query.section;
+    // robust numeric parsing with sensible defaults
+    const page = Math.max(
+      1,
+      Number.isFinite(Number(req.query.page)) ? parseInt(req.query.page, 5) : 1
+    );
+    const limit = Math.min(
+      50,
+      Number.isFinite(Number(req.query.limit))
+        ? parseInt(req.query.limit, 5)
+        : 5
+    );
+
+    // Normalize section query: treat "null", "undefined" or empty as no-section
+    let section = req.query.section;
+    if (typeof section === "string") {
+      const sTrim = section.trim();
+      if (
+        sTrim === "" ||
+        sTrim.toLowerCase() === "null" ||
+        sTrim.toLowerCase() === "undefined"
+      ) {
+        section = undefined;
+      } else {
+        section = sTrim;
+      }
+    }
+
     const tags = req.query.tags
       ? req.query.tags
           .split(",")
@@ -60,6 +89,17 @@ export const listDiscussions = async (req, res) => {
     if (section) filter.section = section;
     if (tags.length) filter.tags = { $in: tags };
     if (q) filter.$text = { $search: q }; // optionally create text index
+
+    console.log(
+      "listDiscussions filter:",
+      filter,
+      "page:",
+      page,
+      "limit:",
+      limit,
+      "sort:",
+      sort
+    );
 
     let sortObj = { createdAt: -1 };
     if (sort === "popular") {
@@ -97,7 +137,8 @@ export const listDiscussions = async (req, res) => {
       ];
       const results = await Discussion.aggregate(pipeline);
       const total = await Discussion.countDocuments(filter);
-      return res.json({ data: results, page, limit, total });
+      const totalPages = Math.max(1, Math.ceil(total / limit));
+      return res.json({ data: results, page, limit, total, totalPages });
     }
 
     const docs = await Discussion.find(filter)
@@ -107,7 +148,8 @@ export const listDiscussions = async (req, res) => {
       .lean();
 
     const total = await Discussion.countDocuments(filter);
-    return res.json({ data: docs, page, limit, total });
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    return res.json({ data: docs, page, limit, total, totalPages });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -117,33 +159,65 @@ export const listDiscussions = async (req, res) => {
 export const createDiscussion = async (req, res) => {
   try {
     await ensureCounters();
+    const {
+      section,
+      title,
+      question,
+      tags = [],
+      newTags = [],
+      authorId,
+      authorName,
+      authorAvatar, // Add this
+    } = req.body;
 
-    const { section, question, tags = [], authorId, authorName } = req.body;
-
-    if (!section || !question || !authorId)
+    console.log("createDiscussion called with:", req.body);
+    // ✅ Validate required fields
+    if (!section || !question || !authorId) {
       return res
         .status(400)
         .json({ message: "section, question, and authorId are required" });
+    }
 
-    // ✅ 1. Create discussion
+    // ✅ 1. Find or create section document
+    let sectionDoc = await Section.findOne({ slug: section });
+    if (!sectionDoc) {
+      // Create a new section if not found
+      sectionDoc = new Section({
+        name: section,
+        slug: section.toLowerCase().replace(/\s+/g, "-"),
+        tags: [],
+      });
+    }
+
+    // ✅ 2. Add new tags to section (avoid duplicates)
+    const combinedTags = new Set([
+      ...sectionDoc.tags,
+      ...newTags.filter((t) => t.trim() !== ""),
+    ]);
+    sectionDoc.tags = Array.from(combinedTags);
+    await sectionDoc.save();
+
+    // ✅ 3. Create the new discussion
     const discussion = new Discussion({
       id: nextDiscussionId++,
       section,
+      title,
       question,
       authorId,
       authorName,
+      authorAvatar, // Add this
       tags,
     });
-
     await discussion.save();
 
-    // ✅ 2. Update user's createdDiscussions list
+    // ✅ 4. Update user's created discussions
     const user = await User.findById(authorId);
     if (user) {
-      user.createdDiscussions.push(discussion._id);
+      user.createdDiscussions.push(discussion.id);
       await user.save();
     }
 
+    // ✅ 5. Respond with success
     return res.status(201).json({
       message: "Discussion created successfully",
       discussion,
@@ -152,6 +226,7 @@ export const createDiscussion = async (req, res) => {
         username: user?.username,
         createdDiscussions: user?.createdDiscussions,
       },
+      updatedSectionTags: sectionDoc.tags, // Optional: frontend can update its tag list
     });
   } catch (err) {
     console.error("❌ createDiscussion error:", err);
@@ -162,9 +237,20 @@ export const createDiscussion = async (req, res) => {
 export const getDiscussion = async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const doc = await Discussion.findOne({ id }).lean();
+    const doc = await Discussion.findOne({ id })
+      .populate("authorId", "profile.avatarUrl") // Add this if you have user references
+      .lean();
+
     if (!doc) return res.status(404).json({ message: "Not found" });
-    return res.json(doc);
+
+    // Ensure consistent author data structure
+    const discussion = {
+      ...doc,
+      authorAvatar: doc.authorAvatar || doc.authorId?.profile?.avatarUrl,
+      authorName: doc.authorName || "Anonymous",
+    };
+
+    return res.json(discussion);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -175,24 +261,31 @@ export const addAnswer = async (req, res) => {
   try {
     await ensureCounters();
     const id = parseInt(req.params.id);
-    const { answer, authorId, authorName } = req.body;
+    const { answer, authorId, authorName, authorAvatar } = req.body;
     if (!answer || !authorId)
       return res.status(400).json({ message: "answer and authorId required" });
 
-    const doc = await Discussion.findOne({ id });
+    // Find the discussion and author user
+    const [doc, user] = await Promise.all([
+      Discussion.findOne({ id }),
+      User.findById(authorId).select("profile.avatarUrl").lean(),
+    ]);
+
     if (!doc) return res.status(404).json({ message: "Discussion not found" });
 
     const newAnswer = {
       id: nextAnswerId++,
       answer,
-      author: authorName || authorId,
       authorId,
+      authorName: authorName || "Anonymous",
+      authorAvatar: authorAvatar || user?.profile?.avatarUrl,
       createdAt: new Date(),
       report_count: 0,
       is_highlighted: false,
       upvotes: 0,
       downvotes: 0,
     };
+
     doc.answers.push(newAnswer);
     doc.no_of_answers = doc.answers.length;
     await doc.save();
@@ -242,7 +335,7 @@ export const getUserEnrollments = async (req, res) => {
   }
 };
 
-export const handleUpvote = async (req, res) => {
+export const handleQuestionUpvote = async (req, res) => {
   try {
     const discussion = await Discussion.findOne({ id: req.params.id });
     if (!discussion)
@@ -260,7 +353,7 @@ export const handleUpvote = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-export const handleDownvote = async (req, res) => {
+export const handleQuestionDownvote = async (req, res) => {
   try {
     const discussion = await Discussion.findOne({ id: req.params.id });
     if (!discussion)
@@ -269,19 +362,17 @@ export const handleDownvote = async (req, res) => {
     discussion.downvotes = (discussion.downvotes || 0) + 1;
     await discussion.save();
 
-    res
-      .status(200)
-      .json({
-        message: "Downvoted successfully",
-        downvotes: discussion.downvotes,
-      });
+    res.status(200).json({
+      message: "Downvoted successfully",
+      downvotes: discussion.downvotes,
+    });
   } catch (err) {
     console.error("Error in downvote:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-export const handleReport = async (req, res) => {
+export const handleQuestionReport = async (req, res) => {
   try {
     const discussion = await Discussion.findOne({ id: req.params.id });
     if (!discussion)
@@ -296,6 +387,93 @@ export const handleReport = async (req, res) => {
     });
   } catch (err) {
     console.error("Error in report:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// ------------------------------
+// 🔹 Upvote an Answer
+// ------------------------------
+export const handleAnswerUpvote = async (req, res) => {
+  try {
+    const { id, answerId } = req.params; // discussion id & answer id
+    const discussion = await Discussion.findOne({ id });
+
+    if (!discussion)
+      return res.status(404).json({ message: "Discussion not found" });
+
+    const answer = discussion.answers.find(
+      (ans) => ans.id === parseInt(answerId)
+    );
+    if (!answer) return res.status(404).json({ message: "Answer not found" });
+
+    answer.upvotes = (answer.upvotes || 0) + 1;
+    await discussion.save();
+
+    res.status(200).json({
+      message: "Answer upvoted successfully",
+      upvotes: answer.upvotes,
+    });
+  } catch (err) {
+    console.error("Error in answer upvote:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// ------------------------------
+// 🔹 Downvote an Answer
+// ------------------------------
+export const handleAnswerDownvote = async (req, res) => {
+  try {
+    const { id, answerId } = req.params;
+    const discussion = await Discussion.findOne({ id });
+
+    if (!discussion)
+      return res.status(404).json({ message: "Discussion not found" });
+
+    const answer = discussion.answers.find(
+      (ans) => ans.id === parseInt(answerId)
+    );
+    if (!answer) return res.status(404).json({ message: "Answer not found" });
+
+    answer.downvotes = (answer.downvotes || 0) + 1;
+    await discussion.save();
+
+    res.status(200).json({
+      message: "Answer downvoted successfully",
+      downvotes: answer.downvotes,
+    });
+  } catch (err) {
+    console.error("Error in answer downvote:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// ------------------------------
+// 🔹 Report an Answer
+// ------------------------------
+export const handleAnswerReport = async (req, res) => {
+  try {
+    const { id, answerId } = req.params;
+    const discussion = await Discussion.findOne({ id });
+
+    if (!discussion)
+      return res.status(404).json({ message: "Discussion not found" });
+
+    const answer = discussion.answers.find(
+      (ans) => ans.id === parseInt(answerId)
+    );
+    if (!answer) return res.status(404).json({ message: "Answer not found" });
+
+    answer.report_count = (answer.report_count || 0) + 1;
+    await discussion.save();
+
+    res.status(200).json({
+      message: "Answer reported successfully",
+      report_count: answer.report_count,
+    });
+  } catch (err) {
+    console.error("Error in answer report:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };

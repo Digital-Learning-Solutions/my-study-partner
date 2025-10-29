@@ -32,11 +32,14 @@ export const api = {
   getDiscussion: (id) => request(`/discussions/${id}`),
   createDiscussion: (payload) =>
     request(`/discussions`, { method: "POST", body: JSON.stringify(payload) }),
-  addAnswer: (id, payload) =>
-    request(`/discussions/${id}/answers`, {
+  addAnswer: (id, payload) => {
+    return request(`/discussions/${id}/answers`, {
       method: "POST",
-      body: JSON.stringify(payload),
-    }),
+      body: JSON.stringify({
+        ...payload,
+      }),
+    });
+  },
   toggleEnroll: (payload) =>
     request("/enroll/toggle", {
       method: "POST",

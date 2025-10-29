@@ -1,3 +1,4 @@
+// src/pages/Profile/ProfilePage.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileCard from "../../components/Profile/ProfileCard";
@@ -12,13 +13,11 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(user?.profile || {});
   const navigate = useNavigate();
-  useEffect(() => {
-    console.log("hello");
 
+  useEffect(() => {
     getUser();
   }, []);
 
-  // --- HANDLE UPDATE ---
   const handleUpdate = async () => {
     try {
       const res = await fetch(`http://localhost:5000/api/user/${userId}`, {
@@ -36,7 +35,6 @@ export default function ProfilePage() {
     }
   };
 
-  // --- HANDLE LOGOUT ---
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -70,10 +68,14 @@ export default function ProfilePage() {
         onCancel={() => setEditing(false)}
       />
 
-      {/* --- COURSES & DISCUSSIONS --- */}
-      <div className="grid md:grid-cols-2 gap-6">
+      {/* --- ENROLLED COURSES --- */}
+      <div className="mt-8">
         <EnrolledCourses courses={user.enrolledCourses} />
-        <CreatedDiscussions discussions={user.createdDiscussions} />
+      </div>
+
+      {/* --- CREATED DISCUSSIONS --- */}
+      <div className="mt-8">
+        <CreatedDiscussions userId={userId} />
       </div>
     </div>
   );

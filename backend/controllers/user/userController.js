@@ -1,4 +1,23 @@
 import User from "../../models/UserModel/User.js";
+export const getUserDiscussionById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .populate({
+        path: "createdDiscussions",
+        select:
+          "title question createdAt section id tags no_of_answers upvotes",
+      })
+
+      .lean();
+    console.log("Discussions:", user.createdDiscussions);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ discussions: user.createdDiscussions });
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 export async function getUser(req, res) {
   try {

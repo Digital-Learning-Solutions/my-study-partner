@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import DOMPurify from "dompurify";
 import {
   MessageSquare,
   ThumbsUp,
@@ -16,28 +17,26 @@ export default function DiscussionCard({ d }) {
   const [hasDownvoted, setHasDownvoted] = useState(false);
   const [hasReported, setHasReported] = useState(false);
 
-  // --- Smooth async background sync (non-blocking UI) ---
+  const sanitizedQuestion = DOMPurify.sanitize(d.question || "");
+
   const syncWithBackend = async (type) => {
     try {
       await fetch(
         `http://localhost:5000/api/discussions/discussions/${d.id}/${type}`,
-        {
-          method: "POST",
-        }
+        { method: "POST" }
       );
     } catch (err) {
       console.error(`Error syncing ${type}:`, err);
     }
   };
 
-  // --- Local instant update ---
   const handleVote = (type) => {
     if (type === "upvote" && !hasUpvoted) {
       setUpvotes((prev) => prev + 1);
       if (hasDownvoted) setDownvotes((prev) => prev - 1);
       setHasUpvoted(true);
       setHasDownvoted(false);
-      syncWithBackend("upvote"); // background
+      syncWithBackend("upvote");
     } else if (type === "downvote" && !hasDownvoted) {
       setDownvotes((prev) => prev + 1);
       if (hasUpvoted) setUpvotes((prev) => prev - 1);
@@ -53,21 +52,31 @@ export default function DiscussionCard({ d }) {
 
   return (
     <article className="border border-slate-200 dark:border-slate-700 rounded-xl p-4 bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-all duration-200">
-      {/* --- Question Header --- */}
+      {/* --- Header --- */}
       <div className="flex justify-between items-start">
-        {/* Left: Question & Author */}
         <div className="flex flex-col gap-1">
+          {/* --- Title --- */}
           <Link
             to={`/discussions/section/${encodeURIComponent(
               d.sectionKey || d.section || "general"
             )}/${d.id}`}
-            className="text-lg font-semibold hover:text-blue-600 dark:hover:text-blue-400 dark:text-white"
+            className="text-xl font-semibold text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
           >
-            {d.question}
+            {d.title?.trim() || "Untitled Question"}
           </Link>
 
-          {/* Author with avatar */}
-          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300 mt-1">
+          {/* --- Question Body --- */}
+          <div
+            className="text-sm text-slate-700 dark:text-slate-300 mt-1 leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-ul:list-disc prose-ol:list-decimal prose-li:ml-6"
+            dangerouslySetInnerHTML={{
+              __html:
+                sanitizedQuestion.trim() ||
+                "<p><em>No question content provided.</em></p>",
+            }}
+          ></div>
+
+          {/* --- Author Info --- */}
+          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-300 mt-2">
             {d.authorAvatar ? (
               <img
                 src={d.authorAvatar}
@@ -81,21 +90,25 @@ export default function DiscussionCard({ d }) {
               />
             )}
             <span className="font-medium text-slate-700 dark:text-slate-200">
-              {d.authorName || "Anonymous"}
+              {d.authorName?.trim() || "Anonymous"}
             </span>
-            <span>• {new Date(d.createdAt).toLocaleString()}</span>
+            <span>
+              •{" "}
+              {d.createdAt
+                ? new Date(d.createdAt).toLocaleString()
+                : "Unknown date"}
+            </span>
           </div>
         </div>
 
-        {/* --- Votes Summary --- */}
+        {/* --- Votes --- */}
         <div className="flex flex-col items-end gap-2 text-slate-500 dark:text-slate-300 text-sm">
           <div className="flex items-center gap-1">
             <MessageSquare size={16} />
-            {d.no_of_answers} answers
+            {d.no_of_answers || 0} answers
           </div>
 
           <div className="flex items-center gap-3 text-xs text-slate-400">
-            {/* --- Upvote --- */}
             <button
               onClick={() => handleVote("upvote")}
               disabled={hasUpvoted}
@@ -108,7 +121,6 @@ export default function DiscussionCard({ d }) {
               <ThumbsUp size={14} /> {upvotes}
             </button>
 
-            {/* --- Downvote --- */}
             <button
               onClick={() => handleVote("downvote")}
               disabled={hasDownvoted}
@@ -121,7 +133,6 @@ export default function DiscussionCard({ d }) {
               <ThumbsDown size={14} /> {downvotes}
             </button>
 
-            {/* --- Report --- */}
             <button
               onClick={() => handleVote("report")}
               disabled={hasReported}
@@ -139,10 +150,10 @@ export default function DiscussionCard({ d }) {
 
       {/* --- Tags --- */}
       <div className="flex flex-wrap gap-2 mt-3">
-        {d.tags?.length ? (
-          d.tags.map((t) => (
+        {Array.isArray(d.tags) && d.tags.length > 0 ? (
+          d.tags.map((t, i) => (
             <span
-              key={t}
+              key={i}
               className="px-2 py-0.5 bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-blue-300 text-xs font-medium rounded-full"
             >
               #{t}

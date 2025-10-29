@@ -2,7 +2,7 @@
 import { Route, Routes } from "react-router-dom";
 import DiscussionHome from "./pages/Discussions/DiscussionHome";
 import DiscussionView from "./pages/Discussions/DiscussionView";
-import { DiscussionProvider } from "./context/DiscussionContext";
+import { DiscussionProvider } from "./context/DiscussionProvider";
 
 export default function Discussion() {
   return (
