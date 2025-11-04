@@ -3,6 +3,7 @@ import Discussion from "../../models/DiscussionModel/Discussion.js";
 import Section from "../../models/DiscussionModel/Section.js";
 import UserEnrollment from "../../models/DiscussionModel/UserEnrollment.js";
 import User from "../../models/UserModel/User.js";
+import mongoose from "mongoose";
 
 let nextDiscussionId = null;
 let nextAnswerId = null;
@@ -172,10 +173,10 @@ export const createDiscussion = async (req, res) => {
 
     console.log("createDiscussion called with:", req.body);
     // ✅ Validate required fields
-    if (!section || !question || !authorId) {
-      return res
-        .status(400)
-        .json({ message: "section, question, and authorId are required" });
+    if (!section || !title || !question || !authorId) {
+      return res.status(400).json({
+        message: "section, title, question, and authorId are required",
+      });
     }
 
     // ✅ 1. Find or create section document
@@ -210,11 +211,14 @@ export const createDiscussion = async (req, res) => {
     });
     await discussion.save();
 
-    // ✅ 4. Update user's created discussions
-    const user = await User.findById(authorId);
-    if (user) {
-      user.createdDiscussions.push(discussion.id);
-      await user.save();
+    // ✅ 4. Update user's created discussions (only if valid ObjectId)
+    let user = null;
+    if (mongoose.Types.ObjectId.isValid(authorId)) {
+      user = await User.findById(authorId);
+      if (user) {
+        user.createdDiscussions.push(discussion.id);
+        await user.save();
+      }
     }
 
     // ✅ 5. Respond with success

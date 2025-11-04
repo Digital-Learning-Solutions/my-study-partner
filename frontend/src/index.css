@@ -23,3 +23,17 @@
     @apply h-full;
   }
 }
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-xl bg-white/60 dark:bg-gray-900/50 border border-border dark:border-white/10 shadow-soft;
+  }
+  .gradient-hero {
+    @apply bg-gradient-to-r from-brand-600 to-accent text-white;
+  }
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+}

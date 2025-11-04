@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import ThemeToggler from "./ThemeToggler";
+import Button from "./ui/Button";
 import { Menu, X, User } from "lucide-react";
 // import Cookies from "js-cookie";
 import { useStoredContext } from "../context/useStoredContext";
@@ -29,8 +30,8 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-50 transition-colors">
-      <div className="container mx-auto px-6 py-3 flex justify-between items-center">
+    <nav className="glass sticky top-0 z-50">
+      <div className="section-container py-3 flex justify-between items-center">
         {/* ✅ Logo */}
         <Link to="/" className="flex items-center space-x-2">
           <img
@@ -47,9 +48,9 @@ export default function Navbar() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition font-medium ${
+                `text-slate-600 dark:text-slate-300 hover:text-brand-700 dark:hover:text-brand-600 transition font-medium ${
                   isActive
-                    ? "text-blue-600 dark:text-blue-400 font-semibold"
+                    ? "text-brand-700 dark:text-brand-600 font-semibold"
                     : ""
                 }`
               }
@@ -73,7 +74,7 @@ export default function Navbar() {
                   className="w-8 h-8 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-full font-semibold">
+                <div className="w-8 h-8 bg-brand-600 text-white flex items-center justify-center rounded-full font-semibold">
                   {user.profile?.fullName?.[0]?.toUpperCase() ||
                     user.username?.[0]?.toUpperCase() ||
                     "U"}
@@ -87,15 +88,12 @@ export default function Navbar() {
             <>
               <Link
                 to="/login"
-                className="text-slate-600 dark:text-slate-300 font-medium hover:text-blue-600 dark:hover:text-blue-400 transition"
+                className="text-slate-600 dark:text-slate-300 font-medium hover:text-brand-700 transition"
               >
                 Login
               </Link>
-              <Link
-                to="/register"
-                className="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:bg-blue-700 dark:hover:bg-blue-500 transition"
-              >
-                Sign Up
+              <Link to="/register">
+                <Button className="shadow-md">Sign Up</Button>
               </Link>
             </>
           )}
@@ -128,9 +126,9 @@ export default function Navbar() {
                 to={item.to}
                 onClick={() => setMenuOpen(false)}
                 className={({ isActive }) =>
-                  `block text-slate-700 dark:text-slate-300 py-1 hover:text-blue-600 dark:hover:text-blue-400 transition ${
+                  `block text-slate-700 dark:text-slate-300 py-1 hover:text-brand-700 dark:hover:text-brand-600 transition ${
                     isActive
-                      ? "text-blue-600 dark:text-blue-400 font-semibold"
+                      ? "text-brand-700 dark:text-brand-600 font-semibold"
                       : ""
                   }`
                 }
@@ -147,7 +145,7 @@ export default function Navbar() {
                 }}
                 className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800 rounded-lg p-2"
               >
-                <User className="w-5 h-5 text-blue-500" />
+                <User className="w-5 h-5 text-brand-600" />
                 <div className="text-left">
                   <div className="text-slate-700 dark:text-slate-200 font-medium">
                     {user.profile?.fullName || user.username}
@@ -162,14 +160,14 @@ export default function Navbar() {
                 <Link
                   to="/login"
                   onClick={() => setMenuOpen(false)}
-                  className="block text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition"
+                  className="block text-slate-700 dark:text-slate-300 hover:text-brand-700 dark:hover:text-brand-600 transition"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMenuOpen(false)}
-                  className="block bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-500 transition"
+                  className="block bg-brand-600 text-white text-center py-2 rounded-lg hover:bg-brand-700 transition"
                 >
                   Sign Up
                 </Link>
