@@ -16,6 +16,7 @@ export default function Navbar() {
     { to: "/courses", label: "Courses" },
     { to: "/quiz", label: "Quizzes" },
     { to: "/discussions", label: "Discussions" },
+    { to: "/dashboard", label: "Dashboard" },
   ];
 
   useEffect(() => {
@@ -58,6 +59,7 @@ export default function Navbar() {
             </NavLink>
           ))}
 
+          
           <ThemeToggler />
 
           {/* ✅ Auth Section */}
@@ -139,6 +141,7 @@ export default function Navbar() {
               </NavLink>
             ))}
 
+            
             {authenticated && user ? (
               <button
                 onClick={() => {
