@@ -13,6 +13,7 @@ import connectDB from "./config/database.js";
 import enrollRoutes from "./routes/CoursesRoutes/enrollRoutes.js";
 import userRoutes from "./routes/UserRoutes/userRoutes.js";
 import discussionRoutes from "./routes/DiscussionRoutes/discussionRoutes.js";
+import dashboardRoutes from "./routes/UserRoutes/dashboardRoutes.js";
 
 // ✅ Import your DB connection utility
 
@@ -37,6 +38,7 @@ app.use("/api", apiRouter);
 app.use("/api/course", courseRouter);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api", enrollRoutes);
 app.use("/api/discussions", discussionRoutes);
 
