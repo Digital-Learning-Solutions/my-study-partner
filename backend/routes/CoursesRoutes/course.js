@@ -8,7 +8,10 @@ import { downloadAudio } from "./audio_download.js";
 import Course from "../../models/CourseModel/Course.js";
 import User from "../../models/UserModel/user.js";
 import { rateCourse } from "../../controllers/courses/courceEnroll.js";
+import PDFDocument from "pdfkit";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const courseRouter = express.Router();
 
 // Directory to cache transcripts
@@ -43,6 +46,115 @@ courseRouter.get("/get-course/:id", async (req, res) => {
     res.status(400).json({ success: false, message: "Invalid course ID" });
   }
 });
+
+courseRouter.post("/generate-notes", async (req, res) => {
+  try {
+    const { text, id } = req.body;
+
+    if (!text || !id) {
+      return res.status(400).json({
+        message: "Both 'text' and 'id' are required",
+      });
+    }
+
+    // ✅ Sanitize ID to avoid invalid characters
+    const safeId = sanitizeFilename(id);
+
+    // ✅ Ensure notes folder exists
+    const notesDir = path.join(process.cwd(), "notes");
+    if (!fs.existsSync(notesDir)) {
+      fs.mkdirSync(notesDir);
+    }
+
+    // ✅ Final PDF path
+    const pdfPath = path.join(notesDir, `${safeId}.pdf`);
+
+    // ✅ 1. If PDF already exists → return directly
+    try {
+      if (fs.existsSync(pdfPath)) {
+        return res.status(200).json({
+          message: "Notes already exist",
+          file: `/notes/${safeId}.pdf`,
+          cached: true,
+        });
+      }
+    } catch (err) {
+      console.warn("⚠ File existence check failed, regenerating PDF...");
+    }
+
+    // ✅ 2. Generate notes using Gemini (if file not found)
+    const prompt = `
+Generate clean, well-organized study notes from the following transcript.
+
+Requirements:
+- Use headings
+- Use bullet points
+- Clean formatting
+- Add summary section
+- Avoid filler words
+- Return plain text only
+
+Transcript:
+${text}
+`;
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+    });
+
+    const result = await model.generateContent(prompt);
+    const rawNotes = result.response.text().trim();
+    const notes = rawNotes.replace(/```/g, "");
+
+    // ✅ 3. Generate & Save PDF
+    const pdfDoc = new PDFDocument({ margin: 40, size: "A4" });
+    const writeStream = fs.createWriteStream(pdfPath);
+
+    pdfDoc.pipe(writeStream);
+
+    // Title
+    pdfDoc
+      .font("Times-Roman")
+      .fontSize(20)
+      .text(titleCase(id), { align: "center" });
+    pdfDoc.moveDown();
+
+    // Notes content
+    pdfDoc.fontSize(12).text(notes, { align: "left" });
+
+    pdfDoc.end();
+
+    writeStream.on("finish", () => {
+      return res.status(200).json({
+        message: "PDF notes generated successfully",
+        file: `/notes/${safeId}.pdf`,
+        cached: false,
+      });
+    });
+  } catch (error) {
+    console.error("Error generating notes:", error);
+    return res.status(500).json({
+      message: "Failed to generate notes",
+      error: error.message,
+    });
+  }
+});
+function sanitizeFilename(name) {
+  return name
+    .replace(/[\\/:*?"<>|]/g, "") // Remove invalid characters
+    .replace(/\s+/g, "-") // Convert spaces to hyphens
+    .trim()
+    .toLowerCase();
+}
+
+// ✅ Helper: Capitalize title
+function titleCase(str) {
+  return String(str)
+    .split(/[\s_-]+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 courseRouter.post("/update-progress", async (req, res) => {
   try {
     const { videoId, userId, courseId } = req.body;

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import ReactPlayer from "react-player";
 import QuizSection from "./QuizSection";
+import NotesButton from "../../components/NotesButton";
 
 export default function ModuleVideosPage() {
   const location = useLocation();
@@ -58,6 +59,7 @@ export default function ModuleVideosPage() {
             <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">
               {activeVideo.title}
             </h1>
+
             <div className="relative w-full rounded-xl overflow-hidden shadow-lg aspect-video">
               <iframe
                 key={activeVideo.id}
@@ -66,12 +68,18 @@ export default function ModuleVideosPage() {
                 )}`}
                 title={activeVideo.title}
                 className="w-full h-full rounded-lg"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
             </div>
 
-            {/* Quiz Section */}
+            {/* ✅ Notes Button */}
+            <NotesButton
+              title={activeVideo.title}
+              videoUrl={activeVideo.videoUrl}
+              id={activeVideo.title.replace(/\s+/g, "-").toLowerCase()}
+            />
+
+            {/* ✅ Quiz takes the full space below */}
             <QuizSection
               title={activeVideo.title}
               videoUrl={activeVideo.videoUrl}
