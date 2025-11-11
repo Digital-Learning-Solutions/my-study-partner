@@ -5,21 +5,8 @@ import QuizSection from "./QuizSection";
 
 export default function ModuleVideosPage() {
   const location = useLocation();
-  const { title, content } = location.state;
-  const classes = [
-    {
-      id: 1,
-      title: "What is Algebra?",
-      duration: 12,
-      videoUrl: "https://www.youtube.com/watch?v=QnQe0xW_JY4",
-    },
-    {
-      id: 2,
-      title: "Variables and Constants",
-      duration: 15,
-      videoUrl: "https://www.youtube.com/watch?v=7sGv1Up6cV0",
-    },
-  ];
+  const { classes, title, content, courseId } = location.state;
+
   const [activeVideo, setActiveVideo] = useState(classes[0] || null);
 
   function extractYouTubeId(url) {
@@ -88,6 +75,8 @@ export default function ModuleVideosPage() {
             <QuizSection
               title={activeVideo.title}
               videoUrl={activeVideo.videoUrl}
+              id={activeVideo.id}
+              courseId={courseId}
             />
           </>
         ) : (

@@ -6,6 +6,7 @@ import fetch from "node-fetch";
 import { YoutubeTranscript } from "youtube-transcript";
 import { downloadAudio } from "./audio_download.js";
 import Course from "../../models/CourseModel/Course.js";
+import User from "../../models/UserModel/user.js";
 import { rateCourse } from "../../controllers/courses/courceEnroll.js";
 
 const courseRouter = express.Router();
@@ -40,6 +41,52 @@ courseRouter.get("/get-course/:id", async (req, res) => {
   } catch (err) {
     console.error("Error fetching course:", err);
     res.status(400).json({ success: false, message: "Invalid course ID" });
+  }
+});
+courseRouter.post("/update-progress", async (req, res) => {
+  try {
+    const { videoId, userId, courseId } = req.body;
+
+    if (!videoId || !userId || !courseId) {
+      return res.status(400).json({
+        message: "videoId, userId and courseId are required",
+      });
+    }
+
+    // ✅ Find user
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // ✅ Find the specific course inside enrolledCourses
+    const enrolledCourse = user.enrolledCourses.find(
+      (c) => c.course.toString() === courseId
+    );
+
+    user.enrolledCourses.forEach((element) => {
+      if (element.course.toString() === courseId) {
+        element.progress[videoId - 1] = true;
+      }
+    });
+
+    // ✅ Mark course completed if all videos done
+    enrolledCourse.isComplete = enrolledCourse.progress.every(
+      (p) => p === true
+    );
+
+    // ✅ Save user
+    await user.save();
+
+    return res.status(200).json({
+      message: "Progress updated successfully",
+      progress: enrolledCourse.progress,
+      isComplete: enrolledCourse.isComplete,
+    });
+  } catch (error) {
+    console.error("Error updating progress:", error);
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 });
 

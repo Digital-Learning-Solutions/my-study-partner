@@ -33,7 +33,7 @@ function LoginPage() {
       localStorage.setItem("userId", data.user._id);
       setUser(data.user);
       // ✅ Redirect after login
-      navigate("/"); // change this to your actual home page route
+      navigate("/landing"); // change this to your actual home page route
     } catch (err) {
       setError(err.message);
     } finally {

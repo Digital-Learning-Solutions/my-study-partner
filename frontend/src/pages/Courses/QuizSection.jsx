@@ -1,16 +1,21 @@
 import { useState } from "react";
 
-export default function QuizSection({ videoUrl, title }) {
+export default function QuizSection({ videoUrl, title, id, courseId }) {
   const [questions, setQuestions] = useState([]);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [started, setStarted] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const [passed, setPassed] = useState(null); // ✅ null → not finished, true → passed, false → failed
+  const userId = localStorage.getItem("userId");
+  console.log("User Id", userId);
 
   async function generateQuiz() {
     setLoading(true);
     setError("");
+
     try {
       const transcriptRes = await fetch(
         "http://localhost:5000/api/course/get-transcript",
@@ -42,6 +47,8 @@ export default function QuizSection({ videoUrl, title }) {
         setQuestions(quizData.questions);
         setIndex(0);
         setScore(0);
+        setFinished(false);
+        setPassed(null);
         setStarted(true);
       } else {
         setError("No quiz could be generated from this video.");
@@ -54,16 +61,38 @@ export default function QuizSection({ videoUrl, title }) {
     }
   }
 
+  async function sendProgressUpdate() {
+    try {
+      await fetch("http://localhost:5000/api/course/update-progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ videoId: id, userId, courseId }),
+      });
+    } catch (err) {
+      console.error("Progress update failed:", err);
+    }
+  }
+
   function selectAnswer(i) {
     const current = questions[index];
     const isCorrect = current.answer === i;
-    if (isCorrect) setScore((s) => s + 10);
+
+    setScore((prev) => prev + (isCorrect ? 10 : 0));
 
     if (index + 1 < questions.length) {
       setIndex(index + 1);
     } else {
-      alert(`🎉 Quiz finished! Your score: ${score + (isCorrect ? 10 : 0)}`);
+      const finalScore = score + (isCorrect ? 10 : 0);
+
+      const didPass = finalScore >= 0; // ✅ Minimum 7 correct required
+
+      setPassed(didPass);
+      setFinished(true);
       setStarted(false);
+
+      if (didPass) {
+        sendProgressUpdate(); // ✅ Update progress only if passed
+      }
     }
   }
 
@@ -80,7 +109,7 @@ export default function QuizSection({ videoUrl, title }) {
         .
       </p>
 
-      {!started && !loading && (
+      {!started && !loading && !finished && (
         <button
           onClick={generateQuiz}
           className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-500 transition-colors"
@@ -97,6 +126,7 @@ export default function QuizSection({ videoUrl, title }) {
 
       {error && <p className="mt-4 text-red-600 dark:text-red-400">{error}</p>}
 
+      {/* Quiz in progress */}
       {started && questions.length > 0 && (
         <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-900 rounded-xl shadow-inner transition-colors">
           <div className="mb-2 text-sm text-slate-600 dark:text-slate-300 flex justify-between">
@@ -118,12 +148,51 @@ export default function QuizSection({ videoUrl, title }) {
               <button
                 key={i}
                 onClick={() => selectAnswer(i)}
-                className="p-3 border border-gray-300 dark:border-gray-700 rounded-lg text-left hover:bg-indigo-50 dark:hover:bg-indigo-900 focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 transition-colors text-gray-900 dark:text-gray-100"
+                className="p-3 border border-gray-300 dark:border-gray-700 rounded-lg text-left 
+                hover:bg-indigo-50 dark:hover:bg-indigo-900 focus:ring-2 
+                focus:ring-indigo-300 dark:focus:ring-indigo-600 transition-colors 
+                text-gray-900 dark:text-gray-100"
               >
                 {opt}
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* ✅ Result Screen (Pass or Fail) */}
+      {finished && (
+        <div className="mt-6 p-6 bg-gray-50 dark:bg-gray-900 rounded-xl shadow-inner transition-colors text-center">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            {passed ? "🎉 Quiz Passed!" : "❌ Quiz Failed"}
+          </h2>
+
+          <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
+            Your Score:{" "}
+            <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+              {score}
+            </span>
+            /100
+          </p>
+
+          {!passed && (
+            <p className="text-red-500 mb-4">
+              You need at least 70 to pass (7 correct answers).
+            </p>
+          )}
+
+          <button
+            onClick={() => {
+              setFinished(false);
+              setQuestions([]);
+              setScore(0);
+              setIndex(0);
+              setPassed(null);
+            }}
+            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-500 transition-colors"
+          >
+            Restart Quiz
+          </button>
         </div>
       )}
     </section>

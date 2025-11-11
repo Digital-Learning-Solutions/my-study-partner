@@ -79,7 +79,7 @@ router.post("/upload-notes", upload.single("file"), async (req, res) => {
       Based on these notes:
       "${text}"
 
-      Generate 5 multiple-choice questions.
+      Generate 3 multiple-choice questions.
       Each question should be JSON in this exact format:
       {
         "question": "string",

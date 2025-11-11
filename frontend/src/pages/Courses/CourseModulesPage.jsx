@@ -180,6 +180,7 @@ export default function CourseModulesPage() {
                       classes: mod.classes,
                       title: mod.title,
                       content: mod.content,
+                      courseId: course._id,
                     }
                   : null
               }

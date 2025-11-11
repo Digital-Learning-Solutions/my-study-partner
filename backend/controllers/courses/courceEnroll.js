@@ -1,7 +1,7 @@
 // backend/controllers/courseController.js
 
 import Course from "../../models/CourseModel/Course.js";
-import User from "../../models/UserModel/User.js";
+import User from "../../models/UserModel/user.js";
 
 export const enrollInCourse = async (req, res) => {
   try {
@@ -35,8 +35,23 @@ export const enrollInCourse = async (req, res) => {
     }
     console.log("user before:", user);
 
-    // ✅ Push course to user’s enrolled list
-    user.enrolledCourses.push({ course: course._id, isComplete: false });
+    // Compute total number of classes across all modules
+    const totalClasses =
+      (course.modules || []).reduce(
+        (sum, mod) => sum + ((mod.classes && mod.classes.length) || 0),
+        0
+      ) || 0;
+
+    // Initialize progress array of booleans (false = not completed)
+    const progressArray = Array(totalClasses).fill(false);
+
+    // Push course to user’s enrolled list with initialized progress
+    user.enrolledCourses.push({
+      course: course._id,
+      progress: progressArray,
+      isComplete: false,
+      enrolledAt: new Date(),
+    });
     await user.save();
 
     console.log("user before:", user);

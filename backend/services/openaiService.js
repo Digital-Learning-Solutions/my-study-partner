@@ -40,29 +40,32 @@ export async function generateQuestionsFromNotes(notesText) {
 // backend/services/openaiService.js
 import fetch from "node-fetch";
 
-
 export async function generateQuestionsFromText(notesText) {
-  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "openai/gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: "You are a quiz generator. Given text or a topic, return exactly 5 multiple-choice questions in this strict JSON format: [{question:'',options:['','','',''],answer:''}]. Do not include any extra text."
-        },
-        {
-          role: "user",
-          content: notesText
-        }
-      ],
-      temperature: 0.7
-    })
-  });
+  const response = await fetch(
+    "https://openrouter.ai/api/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "openai/gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a quiz generator. Given text or a topic, return exactly 10 multiple-choice questions in this strict JSON format: [{question:'',options:['','','',''],answer:''}]. Do not include any extra text.",
+          },
+          {
+            role: "user",
+            content: notesText,
+          },
+        ],
+        temperature: 0.7,
+      }),
+    }
+  );
 
   const data = await response.json();
 

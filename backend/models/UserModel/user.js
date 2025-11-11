@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema(
       {
         course: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
         isComplete: { type: Boolean, default: false },
-        progress: { type: Number, default: 0 }, // optional
+        // progress is an array of booleans, one entry per class (false = not completed)
+        progress: { type: [Boolean], default: [] },
         enrolledAt: { type: Date, default: Date.now },
       },
     ],
