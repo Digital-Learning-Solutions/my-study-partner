@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, Routes, Route } from "react-router-dom";
+import { Link, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./Home";
 import LoginPage from "./LoginPage";
 import RegistrationPage from "./RegistrationPage";
@@ -9,6 +9,7 @@ import ThemeToggler from "./components/ThemeToggler";
 import Navbar from "./components/Navbar";
 import Discussion from "./Discussion";
 import ProfilePage from "./pages/Profile/ProfilePage";
+import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 
 function Layout() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -59,6 +60,12 @@ function Layout() {
           >
             Discussions
           </Link>
+          <Link
+            to="/dashboard"
+            className="block py-2 px-6 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            Dashboard
+          </Link>
           <ThemeToggler />
           <Link
             to="login"
@@ -84,6 +91,16 @@ function Layout() {
           <Route path="/courses/*" element={<Cource />} />
           <Route path="/discussions/*" element={<Discussion />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route
+            path="/dashboard"
+            element={
+              (localStorage.getItem("userId") || localStorage.getItem("token")) ? (
+                <Dashboard />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
         </Routes>
       </main>
 

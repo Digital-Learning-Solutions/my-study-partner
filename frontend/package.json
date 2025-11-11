@@ -20,7 +20,8 @@
     "react-player": "^3.3.3",
     "react-quill-new": "^3.6.0",
     "react-router-dom": "6.18.0",
-    "socket.io-client": "^4.7.2",
+    "recharts": "^3.3.0",
+    "socket.io-client": "^4.8.1",
     "youtube-transcript": "^1.2.1"
   },
   "devDependencies": {
