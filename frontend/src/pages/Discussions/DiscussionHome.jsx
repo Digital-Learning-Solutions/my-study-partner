@@ -6,6 +6,7 @@ import Pagination from "../../components/Discussion/Pagination";
 import NewQuestionModal from "../../components/Discussion/NewQuestionModal";
 import { useParams } from "react-router-dom";
 import { useDiscussionContext } from "../../context/useDiscussionContext";
+import { useStoredContext } from "../../context/useStoredContext";
 
 export default function DiscussionHome() {
   const { fetchDiscussions, listState, urlParamToTitle } =
@@ -19,12 +20,26 @@ export default function DiscussionHome() {
     sort: "recent",
   });
   const [showReminder, setShowReminder] = useState(false);
+  const { user } = useStoredContext();
 
   // Keep selectedSection in sync with the URL (handles browser back/forward)
   useEffect(() => {
     setSelectedSection(sectionKey || null);
     setFilters((prev) => ({ ...prev, page: 1 }));
-  }, [sectionKey]);
+
+    // Track recent activity
+    if (user) {
+      const activity = {
+        title: selectedSection ? urlParamToTitle(selectedSection) : "All Discussions",
+        type: "Discussion",
+        url: `/discussions${selectedSection ? `/section/${selectedSection}` : ""}`,
+        timestamp: new Date().toISOString(),
+      };
+      const activities = JSON.parse(localStorage.getItem("recentActivities") || "[]");
+      activities.unshift(activity);
+      localStorage.setItem("recentActivities", JSON.stringify(activities.slice(0, 10))); // Keep last 10
+    }
+  }, [sectionKey, user, urlParamToTitle, selectedSection]);
 
   useEffect(() => {
     fetchDiscussions(filters, selectedSection);

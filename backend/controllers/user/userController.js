@@ -22,7 +22,11 @@ export const getUserDiscussionById = async (req, res) => {
 export async function getUser(req, res) {
   try {
     const { userId } = req.params;
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate({
+        path: "enrolledCourses.course",
+        select: "title modules _id courseType slug subject",
+      });
+      
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

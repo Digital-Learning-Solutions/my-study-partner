@@ -96,7 +96,7 @@ export default function Dashboard() {
   const safeCourses = data?.courses || { totalEnrolled: 0, completedCourses: 0, avgCourseProgress: 0, totalClasses: 0, watchedClasses: 0, detail: [] };
   const safeQuiz = data?.quiz || { totalQuizzesPlayed: 0, totalCorrect: 0, averageScore: 0, byCourse: [] };
   const safeDiscussions = Array.isArray(data?.discussions?.enrolled) ? data.discussions.enrolled : [];
-  const recentActivity = Array.isArray(data?.activity) ? data.activity : [];
+  const recentActivity = JSON.parse(localStorage.getItem("recentActivities") || "[]");
 
   const pieData = useMemo(() => [
     { name: 'Completed', value: Number(safeCourses.completedCourses) || 0 },

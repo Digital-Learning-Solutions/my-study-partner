@@ -1,8 +1,26 @@
 import { useNavigate } from "react-router-dom";
 import { User, Users } from "react-feather";
+import { useStoredContext } from "./context/useStoredContext";
+import { useEffect } from "react";
 
 export default function QuizHubPage() {
   const navigate = useNavigate();
+  const { user } = useStoredContext();
+
+  useEffect(() => {
+    // Track recent activity
+    if (user) {
+      const activity = {
+        title: "Quiz Hub",
+        type: "Quiz",
+        url: "/quiz",
+        timestamp: new Date().toISOString(),
+      };
+      const activities = JSON.parse(localStorage.getItem("recentActivities") || "[]");
+      activities.unshift(activity);
+      localStorage.setItem("recentActivities", JSON.stringify(activities.slice(0, 10))); // Keep last 10
+    }
+  }, [user]);
 
   const cardBaseClasses =
     "cursor-pointer bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-transform transform hover:scale-105 p-8 flex flex-col items-center text-center border border-gray-100 dark:border-gray-700";

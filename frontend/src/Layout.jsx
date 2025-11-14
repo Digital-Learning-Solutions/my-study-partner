@@ -9,6 +9,7 @@ import Discussion from "./Discussion";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import Landing from "./pages/Landing/Landing.jsx";
+import SubscriptionPage from "./pages/Subscriptions/SubscriptionPage.jsx";
 
 function Layout() {
   return (
@@ -38,6 +39,7 @@ function Layout() {
             }
           />
           <Route path="/landing" element={<Landing />} />
+          <Route path="/subscriptions" element={<SubscriptionPage />} />
         </Routes>
       </main>
 
