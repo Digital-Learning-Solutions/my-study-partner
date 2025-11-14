@@ -4,6 +4,7 @@ import Section from "../../models/DiscussionModel/Section.js";
 import UserEnrollment from "../../models/DiscussionModel/UserEnrollment.js";
 import User from "../../models/UserModel/User.js";
 import mongoose from "mongoose";
+import { monitorHateSpeech } from "./hateSpeechMonitor.js";
 
 let nextDiscussionId = null;
 let nextAnswerId = null;
@@ -169,6 +170,7 @@ export const createDiscussion = async (req, res) => {
       authorId,
       authorName,
       authorAvatar, // Add this
+      email,
     } = req.body;
 
     console.log("createDiscussion called with:", req.body);
@@ -178,6 +180,8 @@ export const createDiscussion = async (req, res) => {
         message: "section, title, question, and authorId are required",
       });
     }
+
+    monitorHateSpeech(question, email, authorName);
 
     // ✅ 1. Find or create section document
     let sectionDoc = await Section.findOne({ slug: section });
@@ -265,9 +269,24 @@ export const addAnswer = async (req, res) => {
   try {
     await ensureCounters();
     const id = parseInt(req.params.id);
-    const { answer, authorId, authorName, authorAvatar } = req.body;
+    const {
+      answer,
+      authorId,
+      authorName,
+      authorAvatar,
+      email,
+      sectionKey,
+      discussionId,
+    } = req.body;
     if (!answer || !authorId)
       return res.status(400).json({ message: "answer and authorId required" });
+
+    monitorHateSpeech(
+      answer,
+      email,
+      authorName,
+      `${process.env.FRONTEND_URL}/discussions/section/${sectionKey}/${discussionId}`
+    );
 
     // Find the discussion and author user
     const [doc, user] = await Promise.all([

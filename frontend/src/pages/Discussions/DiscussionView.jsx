@@ -9,7 +9,7 @@ import { ThumbsUp, ThumbsDown, Flag, UserCircle } from "lucide-react";
 import { useStoredContext } from "../../context/useStoredContext.js";
 
 export default function DiscussionView() {
-  const { id } = useParams();
+  const { sectionKey, id } = useParams();
   const [discussion, setDiscussion] = useState(null);
   const [answerText, setAnswerText] = useState("");
   const [showReminder, setShowReminder] = useState(false);
@@ -48,6 +48,9 @@ export default function DiscussionView() {
         authorId: userId || "anonymous",
         authorName: user?.profile?.fullName || "",
         authorAvatar: user?.profile?.avatarUrl || "",
+        email: user?.email || "",
+        sectionKey,
+        discussionId: id,
       });
       const fresh = await api.getDiscussion(id);
       setDiscussion(fresh);

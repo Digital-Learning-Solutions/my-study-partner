@@ -64,6 +64,7 @@ export default function NewQuestionModal({ section, onClose, onCreated }) {
         authorId: userId,
         authorName: user?.profile?.fullName || "",
         newTags: tags.filter((t) => !availableTags.includes(t)),
+        email: user?.email || "",
       };
 
       await createDiscussion(payload);
