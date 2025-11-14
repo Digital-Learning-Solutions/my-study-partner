@@ -1,7 +1,9 @@
+/* eslint-disable no-unused-vars */
 // src/pages/HomePage.jsx
 
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   BookOpen,
   Zap,
