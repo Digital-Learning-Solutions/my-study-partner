@@ -6,7 +6,12 @@ const CourseSchema = new mongoose.Schema({
   courseType: { type: String },
   image: { type: String },
   enrollCount: { type: Number, default: 4.2 },
-  rating: { type: Number, default: 0 },
+  ratings: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      rating: Number,
+    },
+  ],
   moduleCount: { type: Number, default: 0 },
   modules: {
     type: [

@@ -73,29 +73,36 @@ export const enrollInCourse = async (req, res) => {
 export const rateCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const { rating } = req.body;
-
-    if (!rating || rating < 1 || rating > 5)
-      return res.status(400).json({ message: "Invalid rating" });
+    const { userId, rating } = req.body;
 
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: "Course not found" });
 
-    // Average rating (simple incremental average)
-    course.ratingCount = (course.ratingCount || 0) + 1;
-    course.totalRating = (course.totalRating || 0) + rating;
-    course.rating = Number(
-      (course.totalRating / course.ratingCount).toFixed(1)
-    );
+    // Check if user already rated
+    const existing = course.ratings.find((r) => r.userId.toString() === userId);
 
+    if (existing) {
+      existing.rating = rating; // update
+    } else {
+      course.ratings.push({ userId, rating }); // add new rating
+    }
+
+    // Calculate new average
+    const totalRatings = course.ratings.length;
+    const avgRating = (
+      course.ratings.reduce((acc, r) => acc + r.rating, 0) / totalRatings
+    ).toFixed(1);
+
+    course.rating = avgRating;
     await course.save();
 
-    res.status(200).json({
-      message: "Rating added successfully",
-      newRating: course.rating,
+    res.json({
+      message: "Rating updated",
+      newRating: avgRating,
+      totalRatings,
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Rating failed" });
   }
 };

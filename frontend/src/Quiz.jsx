@@ -5,8 +5,12 @@ import QuizHubPage from "./QuizHub";
 import SoloPage from "./pages/Quiz/SoloPage";
 import LobbyPage from "./pages/Quiz/LobbyPage";
 import GamePage from "./pages/Quiz/GamePage";
+import { useStoredContext } from "./context/useStoredContext";
 
 function Quiz() {
+  const { user } = useStoredContext();
+
+  console.log("Quiz User:", user);
   return (
     // <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     //    <nav className="p-4 bg-white shadow dark:bg-gray-800 dark:shadow-lg">

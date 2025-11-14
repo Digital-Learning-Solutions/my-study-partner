@@ -30,20 +30,29 @@ export default function DiscussionHome() {
     // Track recent activity
     if (user) {
       const activity = {
-        title: selectedSection ? urlParamToTitle(selectedSection) : "All Discussions",
+        title: selectedSection
+          ? urlParamToTitle(selectedSection)
+          : "All Discussions",
         type: "Discussion",
-        url: `/discussions${selectedSection ? `/section/${selectedSection}` : ""}`,
+        url: `/discussions${
+          selectedSection ? `/section/${selectedSection}` : ""
+        }`,
         timestamp: new Date().toISOString(),
       };
-      const activities = JSON.parse(localStorage.getItem("recentActivities") || "[]");
+      const activities = JSON.parse(
+        localStorage.getItem("recentActivities") || "[]"
+      );
       activities.unshift(activity);
-      localStorage.setItem("recentActivities", JSON.stringify(activities.slice(0, 10))); // Keep last 10
+      localStorage.setItem(
+        "recentActivities",
+        JSON.stringify(activities.slice(0, 10))
+      ); // Keep last 10
     }
   }, [sectionKey, user, urlParamToTitle, selectedSection]);
 
   useEffect(() => {
     fetchDiscussions(filters, selectedSection);
-  }, [filters.page, selectedSection, filters.sort]);
+  }, [filters, selectedSection, fetchDiscussions]);
 
   const handleNewQuestionClick = () => {
     const hideReminder = localStorage.getItem("hideReminder");

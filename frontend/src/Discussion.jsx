@@ -3,8 +3,13 @@ import { Route, Routes } from "react-router-dom";
 import DiscussionHome from "./pages/Discussions/DiscussionHome";
 import DiscussionView from "./pages/Discussions/DiscussionView";
 import { DiscussionProvider } from "./context/DiscussionProvider";
+import { useStoredContext } from "./context/useStoredContext";
 
 export default function Discussion() {
+  const { user } = useStoredContext();
+
+  console.log("Discussion User:", user);
+
   return (
     <div>
       {/* <CoursesNavbar /> */}

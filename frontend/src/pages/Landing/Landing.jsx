@@ -12,17 +12,19 @@ function Landing() {
     getUser();
 
     // Load recent activities from localStorage
-    const activities = JSON.parse(localStorage.getItem("recentActivities") || "[]");
+    const activities = JSON.parse(
+      localStorage.getItem("recentActivities") || "[]"
+    );
     setRecentActivities(activities.slice(0, 5)); // Show last 5
 
     // Calculate streak
     const userId = user?._id;
     try {
-      const key = userId ? `streak_${userId}` : 'streak_guest';
+      const key = userId ? `streak_${userId}` : "streak_guest";
       const getYMD = (d) => {
         const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
         return `${yyyy}-${mm}-${dd}`;
       };
       const todayStr = getYMD(new Date());
@@ -32,7 +34,12 @@ function Landing() {
 
       const raw = localStorage.getItem(key);
       let obj = null;
-      try { obj = raw ? JSON.parse(raw) : null; } catch (e) { obj = null; }
+      try {
+        obj = raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        obj = null;
+        console.error(e);
+      }
 
       if (!obj) {
         obj = { lastVisit: todayStr, streak: 1 };
@@ -53,6 +60,7 @@ function Landing() {
       }
     } catch (e) {
       setStreak(0);
+      console.error("Error calculating streak:", e);
     }
   }, [getUser, user]);
 
@@ -87,19 +95,29 @@ function Landing() {
   // Get total classes in a course
   const getTotalClasses = (course) => {
     if (!course || !Array.isArray(course.modules)) return 0;
-    return course.modules.reduce((total, module) => total + (module.classCount || 0), 0);
+    return course.modules.reduce(
+      (total, module) => total + (module.classCount || 0),
+      0
+    );
   };
 
   // Filter ongoing (incomplete) courses with valid progress
-  const ongoingCourses = user.enrolledCourses?.filter(ec => !ec.isComplete && getTotalClasses(ec.course) > 0) || [];
+  const ongoingCourses =
+    user.enrolledCourses?.filter(
+      (ec) => !ec.isComplete && getTotalClasses(ec.course) > 0
+    ) || [];
 
   // Activity icons
   const getActivityIcon = (type) => {
     switch (type.toLowerCase()) {
-      case 'course': return '📚';
-      case 'quiz': return '🧠';
-      case 'discussion': return '💬';
-      default: return '📝';
+      case "course":
+        return "📚";
+      case "quiz":
+        return "🧠";
+      case "discussion":
+        return "💬";
+      default:
+        return "📝";
     }
   };
 
@@ -134,10 +152,12 @@ function Landing() {
             <div className="text-xs text-slate-500">Current Streak</div>
             <div className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent animate-pulse flex items-center justify-center">
               {streak}
-              <span className="text-3xl ml-4 drop-shadow-2xl text-orange-500 filter brightness-125">🔥</span>
+              <span className="text-3xl ml-4 drop-shadow-2xl text-orange-500 filter brightness-125">
+                🔥
+              </span>
             </div>
             <div className="text-sm text-slate-500 dark:text-slate-300">
-              {streak === 1 ? 'day' : 'days'}
+              {streak === 1 ? "day" : "days"}
             </div>
           </div>
         </div>
@@ -164,8 +184,13 @@ function Landing() {
               {ongoingCourses.map((ec) => {
                 const course = ec.course;
                 const totalClasses = getTotalClasses(course);
-                const progressPercent = calculateProgress(ec.progress, totalClasses);
-                const courseLink = course ? `/courses/${course.courseType || course.slug}/${course._id}` : "/courses";
+                const progressPercent = calculateProgress(
+                  ec.progress,
+                  totalClasses
+                );
+                const courseLink = course
+                  ? `/courses/${course.courseType || course.slug}/${course._id}`
+                  : "/courses";
 
                 return (
                   <Link
@@ -205,11 +230,19 @@ function Landing() {
           <div className="text-center py-8">
             <div className="inline-block bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-8 shadow-xl transform hover:scale-105 transition-all duration-300">
               <div className="text-6xl mb-4">🧠</div>
-              <h3 className="text-2xl font-bold text-white mb-2">Ultimate Knowledge Challenge</h3>
-              <p className="text-orange-100 mb-6">Test your skills in this trending quiz with 1000+ participants!</p>
+              <h3 className="text-2xl font-bold text-white mb-2">
+                Ultimate Knowledge Challenge
+              </h3>
+              <p className="text-orange-100 mb-6">
+                Test your skills in this trending quiz with 1000+ participants!
+              </p>
               <div className="flex justify-center space-x-4 mb-4">
-                <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">1000+ Players</span>
-                <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">High Score: 95%</span>
+                <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
+                  1000+ Players
+                </span>
+                <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
+                  High Score: 95%
+                </span>
               </div>
               <Link
                 to="/quiz"
@@ -261,13 +294,16 @@ function Landing() {
                   className="group block bg-gradient-to-r from-slate-50 to-white dark:from-slate-700 dark:to-slate-600 rounded-xl p-4 hover:shadow-lg transform hover:scale-102 transition-all duration-300 border border-slate-200 dark:border-slate-600"
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="text-2xl">{getActivityIcon(activity.type)}</div>
+                    <div className="text-2xl">
+                      {getActivityIcon(activity.type)}
+                    </div>
                     <div className="flex-1">
                       <h4 className="font-semibold text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {activity.title}
                       </h4>
                       <p className="text-sm text-slate-500 dark:text-slate-300">
-                        {activity.type} • {new Date(activity.timestamp).toLocaleString()}
+                        {activity.type} •{" "}
+                        {new Date(activity.timestamp).toLocaleString()}
                       </p>
                     </div>
                     <div className="text-slate-400 dark:text-slate-500 group-hover:text-blue-500 transition-colors">

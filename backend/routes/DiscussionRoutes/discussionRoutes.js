@@ -1,7 +1,6 @@
 // backend/routes/api.js
 import express from "express";
 import * as DiscussionCtrl from "../../controllers/DiscussionController/discussionController.js";
-import Discussion from "../../models/DiscussionModel/Discussion.js";
 
 const router = express.Router();
 
@@ -45,5 +44,23 @@ router.post("/discussions/:id/downvote", DiscussionCtrl.handleQuestionUpvote);
 // 🔹 Report a Discussion
 // ------------------------------
 router.post("/discussions/:id/report", DiscussionCtrl.handleQuestionUpvote);
+
+// Update Answer
+router.put(
+  "/discussions/:discussionId/answers/:answerId",
+  DiscussionCtrl.updateAnswer
+);
+
+// Delete Answer
+router.delete(
+  "/discussions/:discussionId/answers/:answerId",
+  DiscussionCtrl.deleteAnswer
+);
+
+// Highlight Answer
+router.post(
+  "/discussions/:discussionId/answers/:answerId/highlight",
+  DiscussionCtrl.highlightAnswer
+);
 
 export default router;

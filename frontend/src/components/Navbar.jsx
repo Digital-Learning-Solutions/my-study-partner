@@ -17,9 +17,10 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false); // desktop profile dropdown
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false); // mobile profile drawer
   const [authenticated, setAuthenticated] = useState(false);
-  const { user } = useStoredContext();
+  const { user, setUser } = useStoredContext();
   const navigate = useNavigate();
 
+  console.log("Navbar User:", user);
   // Separate refs for desktop and mobile to prevent conflicts
   const desktopBtnRef = useRef(null);
   const desktopMenuRef = useRef(null);
@@ -102,6 +103,8 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      setUser(null);
       setProfileOpen(false);
       setMobileSidebarOpen(false);
       navigate("/login");
@@ -367,7 +370,7 @@ export default function Navbar() {
               Settings
             </MobileItem>
             <MobileItem
-              to="/profile/edit"
+              to="/profile"
               setMenuOpen={() => setMobileSidebarOpen(false)}
               icon={<Edit className="h-4 w-4" />}
             >

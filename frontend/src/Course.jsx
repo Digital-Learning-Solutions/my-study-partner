@@ -4,8 +4,12 @@ import CourseLanding from "./pages/Courses/CourceLanding";
 import Category from "./pages/Courses/Category";
 import CourseModulesPage from "./pages/Courses/CourseModulesPage";
 import ModuleVideosPage from "./pages/Courses/ModuleVideoPage";
+import { useStoredContext } from "./context/useStoredContext";
 
 export default function Cource() {
+  const { user } = useStoredContext();
+
+  console.log("Course User:", user);
   return (
     <div>
       {/* <CoursesNavbar /> */}

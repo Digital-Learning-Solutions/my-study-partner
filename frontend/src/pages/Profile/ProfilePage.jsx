@@ -14,9 +14,10 @@ export default function ProfilePage() {
   const [form, setForm] = useState(user?.profile || {});
   const navigate = useNavigate();
 
+  console.log("Profile User:", user);
   useEffect(() => {
     getUser();
-  }, []);
+  }, [getUser]);
 
   const handleUpdate = async () => {
     try {
@@ -38,8 +39,8 @@ export default function ProfilePage() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
-    setUser({});
-    navigate("/");
+    setUser(null);
+    navigate("/login");
   };
 
   if (!user) return <div className="p-6">Loading profile...</div>;

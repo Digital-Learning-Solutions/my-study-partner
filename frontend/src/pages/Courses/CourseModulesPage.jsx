@@ -16,28 +16,22 @@ export default function CourseModulesPage() {
     async function fetchCourseAndUser() {
       try {
         const courseRes = await fetch(
-          `http://localhost:5000/api/course/get-course/${id}`,
-          {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          }
+          `http://localhost:5000/api/course/get-course/${id}`
         );
-
-        if (!courseRes.ok) throw new Error("Failed to fetch course");
         const courseData = await courseRes.json();
         const fetchedCourse = courseData.course;
-        setCourse(fetchedCourse);
 
-        // 2️⃣ Check enrollment only if logged in
+        setCourse(fetchedCourse);
+        console.log("User:", user);
+
         if (user) {
-          // Compare stringified ObjectIds safely
           const enrolled = user.enrolledCourses.some(
-            (c) => c.course === fetchedCourse._id
+            (c) => String(c.course._id) === String(fetchedCourse._id)
           );
           setIsEnrolled(enrolled);
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } catch (err) {
+        console.error(err);
       }
     }
 
@@ -133,10 +127,17 @@ export default function CourseModulesPage() {
             </h3>
             <CourseRating
               courseId={course._id}
-              currentRating={course.rating}
-              onRated={(newRating) =>
-                setCourse((prev) => ({ ...prev, rating: newRating }))
-              }
+              ratings={course.ratings}
+              isEnrolled={isEnrolled}
+              onRated={(newAvg, userRating) => {
+                setCourse((prev) => ({
+                  ...prev,
+                  rating: newAvg,
+                  ratings: prev.ratings.map((r) =>
+                    r.userId === user._id ? { ...r, rating: userRating } : r
+                  ),
+                }));
+              }}
             />
           </div>
         </div>

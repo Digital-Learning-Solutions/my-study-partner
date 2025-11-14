@@ -2,7 +2,7 @@
 import Discussion from "../../models/DiscussionModel/Discussion.js";
 import Section from "../../models/DiscussionModel/Section.js";
 import UserEnrollment from "../../models/DiscussionModel/UserEnrollment.js";
-import User from "../../models/UserModel/User.js";
+import User from "../../models/UserModel/user.js";
 import mongoose from "mongoose";
 import { monitorHateSpeech } from "./hateSpeechMonitor.js";
 
@@ -181,7 +181,7 @@ export const createDiscussion = async (req, res) => {
       });
     }
 
-    monitorHateSpeech(question, email, authorName);
+    // monitorHateSpeech(question, email, authorName);
 
     // ✅ 1. Find or create section document
     let sectionDoc = await Section.findOne({ slug: section });
@@ -220,7 +220,7 @@ export const createDiscussion = async (req, res) => {
     if (mongoose.Types.ObjectId.isValid(authorId)) {
       user = await User.findById(authorId);
       if (user) {
-        user.createdDiscussions.push(discussion.id);
+        user.createdDiscussions.push(discussion._id);
         await user.save();
       }
     }
@@ -266,9 +266,18 @@ export const getDiscussion = async (req, res) => {
 };
 
 export const addAnswer = async (req, res) => {
+  console.log("\n==================== ADD ANSWER REQUEST ====================");
+  console.log("➡️ Received request to add answer");
+  console.log("📌 Discussion ID (param):", req.params.id);
+  console.log("📌 Payload:", req.body);
+
   try {
     await ensureCounters();
+    console.log("🔧 ensureCounters() executed");
+
     const id = parseInt(req.params.id);
+    console.log("📌 Parsed Discussion ID:", id);
+
     const {
       answer,
       authorId,
@@ -278,23 +287,40 @@ export const addAnswer = async (req, res) => {
       sectionKey,
       discussionId,
     } = req.body;
-    if (!answer || !authorId)
+
+    // Validate input
+    if (!answer || !authorId) {
+      console.log("❌ Validation failed: answer or authorId missing");
       return res.status(400).json({ message: "answer and authorId required" });
+    }
 
-    monitorHateSpeech(
-      answer,
-      email,
-      authorName,
-      `${process.env.FRONTEND_URL}/discussions/section/${sectionKey}/${discussionId}`
-    );
+    // Monitor Hate Speech (Disabled)
+    // console.log("🧪 Running hate speech monitor...");
+    // monitorHateSpeech(...)
 
-    // Find the discussion and author user
+    console.log("🔍 Searching for Discussion and User...");
+
+    // Parallel fetch (Discussion + User)
     const [doc, user] = await Promise.all([
       Discussion.findOne({ id }),
       User.findById(authorId).select("profile.avatarUrl").lean(),
     ]);
 
-    if (!doc) return res.status(404).json({ message: "Discussion not found" });
+    if (!doc) {
+      console.log("❌ Discussion not found for ID:", id);
+      return res.status(404).json({ message: "Discussion not found" });
+    } else {
+      console.log("✔ Discussion found:", doc.title);
+    }
+
+    if (!user) {
+      console.log("⚠️ User not found for ID:", authorId);
+    } else {
+      console.log("✔ User found. Avatar:", user?.profile?.avatarUrl);
+    }
+
+    console.log("🆔 Generating new answer ID...");
+    console.log("Current nextAnswerId:", nextAnswerId);
 
     const newAnswer = {
       id: nextAnswerId++,
@@ -309,13 +335,35 @@ export const addAnswer = async (req, res) => {
       downvotes: 0,
     };
 
+    console.log("📝 New Answer object:", newAnswer);
+
+    console.log(`📌 Pushing answer into discussion ID ${id}`);
     doc.answers.push(newAnswer);
+
     doc.no_of_answers = doc.answers.length;
+    console.log("📊 Updated number of answers:", doc.no_of_answers);
+
+    console.log("💾 Saving discussion...");
     await doc.save();
+
+    console.log("✔ Answer saved successfully");
+    console.log(
+      "============================================================\n"
+    );
+
     return res.status(201).json(newAnswer);
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: "Server error" });
+    console.log("\n❌ ERROR CAUGHT IN addAnswer()");
+    console.error("🔥 Full Error:", err);
+    console.error("📌 Error Message:", err.message);
+    console.error("📌 Stack Trace:", err.stack);
+    console.log(
+      "============================================================\n"
+    );
+
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
   }
 };
 
@@ -498,5 +546,98 @@ export const handleAnswerReport = async (req, res) => {
   } catch (err) {
     console.error("Error in answer report:", err);
     res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+/* ----------------------------------------------
+   1️⃣  UPDATE ANSWER
+   PUT /api/discussions/:discussionId/answers/:answerId
+---------------------------------------------- */
+export const updateAnswer = async (req, res) => {
+  try {
+    const { discussionId, answerId } = req.params;
+    const { answer } = req.body;
+
+    if (!answer)
+      return res
+        .status(400)
+        .json({ message: "Updated answer content is required" });
+
+    const discussion = await Discussion.findOne({ id: discussionId });
+    if (!discussion)
+      return res.status(404).json({ message: "Discussion not found" });
+
+    const ans = discussion.answers.find((a) => a.id === Number(answerId));
+    if (!ans) return res.status(404).json({ message: "Answer not found" });
+
+    ans.answer = answer;
+    await discussion.save();
+
+    res.json({ message: "Answer updated successfully", discussion });
+  } catch (error) {
+    console.error("Error updating answer:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ----------------------------------------------
+   2️⃣  DELETE ANSWER
+   DELETE /api/discussions/:discussionId/answers/:answerId
+---------------------------------------------- */
+export const deleteAnswer = async (req, res) => {
+  try {
+    const { discussionId, answerId } = req.params;
+
+    const discussion = await Discussion.findOne({ id: discussionId });
+    if (!discussion)
+      return res.status(404).json({ message: "Discussion not found" });
+
+    const beforeCount = discussion.answers.length;
+
+    discussion.answers = discussion.answers.filter(
+      (a) => a.id !== Number(answerId)
+    );
+
+    if (discussion.answers.length === beforeCount)
+      return res.status(404).json({ message: "Answer not found" });
+
+    discussion.no_of_answers = discussion.answers.length;
+
+    await discussion.save();
+
+    res.json({ message: "Answer deleted successfully", discussion });
+  } catch (error) {
+    console.error("Error deleting answer:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ----------------------------------------------
+   3️⃣  HIGHLIGHT ANSWER
+   POST /api/discussions/:discussionId/answers/:answerId/highlight
+---------------------------------------------- */
+export const highlightAnswer = async (req, res) => {
+  try {
+    const { discussionId, answerId } = req.params;
+
+    const discussion = await Discussion.findOne({ id: discussionId });
+    if (!discussion)
+      return res.status(404).json({ message: "Discussion not found" });
+
+    // Un-highlight all answers first (only 1 highlighted allowed)
+    discussion.answers.forEach((a) => (a.is_highlighted = false));
+
+    // Highlight selected answer
+    const ans = discussion.answers.find((a) => a.id === Number(answerId));
+    if (!ans) return res.status(404).json({ message: "Answer not found" });
+
+    ans.is_highlighted = true;
+
+    await discussion.save();
+
+    res.json({ message: "Answer highlighted", discussion });
+  } catch (error) {
+    console.error("Error highlighting answer:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

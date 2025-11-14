@@ -50,6 +50,7 @@ export default function SearchBar() {
           c.title.toLowerCase().includes(query.toLowerCase())
         );
         setResults(filtered);
+        console.log("Search results:", filtered);
       } catch (error) {
         setResults([]);
         console.error("Error fetching courses:", error);
@@ -77,7 +78,7 @@ export default function SearchBar() {
             results.map((c, i) => (
               <Link
                 key={i}
-                to={`/${c.courseType}/${c._id || c.id}`}
+                to={`/courses/${c.courseType}/${c._id || c.id}`}
                 className="block border-b last:border-b-0 border-gray-200 dark:border-gray-700 hover:bg-sky-50 dark:hover:bg-sky-900 transition"
               >
                 <SearchResultCard course={c} />
