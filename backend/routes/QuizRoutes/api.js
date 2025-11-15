@@ -75,19 +75,22 @@ router.post("/upload-notes", upload.single("file"), async (req, res) => {
     }
 
     const prompt = `
-      You are a quiz generator.
-      Based on these notes:
-      "${text}"
+    You are a quiz generator.
+    Using the provided content:
 
-      Generate 3 multiple-choice questions.
-      Each question should be JSON in this exact format:
-      {
-        "question": "string",
-        "options": ["opt1","opt2","opt3","opt4"],
-        "answer": index_of_correct_option (0-based)
-      }
+    "${text}"
 
-      Return ONLY a JSON array, no extra text.
+    Create 3 clear and natural multiple-choice questions that do NOT mention the text or source. 
+    The questions should be general, as if they are standalone quiz questions.
+
+    Each question must follow this exact JSON format:
+    {
+      "question": "string",
+      "options": ["opt1","opt2","opt3","opt4"],
+      "answer": index_of_correct_option (0-based)
+    }
+
+    Return ONLY a JSON array with the 3 questions. No extra text.
     `;
 
     // Call Gemini API

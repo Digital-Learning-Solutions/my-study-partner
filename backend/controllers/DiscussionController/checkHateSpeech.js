@@ -1,12 +1,24 @@
-import fetch from "node-fetch";
+import { pipeline } from "@xenova/transformers";
+
+// Load the model once
+let classifier = null;
+async function loadModel() {
+  if (!classifier) {
+    console.log("⏳ Loading toxic-bert ML model...");
+    classifier = await pipeline("text-classification", "Xenova/toxic-bert");
+    console.log("✅ toxic-bert model loaded successfully");
+  }
+}
 
 /**
- * Returns an object:
- * { detected: boolean, reason: string[], scores: { ... }, raw: {...} }
+ * Returns:
+ * { detected: boolean, reason: string[], score: number, raw: {...} }
  */
 export const containsHateSpeech = async (text) => {
-  // deterministic local fallback list (fast and guaranteed)
-  const localStrongWords = [
+  await loadModel();
+
+  // 1. Local fallback check
+  const badWords = [
     "fuck",
     "shit",
     "bitch",
@@ -19,126 +31,65 @@ export const containsHateSpeech = async (text) => {
     "retard",
   ];
 
-  const lowerText = (text || "").toLowerCase();
+  const lower = (text || "").toLowerCase();
+  const hits = badWords.filter((w) => lower.includes(w));
 
-  // immediate local check — helps when API fails or for guaranteed obvious catches
-  const localHit = localStrongWords.filter((w) => lowerText.includes(w));
-  if (localHit.length > 0) {
-    console.log("🔎 Local fallback matched:", localHit);
+  if (hits.length > 0) {
+    console.log("🔎 Local keyword match:", hits);
     return {
       detected: true,
       reason: ["LOCAL_KEYWORD"],
-      scores: null,
-      raw: null,
+      score: null,
+      raw: hits,
     };
   }
 
-  // --- Check API key presence early ---
-  const KEY = process.env.PERSPECTIVE_API_KEY;
-  if (!KEY) {
-    console.error("❌ PERSPECTIVE_API_KEY is not set in process.env");
-    // fallback to local only (already checked) — return false if nothing matched
-    return { detected: false, reason: ["NO_API_KEY"], scores: null, raw: null };
-  }
-
+  // 2. ML model check
   try {
-    const url = `https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=${KEY}`;
-    const body = {
-      comment: { text },
-      languages: ["en"],
-      requestedAttributes: {
-        TOXICITY: {},
-        SEVERE_TOXICITY: {},
-        INSULT: {},
-        THREAT: {},
-        IDENTITY_ATTACK: {},
-        PROFANITY: {},
-      },
-    };
+    const result = await classifier(text);
+    console.log("🧠 ML toxic-bert Result:", result);
 
-    const resp = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    const label = result[0].label.toUpperCase();
+    const score = result[0].score;
 
-    const raw = await resp.text(); // read raw text first for better diagnostics
-    let result;
-    try {
-      result = JSON.parse(raw);
-    } catch (parseErr) {
-      console.error(
-        "❌ Could not parse Perspective API JSON:",
-        parseErr,
-        "raw:",
-        raw
-      );
+    // toxic-bert labels:
+    // - TOXIC
+    // - OBSCENE
+    // - THREAT
+    // - INSULT
+    // - IDENTITY_HATE
+    // - NON_TOXIC
+
+    const toxicLabels = [
+      "TOXIC",
+      "OBSCENE",
+      "THREAT",
+      "INSULT",
+      "IDENTITY_HATE",
+    ];
+
+    if (toxicLabels.includes(label) && score >= 0.3) {
       return {
-        detected: false,
-        reason: ["INVALID_API_RESPONSE"],
-        scores: null,
-        raw,
-      };
-    }
-
-    // If API returned a non-2xx, log error details
-    if (!resp.ok) {
-      console.error("❌ Perspective API HTTP error:", resp.status, result);
-      return {
-        detected: false,
-        reason: ["API_HTTP_ERROR"],
-        scores: null,
+        detected: true,
+        reason: [label],
+        score,
         raw: result,
       };
     }
 
-    // Log the full response for debugging
-    console.log(
-      "🧾 Perspective raw response:",
-      JSON.stringify(result, null, 2)
-    );
-
-    const attributes = result.attributeScores;
-    if (!attributes) {
-      console.warn("⚠️ No attributeScores present in API response", result);
-      return {
-        detected: false,
-        reason: ["NO_ATTRIBUTES"],
-        scores: null,
-        raw: result,
-      };
-    }
-
-    const scores = {
-      toxicity: attributes.TOXICITY?.summaryScore?.value || 0,
-      severeToxicity: attributes.SEVERE_TOXICITY?.summaryScore?.value || 0,
-      insult: attributes.INSULT?.summaryScore?.value || 0,
-      threat: attributes.THREAT?.summaryScore?.value || 0,
-      identityAttack: attributes.IDENTITY_ATTACK?.summaryScore?.value || 0,
-      profanity: attributes.PROFANITY?.summaryScore?.value || 0,
-    };
-
-    console.log("🧠 Parsed Perspective Scores:", scores);
-
-    // choose threshold depending on how sensitive you want it
-    const threshold = 0.5; // adjust: 0.4-0.6 recommended for prod sensitivity
-    const triggered = Object.entries(scores)
-      .filter(([k, v]) => v >= threshold)
-      .map(([k]) => k);
-
-    if (triggered.length > 0) {
-      return { detected: true, reason: triggered, scores, raw: result };
-    }
-
-    // nothing triggered from API and local fallback already checked
-    return { detected: false, reason: ["CLEAN"], scores, raw: result };
-  } catch (err) {
-    console.error("💥 Error while calling Perspective API:", err);
     return {
       detected: false,
-      reason: ["API_CALL_ERROR"],
-      scores: null,
-      raw: err?.message || err,
+      reason: ["CLEAN"],
+      score,
+      raw: result,
+    };
+  } catch (err) {
+    console.error("💥 ML model error:", err);
+    return {
+      detected: false,
+      reason: ["ML_ERROR"],
+      score: null,
+      raw: err,
     };
   }
 };

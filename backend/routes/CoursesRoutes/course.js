@@ -86,13 +86,25 @@ courseRouter.post("/generate-notes", async (req, res) => {
     const prompt = `
 Generate clean, well-organized study notes from the following transcript.
 
-Requirements:
-- Use headings
-- Use bullet points
-- Clean formatting
-- Add summary section
-- Avoid filler words
-- Return plain text only
+Strict Rules:
+- NO Markdown formatting
+- NO bold text (**like this**)
+- NO headings using # or ## 
+- NO stars (*) or hyphens (-) for bullets
+- NO numbered lists
+- NO special characters used for formatting
+- Only plain text paragraphs separated by blank lines
+- Use simple section titles written in uppercase (example: INTRODUCTION)
+- Use simple bullet points using normal hyphens like this: 
+  • Point one
+  • Point two
+
+Required Sections:
+1. MAIN POINTS
+2. DETAILED NOTES
+3. SUMMARY
+
+Return ONLY plain text.
 
 Transcript:
 ${text}

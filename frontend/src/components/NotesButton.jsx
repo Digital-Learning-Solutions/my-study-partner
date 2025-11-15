@@ -7,7 +7,7 @@ export default function NotesButton({ videoUrl, title, id }) {
     setLoading(true);
 
     try {
-      // ✅ 1. Fetch transcript from backend
+      // 1. Fetch transcript
       const transcriptRes = await fetch(
         "http://localhost:5000/api/course/get-transcript",
         {
@@ -22,10 +22,7 @@ export default function NotesButton({ videoUrl, title, id }) {
       const transcriptData = await transcriptRes.json();
       const plainText = transcriptData.text;
 
-      // ✅ 2. Send transcript to notes generator
-      const formData = new FormData();
-      formData.append("text", plainText);
-
+      // 2. Generate Notes PDF
       const notesRes = await fetch(
         "http://localhost:5000/api/course/generate-notes",
         {
@@ -39,19 +36,11 @@ export default function NotesButton({ videoUrl, title, id }) {
 
       const data = await notesRes.json();
 
-      // ✅ 3. Final generated notes (formatted)
-      const notes = data.notes || "No notes generated.";
+      // PDF URL returned by backend
+      const fileUrl = `http://localhost:5000${data.file}`;
 
-      // ✅ 4. Auto-download notes file
-      const blob = new Blob([notes], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${title}-notes.txt`;
-      a.click();
-
-      URL.revokeObjectURL(url);
+      // ✅ 3. PREVIEW PDF instead of downloading
+      window.open(fileUrl, "_blank");
     } catch (err) {
       console.error(err);
       alert("❌ Failed to generate notes. Try again.");

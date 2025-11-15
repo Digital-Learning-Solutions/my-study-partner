@@ -181,7 +181,7 @@ export const createDiscussion = async (req, res) => {
       });
     }
 
-    // monitorHateSpeech(question, email, authorName);
+    monitorHateSpeech(question, email, authorName);
 
     // ✅ 1. Find or create section document
     let sectionDoc = await Section.findOne({ slug: section });
@@ -297,6 +297,12 @@ export const addAnswer = async (req, res) => {
     // Monitor Hate Speech (Disabled)
     // console.log("🧪 Running hate speech monitor...");
     // monitorHateSpeech(...)
+    monitorHateSpeech(
+      answer,
+      email,
+      authorName,
+      `${process.env.FRONTEND_URL}/discussions/section/${sectionKey}/${discussionId}`
+    );
 
     console.log("🔍 Searching for Discussion and User...");
 

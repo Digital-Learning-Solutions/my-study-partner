@@ -3,6 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 
 // Import your routes
 import apiRouter from "./routes/QuizRoutes/api.js";
@@ -32,6 +33,8 @@ const io = new Server(server, {
 // ✅ Global middleware
 app.use(cors());
 app.use(express.json());
+
+app.use("/notes", express.static(path.join(process.cwd(), "notes")));
 
 // ✅ Routes
 app.use("/api", apiRouter);
