@@ -21,9 +21,7 @@ export default function SoloPage() {
       const res = await axios.post(
         "http://localhost:5000/api/upload-notes",
         formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
 
       if (res.data?.questions?.length > 0) {
@@ -36,8 +34,7 @@ export default function SoloPage() {
         );
       }
     } catch (err) {
-      console.error(err);
-      setError("Failed to generate quiz. Please try again.");
+      setError("Failed to generate quiz. Please try again.", err);
     } finally {
       setLoading(false);
     }
@@ -46,6 +43,7 @@ export default function SoloPage() {
   function selectAnswer(i) {
     const current = questions[index];
     const isCorrect = current.answer === i;
+
     if (isCorrect) setScore((s) => s + 10);
 
     if (index + 1 < questions.length) {
@@ -56,35 +54,78 @@ export default function SoloPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 md:p-8 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      {/* Page Title */}
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-4 text-center text-gray-800 dark:text-gray-100">
-        Solo Mode Quiz
+    <div className="min-h-screen px-4 py-10 flex flex-col items-center justify-start bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black transition-colors duration-300">
+      {/* Title */}
+      <h1 className="text-3xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-4 text-center">
+        Solo{" "}
+        <span className="text-indigo-600 dark:text-indigo-400">Quiz Mode</span>
       </h1>
-      <p className="text-gray-600 dark:text-gray-300 text-center mb-8">
+
+      <p className="text-slate-600 dark:text-gray-300 text-center mb-10 max-w-2xl">
         Paste your notes or upload a file to generate an AI-powered quiz.
       </p>
 
       {/* Input Section */}
-      <div className="bg-white dark:bg-gray-800 shadow-md rounded-xl p-5 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition p-8 border border-gray-100 dark:border-gray-700 w-full max-w-3xl">
+        {/* Notes Textarea */}
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          className="border border-gray-300 dark:border-gray-600 rounded-lg w-full p-3 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 dark:bg-gray-700 dark:text-gray-100 resize-none"
-          placeholder="Paste your notes here (or upload a file below)"
+          className="w-full p-4 rounded-xl border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-indigo-400 outline-none resize-none mb-5"
+          placeholder="Paste your notes here..."
           rows={5}
         />
 
-        <input
-          type="file"
-          onChange={(e) => setFile(e.target.files[0])}
-          className="block mb-3 text-sm text-gray-600 dark:text-gray-300"
-        />
+        {/* Drag & Drop File Upload */}
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.currentTarget.classList.add("ring-2", "ring-indigo-400");
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove("ring-2", "ring-indigo-400");
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            e.currentTarget.classList.remove("ring-2", "ring-indigo-400");
+            const droppedFile = e.dataTransfer.files[0];
+            if (droppedFile) setFile(droppedFile);
+          }}
+          onClick={() => document.getElementById("fileInput").click()}
+          className="
+            flex flex-col items-center justify-center cursor-pointer
+            border-2 border-dashed border-gray-300 dark:border-gray-600
+            rounded-xl p-6 mb-5 transition-all bg-gray-50 dark:bg-gray-700
+            hover:border-indigo-500 dark:hover:border-indigo-400
+          "
+        >
+          <p className="text-gray-600 dark:text-gray-300 text-sm">
+            Drag & drop a file here, or{" "}
+            <span className="text-indigo-600 dark:text-indigo-400 underline">
+              browse
+            </span>
+          </p>
 
+          {file && (
+            <p className="mt-3 text-indigo-600 dark:text-indigo-400 font-medium text-sm">
+              Selected: {file.name}
+            </p>
+          )}
+
+          <input
+            id="fileInput"
+            type="file"
+            onChange={(e) => setFile(e.target.files[0])}
+            className="hidden"
+          />
+        </div>
+
+        {/* Generate Button */}
         <button
           onClick={generate}
           disabled={loading}
-          className={`w-full md:w-auto px-6 py-2 rounded-lg text-white font-semibold transition-colors duration-200 ${
+          className={`w-full md:w-auto px-8 py-3 rounded-xl text-white font-semibold transition duration-200 ${
             loading
               ? "bg-indigo-400 cursor-not-allowed"
               : "bg-indigo-600 hover:bg-indigo-700"
@@ -94,16 +135,16 @@ export default function SoloPage() {
         </button>
 
         {error && (
-          <p className="mt-3 text-red-600 dark:text-red-400">{error}</p>
+          <p className="mt-4 text-red-600 dark:text-red-400">{error}</p>
         )}
       </div>
 
       {/* Quiz Section */}
       {questions.length > 0 && (
-        <div className="mt-6 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md">
-          <div className="mb-2 text-sm flex justify-between text-gray-600 dark:text-gray-300">
+        <div className="mt-10 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-3xl border border-gray-100 dark:border-gray-700">
+          <div className="flex justify-between text-sm mb-4 text-slate-600 dark:text-gray-300">
             <span>
-              Question <strong>{index + 1}</strong> of{" "}
+              Question <strong>{index + 1}</strong> /{" "}
               <strong>{questions.length}</strong>
             </span>
             <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
@@ -111,16 +152,21 @@ export default function SoloPage() {
             </span>
           </div>
 
-          <h2 className="font-bold text-lg mb-4 text-gray-800 dark:text-gray-100">
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white mb-6">
             {questions[index].question}
           </h2>
 
-          <div className="grid gap-3">
+          <div className="grid gap-4">
             {questions[index].options.map((opt, i) => (
               <button
                 key={i}
                 onClick={() => selectAnswer(i)}
-                className="p-3 border border-gray-300 dark:border-gray-600 rounded-lg text-left hover:bg-indigo-50 dark:hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-300 transition-colors dark:text-gray-100"
+                className="
+                  p-4 border border-gray-300 dark:border-gray-700 
+                  rounded-xl text-left dark:text-white
+                  hover:bg-indigo-50 dark:hover:bg-indigo-700
+                  transition-colors
+                "
               >
                 {opt}
               </button>
@@ -131,9 +177,12 @@ export default function SoloPage() {
 
       {/* Empty State */}
       {questions.length === 0 && !loading && !error && (
-        <p className="mt-8 text-center text-gray-500 dark:text-gray-400 text-sm">
-          No quiz generated yet. Paste notes or upload a file and click{" "}
-          <strong>"Generate Quiz"</strong> to start.
+        <p className="mt-10 text-center text-gray-500 dark:text-gray-400 text-sm">
+          No quiz generated yet. Upload file or paste notes and click{" "}
+          <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+            Generate Quiz
+          </span>
+          .
         </p>
       )}
     </div>

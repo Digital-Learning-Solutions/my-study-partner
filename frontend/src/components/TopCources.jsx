@@ -1,29 +1,31 @@
 /* eslint-disable no-unused-vars */
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CourseCard from "./CourseCard";
-
-// Simple Card components (inline)
 
 export default function TopCourses() {
   const [courseList, setCourseList] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchCourses() {
       try {
         const response = await fetch("http://localhost:5000/api/course/all", {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         });
-        if (!response.ok) {
-          throw new Error("Failed to fetch courses");
-        }
+
+        if (!response.ok) throw new Error("Failed to fetch courses");
+
         const data = await response.json();
-        setCourseList(data.courses);
+
+        // ⭐ SORT by enrollCount & pick top 8
+        const topEight = [...data.courses]
+          .sort((a, b) => b.enrollCount - a.enrollCount)
+          .slice(0, 8);
+
+        setCourseList(topEight);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }
@@ -38,15 +40,27 @@ export default function TopCourses() {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.7 }}
       viewport={{ once: true }}
-      className="mt-16 px-6"
+      className="mt-20 px-6 py-10"
     >
-      <h2 className="text-2xl font-semibold text-center mb-6">Top Courses</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-        {courseList.map((c, i) => (
-          <Link key={i} to={`${c.courseType}/${c._id}`}>
+      <h2 className="text-3xl font-bold text-center mb-10">
+        Our Most Popular Courses 🔥
+      </h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-7xl mx-auto">
+        {courseList.map((c) => (
+          <Link key={c._id} to={`${c.courseType}/${c._id}`}>
             <CourseCard course={c} />
           </Link>
         ))}
+      </div>
+
+      <div className="text-center mt-12">
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="px-8 py-3 bg-sky-600 text-white font-semibold rounded-full hover:bg-sky-700 transition-colors shadow-lg"
+        >
+          Explore by Search
+        </button>
       </div>
     </motion.div>
   );

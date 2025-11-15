@@ -8,6 +8,7 @@ export default function Subjects() {
   const location = useLocation();
   const category = location.state;
   const { subject } = useParams();
+  console.log(category);
 
   // Example: courses filtered by category
 

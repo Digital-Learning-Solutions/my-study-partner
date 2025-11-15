@@ -4,10 +4,10 @@ const CourseDatabase = [
     title: "Mastering Algebra Foundations",
     description:
       "A complete beginner to intermediate guide on algebraic concepts, equations, and problem solving.",
-    courceType: "maths",
+    courseType: "maths",
     image: "https://img.youtube.com/vi/f9KqSgS1C1I/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 3,
     modules: [
       {
@@ -71,10 +71,10 @@ const CourseDatabase = [
     title: "Exploring the World of Physics",
     description:
       "Dive into fundamental physics concepts that explain how the universe works.",
-    courceType: "science",
+    courseType: "science",
     image: "https://img.youtube.com/vi/2uVZ2T_S6x0/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -119,10 +119,10 @@ const CourseDatabase = [
     title: "Understanding Human Civilization",
     description:
       "Explore ancient civilizations, their cultures, and contributions to modern society.",
-    courceType: "social-science",
+    courseType: "social-science",
     image: "https://img.youtube.com/vi/3Xl0Qr0uXuY/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 3,
     modules: [
       {
@@ -176,16 +176,15 @@ const CourseDatabase = [
     ],
   },
 
-  // ========== New 10 Courses ==========
-  // ======= 4 Maths =======
+  // ========== Existing Maths (4 courses) ==========
   {
     title: "Trigonometry Made Easy",
     description:
       "Master trigonometric ratios, identities, and real-world applications.",
-    courceType: "maths",
+    courseType: "maths",
     image: "https://img.youtube.com/vi/uq7S9w5jKyc/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -228,10 +227,10 @@ const CourseDatabase = [
     title: "Geometry for Beginners",
     description:
       "Learn shapes, theorems, coordinate geometry, and problem-solving techniques.",
-    courceType: "maths",
+    courseType: "maths",
     image: "https://img.youtube.com/vi/ZT7U6C3D5oY/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -274,10 +273,10 @@ const CourseDatabase = [
     title: "Introduction to Calculus",
     description:
       "Basics of limits, derivatives, and integration for beginners.",
-    courceType: "maths",
+    courseType: "maths",
     image: "https://img.youtube.com/vi/WUvTyaaNkzM/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -313,10 +312,10 @@ const CourseDatabase = [
   {
     title: "Probability & Statistics",
     description: "Learn basic probability concepts and descriptive statistics.",
-    courceType: "maths",
+    courseType: "maths",
     image: "https://img.youtube.com/vi/k6U-i4gXkLM/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -350,15 +349,15 @@ const CourseDatabase = [
     ],
   },
 
-  // ======= 3 Science =======
+  // ========== Existing Science (3 courses) ==========
   {
     title: "Organic Chemistry Basics",
     description:
       "Introduction to carbon compounds, functional groups, and reactions.",
-    courceType: "science",
+    courseType: "science",
     image: "https://img.youtube.com/vi/3eqE_JXlAdI/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -395,10 +394,10 @@ const CourseDatabase = [
     title: "Human Anatomy & Physiology",
     description:
       "Explore human body systems, organs, and their functions in detail.",
-    courceType: "science",
+    courseType: "science",
     image: "https://img.youtube.com/vi/UDsAokb1L0g/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -435,10 +434,10 @@ const CourseDatabase = [
     title: "Introduction to Astronomy",
     description:
       "Explore stars, planets, galaxies, and the universe beyond Earth.",
-    courceType: "science",
+    courseType: "science",
     image: "https://img.youtube.com/vi/1D4A0rK7IbY/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -472,14 +471,14 @@ const CourseDatabase = [
     ],
   },
 
-  // ======= 3 Social-Science =======
+  // ========== Existing Social-Science (3 courses) ==========
   {
     title: "Modern World History",
     description: "Study revolutions, world wars, and global historical events.",
-    courceType: "social-science",
+    courseType: "social-science",
     image: "https://img.youtube.com/vi/Jl4M2rW_kC0/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -516,10 +515,10 @@ const CourseDatabase = [
     title: "Indian Political System",
     description:
       "Understand Constitution, Parliament, and governance in India.",
-    courceType: "social-science",
+    courseType: "social-science",
     image: "https://img.youtube.com/vi/Eq8LrJpAd6A/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -556,10 +555,10 @@ const CourseDatabase = [
     title: "Global Geography",
     description:
       "Learn continents, countries, climates, and major landforms worldwide.",
-    courceType: "social-science",
+    courseType: "social-science",
     image: "https://img.youtube.com/vi/3q1ex0W9TS8/maxresdefault.jpg",
     enrollCount: 0,
-    rating: 0,
+    ratings: [],
     moduleCount: 2,
     modules: [
       {
@@ -587,6 +586,620 @@ const CourseDatabase = [
             title: "Landforms & Climate Overview",
             duration: 16,
             videoUrl: "https://www.youtube.com/watch?v=F0x7c7e-S2M",
+          },
+        ],
+      },
+    ],
+  },
+
+  // =========================================================
+  // ========== NEW COURSES (15 total) =======================
+  // =========================================================
+
+  // ======= 5 Computer Science Courses =======
+  {
+    title: "Introduction to Python Programming",
+    description:
+      "A project-based introduction to Python fundamentals, syntax, and basic libraries.",
+    courseType: "computer-science",
+    image: "https://img.youtube.com/vi/fWjsdhR3z3c/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Python Setup and Basics",
+        content: "Installing Python and understanding core data types.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Python Basics: Variables & Data Types",
+            duration: 10,
+            videoUrl: "http://www.youtube.com/watch?v=fWjsdhR3z3c",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Control Flow",
+        content: "Mastering conditional statements and loops.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "If/Else Statements and For Loops",
+            duration: 14,
+            videoUrl: "https://www.youtube.com/watch?v=rfscVS0vtbw", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Web Development Fundamentals",
+    description:
+      "Build your first websites using the core technologies: HTML, CSS, and JavaScript.",
+    courseType: "computer-science",
+    image: "https://img.youtube.com/vi/MBlkKE0GYGg/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "HTML and CSS Essentials",
+        content: "Structuring content with HTML and styling with CSS.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Intro to HTML & CSS",
+            duration: 15,
+            videoUrl: "http://www.youtube.com/watch?v=MBlkKE0GYGg",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "JavaScript Basics",
+        content: "Adding interactivity and logic with vanilla JavaScript.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Variables and Functions in JS",
+            duration: 18,
+            videoUrl: "https://www.youtube.com/watch?v=PkZNo7MFsGs", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Data Structures & Algorithms (DSA)",
+    description:
+      "Essential course for mastering data organization and efficient problem-solving.",
+    courseType: "computer-science",
+    image: "https://img.youtube.com/vi/O9v10jQkm5c/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Linear Data Structures",
+        content: "A deep dive into Arrays, Linked Lists, Stacks, and Queues.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Arrays and Linked Lists Explained",
+            duration: 15,
+            videoUrl: "http://www.youtube.com/watch?v=O9v10jQkm5c",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Searching and Sorting",
+        content: "Introduction to common search and sort algorithms.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Bubble Sort and Binary Search",
+            duration: 17,
+            videoUrl: "https://www.youtube.com/watch?v=KgJ35PzD14Y", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Foundations of AI and Machine Learning",
+    description:
+      "A conceptual overview of Artificial Intelligence and its core subset, Machine Learning.",
+    courseType: "computer-science",
+    image: "https://img.youtube.com/vi/qYNweeDHiyU/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Core AI Concepts",
+        content: "Defining AI, ML, and Deep Learning.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "AI vs. ML Explained",
+            duration: 10,
+            videoUrl: "http://www.youtube.com/watch?v=qYNweeDHiyU",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Supervised Learning",
+        content: "Understanding regression and classification algorithms.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Linear Regression Intro",
+            duration: 13,
+            videoUrl: "https://www.youtube.com/watch?v=TzI0n0J938M", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Database Management with SQL",
+    description:
+      "Learn to design, manage, and query relational databases using Structured Query Language (SQL).",
+    courseType: "computer-science",
+    image: "https://img.youtube.com/vi/kbKty5ZVKMY/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Relational Database Concepts",
+        content: "Tables, columns, rows, and primary/foreign keys.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Basic SQL Queries (SELECT, FROM)",
+            duration: 17,
+            videoUrl: "http://www.youtube.com/watch?v=kbKty5ZVKMY",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Advanced Queries",
+        content: "Joins, aggregations, and subqueries.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Understanding SQL JOINs",
+            duration: 15,
+            videoUrl: "https://www.youtube.com/watch?v=kYjY-WjK94E", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+
+  // ======= 5 English Courses =======
+  {
+    title: "English Grammar Mastery",
+    description:
+      "A complete guide to mastering English grammar rules, punctuation, and sentence construction for flawless communication.",
+    courseType: "english",
+    image: "https://img.youtube.com/vi/UJMZwjzxuqM/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Foundational Grammar",
+        content: "Parts of speech, verb tenses, and sentence structure.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Parts of Speech and Sentence Structure",
+            duration: 15,
+            videoUrl: "http://www.youtube.com/watch?v=UJMZwjzxuqM",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Advanced Punctuation & Usage",
+        content: "Using commas, semicolons, and avoiding common errors.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Punctuation Rules Made Easy",
+            duration: 12,
+            videoUrl: "https://www.youtube.com/watch?v=wX-83yFfBfQ", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Creative Writing Fundamentals",
+    description:
+      "Learn the core techniques of crafting compelling fiction and non-fiction, focusing on plot, character, and dialogue.",
+    courseType: "english",
+    image: "https://img.youtube.com/vi/pRBhZpdnAa8/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Elements of Storytelling",
+        content: "Developing plot, setting, and theme.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Story Structure and Character Development",
+            duration: 18,
+            videoUrl: "http://www.youtube.com/watch?v=pRBhZpdnAa8",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Writing Styles and Techniques",
+        content:
+          "Mastering descriptive writing and crafting compelling dialogue.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Writing Descriptive Sentences",
+            duration: 10,
+            videoUrl: "https://www.youtube.com/watch?v=RSoRzTtwgP4", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Public Speaking and Presentation Skills",
+    description:
+      "Overcome stage fright and deliver confident, impactful presentations to any audience.",
+    courseType: "english",
+    image: "https://img.youtube.com/vi/962eYqe--Yc/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Managing Anxiety and Confidence",
+        content:
+          "Techniques for overcoming fear and building speaking presence.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "4 Tips to Captivate an Audience",
+            duration: 12,
+            videoUrl: "http://www.youtube.com/watch?v=962eYqe--Yc",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Structuring Your Speech",
+        content: "The effective use of opening, body, and closing techniques.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "The 3-Part Speech Structure",
+            duration: 15,
+            videoUrl: "https://www.youtube.com/watch?v=5m-C5mwpmxU", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Essential IELTS Preparation",
+    description:
+      "Comprehensive training for the International English Language Testing System (IELTS) exam, covering all four modules.",
+    courseType: "english",
+    image: "https://img.youtube.com/vi/apOCnYpR-9g/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "IELTS Reading and Listening",
+        content: "Strategies for improving comprehension and score.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Band 9 Reading Strategy",
+            duration: 10,
+            videoUrl: "http://www.youtube.com/watch?v=apOCnYpR-9g",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "IELTS Writing and Speaking",
+        content: "Tips for task achievement and fluency.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Writing Task 2 Structure",
+            duration: 13,
+            videoUrl: "https://www.youtube.com/watch?v=G8Y2liwGRl8", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Introduction to Classic English Literature",
+    description:
+      "Explore the masterpieces of English literature from Shakespeare to the modern era, focusing on historical context and literary devices.",
+    courseType: "english",
+    image: "https://img.youtube.com/vi/eIrnRa8tH1Q/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Medieval to Romantic Era",
+        content: "Key authors and movements from Chaucer to the Romantics.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Beginner's Guide to Reading The Classics",
+            duration: 9,
+            videoUrl: "http://www.youtube.com/watch?v=eIrnRa8tH1Q",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Victorian and Modernism",
+        content: "Analyzing works by Dickens, Woolf, and other modernists.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Where to Start with Classics",
+            duration: 11,
+            videoUrl: "https://www.youtube.com/watch?v=RqRLC4vnJEc", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+
+  // ======= 5 Share Market Courses =======
+  {
+    title: "Stock Market Investing for Beginners",
+    description:
+      "A zero-to-hero guide on how to open a brokerage account, buy your first stock, and manage risk.",
+    courseType: "share-market",
+    image: "https://img.youtube.com/vi/dbDijzEgo7E/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Getting Started",
+        content: "What is a stock market and how to buy shares.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "How to Invest in Stocks for Beginners",
+            duration: 8,
+            videoUrl: "http://www.youtube.com/watch?v=dbDijzEgo7E",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Risk Management",
+        content: "Understanding diversification and setting stop-losses.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "The Importance of Diversification",
+            duration: 10,
+            videoUrl: "https://www.youtube.com/watch?v=7uK7K7f7Y5s", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Technical Analysis 101",
+    description:
+      "Master the art of reading price charts, candlestick patterns, and technical indicators to time your trades.",
+    courseType: "share-market",
+    image: "https://img.youtube.com/vi/eynxyoKgpng/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Chart Basics and Candlesticks",
+        content: "Reading stock charts and identifying patterns.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Introduction to Candlestick Charts",
+            duration: 15,
+            videoUrl: "http://www.youtube.com/watch?v=eynxyoKgpng",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Support, Resistance, and Indicators",
+        content: "Using moving averages and volume for trend confirmation.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Using Moving Averages",
+            duration: 12,
+            videoUrl: "https://www.youtube.com/watch?v=Yv2iYYewdf0", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Fundamental Analysis Deep Dive",
+    description:
+      "Learn to assess the intrinsic value of a company by analyzing its financial statements and business model.",
+    courseType: "share-market",
+    image: "https://img.youtube.com/vi/3BOE1A8HXeE/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Financial Statement Analysis",
+        content:
+          "Understanding the Balance Sheet, Income Statement, and Cash Flow.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Understanding Financial Statements",
+            duration: 5,
+            videoUrl: "http://www.youtube.com/watch?v=3BOE1A8HXeE",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Valuation Metrics",
+        content: "Key ratios like P/E, P/B, and Dividend Yield.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Calculating P/E Ratio",
+            duration: 10,
+            videoUrl: "https://www.youtube.com/watch?v=kXYvRR7gV2E", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Options Trading Basics",
+    description:
+      "An introduction to the derivatives market, focusing on how call and put options work.",
+    courseType: "share-market",
+    image: "https://img.youtube.com/vi/XV9avMhNL2Y/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "What are Options?",
+        content: "Definitions, terminology, and key concepts.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Calls and Puts Explained",
+            duration: 9,
+            videoUrl: "http://www.youtube.com/watch?v=XV9avMhNL2Y",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Basic Strategies",
+        content: "Long call and long put strategies for beginners.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Buying Calls and Puts",
+            duration: 12,
+            videoUrl: "https://www.youtube.com/watch?v=4HMm6mBvGKE", // Placeholder for a second class
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: "Portfolio Management Strategies",
+    description:
+      "Learn how to construct a balanced investment portfolio that aligns with your financial goals and risk tolerance.",
+    courseType: "share-market",
+    image: "https://img.youtube.com/vi/eJmt9sqDFNc/maxresdefault.jpg",
+    enrollCount: 0,
+    ratings: [],
+    moduleCount: 2,
+    modules: [
+      {
+        id: 1,
+        title: "Portfolio Construction",
+        content:
+          "Asset allocation and the role of different investment vehicles.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "Most Popular Investment Strategies",
+            duration: 14,
+            videoUrl: "http://www.youtube.com/watch?v=eJmt9sqDFNc",
+          },
+        ],
+      },
+      {
+        id: 2,
+        title: "Rebalancing and Review",
+        content: "When and how to adjust your portfolio over time.",
+        classCount: 1,
+        classes: [
+          {
+            id: 1,
+            title: "The Simple 3 Fund Portfolio",
+            duration: 12,
+            videoUrl: "https://www.youtube.com/watch?v=R0rEZYA01lM", // Placeholder for a second class
           },
         ],
       },

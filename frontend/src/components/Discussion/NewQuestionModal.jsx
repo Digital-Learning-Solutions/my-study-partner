@@ -1,5 +1,4 @@
-// src/components/NewQuestionModal.jsx
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useStoredContext } from "../../context/useStoredContext";
 import { X } from "lucide-react";
 import ReactQuill from "react-quill-new";
@@ -11,17 +10,48 @@ export default function NewQuestionModal({ section, onClose, onCreated }) {
     useDiscussionContext();
   const { user } = useStoredContext();
 
-  const availableTags =
-    sections.find((s) => s.slug === section)?.tags ||
-    sections.find((s) => s.slug === "general-knowledge")?.tags ||
-    [];
+  // If section prop is passed -> lock choosing section
+  const isLockedSection = Boolean(section && section !== "");
+
+  const [selectedSection, setSelectedSection] = useState(
+    isLockedSection ? section : ""
+  );
+
+  // Load tags based on selected section
+  const availableTags = useMemo(() => {
+    if (!selectedSection) return [];
+    const sec = sections.find((s) => s.slug === selectedSection);
+    return sec?.tags || [];
+  }, [selectedSection, sections]);
 
   const [title, setTitle] = useState("");
   const [question, setQuestion] = useState("");
   const [tags, setTags] = useState([]);
   const [inputTag, setInputTag] = useState("");
 
-  // Quill Toolbar Configuration
+  // ---- ⭐ FIX QUILL BULLET HTML ⭐ ----
+  const fixQuillHtml = (html) => {
+    if (!html) return html;
+
+    let output = html;
+
+    // Convert <ol ... data-list="bullet"> to <ul>
+    output = output.replace(
+      /<ol([^>]*)data-list="bullet"([^>]*)>/g,
+      '<ul style="list-style-type: disc; padding-left: 1.5rem;">'
+    );
+    output = output.replace(/<\/ol>/g, "</ul>");
+
+    // Convert <li data-list="bullet"> to <li>
+    output = output.replace(/<li([^>]*)data-list="bullet"([^>]*)>/g, "<li>");
+
+    // Remove quill's fake span bullets
+    output = output.replace(/<span class="ql-ui"[^>]*><\/span>/g, "");
+
+    return output;
+  };
+
+  // Quill toolbar
   const quillModules = {
     toolbar: [
       ["bold", "italic", "underline", "strike"],
@@ -37,12 +67,10 @@ export default function NewQuestionModal({ section, onClose, onCreated }) {
       e.preventDefault();
       const tag = inputTag.trim();
       if (!tag) return;
-      if (!tags.includes(tag)) {
-        setTags((prev) => [...prev, tag]);
-      }
-      if (!availableTags.includes(tag)) {
-        availableTags.push(tag);
-      }
+      if (!tags.includes(tag)) setTags((prev) => [...prev, tag]);
+
+      if (!availableTags.includes(tag)) availableTags.push(tag);
+
       setInputTag("");
     }
   };
@@ -52,14 +80,15 @@ export default function NewQuestionModal({ section, onClose, onCreated }) {
   };
 
   const submit = async () => {
+    if (!selectedSection) return alert("Please select a section");
     if (!title.trim()) return alert("Please enter a title");
     if (!question.trim()) return alert("Please write your question");
 
     try {
       const payload = {
-        section: section || "general-knowledge",
+        section: selectedSection,
         title,
-        question,
+        question: fixQuillHtml(question), // ⭐ Fixed bullets here ⭐
         tags,
         authorId: userId,
         authorName: user?.profile?.fullName || "",
@@ -88,8 +117,36 @@ export default function NewQuestionModal({ section, onClose, onCreated }) {
         </button>
 
         <h3 className="text-2xl font-semibold mb-4 text-center text-blue-700 dark:text-blue-400">
-          Ask a Question in {section ? urlParamToTitle(section) : "your mind"}
+          Ask a Question{" "}
+          {selectedSection
+            ? `in ${urlParamToTitle(selectedSection)}`
+            : "(Choose a Section)"}
         </h3>
+
+        {/* Section Select (only when not locked) */}
+        {!isLockedSection && (
+          <>
+            <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+              Section
+            </label>
+
+            <select
+              value={selectedSection}
+              onChange={(e) => {
+                setSelectedSection(e.target.value);
+                setTags([]);
+              }}
+              className="w-full p-2 border rounded-lg mb-3 dark:bg-slate-800 dark:text-white"
+            >
+              <option value="">-- Select a Section --</option>
+              {sections.map((s) => (
+                <option key={s.slug} value={s.slug}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
 
         {/* Title */}
         <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
@@ -136,7 +193,6 @@ export default function NewQuestionModal({ section, onClose, onCreated }) {
           ))}
         </div>
 
-        {/* Input for new tag */}
         <input
           type="text"
           value={inputTag}
@@ -144,15 +200,17 @@ export default function NewQuestionModal({ section, onClose, onCreated }) {
           onKeyDown={handleKeyDown}
           list="availableTags"
           placeholder="Type a tag and press Enter"
-          className="w-full p-2 border rounded-lg mb-4 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-green-400"
+          disabled={!selectedSection}
+          className="w-full p-2 border rounded-lg mb-4 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-green-400 disabled:opacity-50"
         />
+
         <datalist id="availableTags">
           {availableTags.map((tag) => (
             <option key={tag} value={tag} />
           ))}
         </datalist>
 
-        {/* Action Buttons */}
+        {/* Buttons */}
         <div className="flex justify-end gap-3 mt-4">
           <button
             onClick={onClose}
@@ -160,6 +218,7 @@ export default function NewQuestionModal({ section, onClose, onCreated }) {
           >
             Cancel
           </button>
+
           <button
             onClick={submit}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"

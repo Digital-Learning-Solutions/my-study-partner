@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import connectDB from "./config/database.js";
 import Section from "./models/DiscussionModel/Section.js";
-import { staticSections } from "./models/DiscussionModel/Section.js";
+import staticSections from "./models/DiscussionModel/statisSection.js";
 
 dotenv.config();
 

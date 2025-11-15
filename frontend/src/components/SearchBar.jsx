@@ -64,7 +64,7 @@ export default function SearchBar() {
       <input
         type="text"
         placeholder="Search for courses..."
-        className="w-full p-4 rounded-2xl shadow-md text-lg border border-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-400"
+        className="w-full p-4 rounded-2xl shadow-md text-lg border border-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-400 "
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />

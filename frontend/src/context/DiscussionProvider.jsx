@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { api } from "../api/discussionsApi.js";
 import { DiscussionContext } from "./DiscussionContext.jsx";
 
@@ -12,13 +12,14 @@ export const DiscussionProvider = ({ children }) => {
     limit: 5,
     totalPages: 1,
   });
+
   const userId = localStorage.getItem("userId") || null;
 
+  // Load sections + enrollments once
   useEffect(() => {
     (async () => {
       try {
         const s = await api.getSections();
-        console.log("client:", s.sections);
         setSections(s.sections || []);
       } catch (e) {
         console.error(e);
@@ -40,39 +41,37 @@ export const DiscussionProvider = ({ children }) => {
     return res;
   };
 
-  const fetchDiscussions = async (opts = {}, selectedSection = null) => {
-    // ensure we don't send section=null or section="" to the API
-    const query = { ...opts };
-    // ensure page & limit are always provided (fallback to current state)
-    query.page = opts.page || listState.page || 1;
-    query.limit = opts.limit || listState.limit || 5;
+  // ⭐ FIXED: useCallback prevents infinite re-renders
+  const fetchDiscussions = useCallback(
+    async (opts = {}, selectedSection = null) => {
+      const query = { ...opts };
 
-    if (
-      selectedSection === null ||
-      selectedSection === undefined ||
-      selectedSection === ""
-    ) {
-      delete query.section;
-    } else {
-      query.section = selectedSection;
-    }
+      query.page = query.page || listState.page || 1;
+      query.limit = query.limit || listState.limit || 5;
 
-    const res = await api.listDiscussions(query);
-    // safe assignment with fallbacks
-    const page = res.page || query.page || 1;
-    const limit = res.limit || query.limit || listState.limit || 5;
-    const total = typeof res.total === "number" ? res.total : 0;
-    const totalPages = res.totalPages || Math.max(1, Math.ceil(total / limit));
+      if (!selectedSection) delete query.section;
+      else query.section = selectedSection;
 
-    setListState({
-      data: res.data || [],
-      page,
-      total,
-      limit,
-      totalPages,
-    });
-    return res;
-  };
+      const res = await api.listDiscussions(query);
+
+      const page = res.page || query.page || 1;
+      const limit = res.limit || query.limit || 5;
+      const total = typeof res.total === "number" ? res.total : 0;
+      const totalPages =
+        res.totalPages || Math.max(1, Math.ceil(total / limit));
+
+      setListState({
+        data: res.data || [],
+        page,
+        total,
+        limit,
+        totalPages,
+      });
+
+      return res;
+    },
+    [listState.page, listState.limit] // stable deps
+  );
 
   const createDiscussion = async (payload) => {
     return api.createDiscussion(payload);
@@ -81,20 +80,15 @@ export const DiscussionProvider = ({ children }) => {
   const addAnswer = async (id, payload) => {
     return api.addAnswer(id, payload);
   };
+
   const urlParamToTitle = (urlParam) => {
     if (!urlParam) return "";
 
-    // Decode URL-encoded strings (handles %20, etc.)
     const decoded = decodeURIComponent(urlParam);
-
-    // Replace hyphens and underscores with spaces
     const formatted = decoded.replace(/[-_]/g, " ");
-
-    // Capitalize the first letter of each word
-    const title = formatted.replace(/\b\w/g, (char) => char.toUpperCase());
-
-    return title;
+    return formatted.replace(/\b\w/g, (char) => char.toUpperCase());
   };
+
   return (
     <DiscussionContext.Provider
       value={{

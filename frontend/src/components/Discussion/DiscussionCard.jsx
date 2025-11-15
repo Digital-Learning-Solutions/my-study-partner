@@ -17,7 +17,44 @@ export default function DiscussionCard({ d }) {
   const [hasDownvoted, setHasDownvoted] = useState(false);
   const [hasReported, setHasReported] = useState(false);
 
-  const sanitizedQuestion = DOMPurify.sanitize(d.question || "");
+  // ⭐ FIX BULLET LISTS FROM QUILL
+  const fixQuillLists = (html) => {
+    if (!html) return html;
+
+    let out = html;
+
+    // Convert <ol ... data-list="bullet"> to <ul>
+    out = out.replace(/<ol([^>]*)data-list="bullet"([^>]*)>/g, "<ul>");
+    out = out.replace(/<\/ol>/g, "</ul>");
+
+    // Convert <li data-list="bullet"> to <li>
+    out = out.replace(/<li([^>]*)data-list="bullet"([^>]*)>/g, "<li>");
+
+    // Remove quill's fake span bullets
+    out = out.replace(/<span class="ql-ui"[^>]*><\/span>/g, "");
+
+    return out;
+  };
+
+  const sanitizedQuestion = DOMPurify.sanitize(
+    fixQuillLists(d.question || ""),
+    {
+      ALLOWED_TAGS: [
+        "p",
+        "br",
+        "strong",
+        "em",
+        "u",
+        "s",
+        "a",
+        "ul",
+        "ol",
+        "li",
+        "span",
+      ],
+      ALLOWED_ATTR: ["href", "title"],
+    }
+  );
 
   const syncWithBackend = async (type) => {
     try {
@@ -67,7 +104,8 @@ export default function DiscussionCard({ d }) {
 
           {/* --- Question Body --- */}
           <div
-            className="text-sm text-slate-700 dark:text-slate-300 mt-1 leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-ul:list-disc prose-ol:list-decimal prose-li:ml-6"
+            className="text-sm text-slate-700 dark:text-slate-300 mt-1 leading-relaxed prose prose-sm dark:prose-invert max-w-none 
+              prose-ul:list-disc prose-ul:pl-5 prose-ol:list-decimal prose-ol:pl-5 prose-li:my-0"
             dangerouslySetInnerHTML={{
               __html:
                 sanitizedQuestion.trim() ||

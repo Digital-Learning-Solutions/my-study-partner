@@ -36,7 +36,7 @@ export default function CourseModulesPage() {
     }
 
     fetchCourseAndUser();
-  }, [id, user]);
+  }, []);
 
   // ---------- HANDLE ENROLL ----------
   async function handleEnroll() {
