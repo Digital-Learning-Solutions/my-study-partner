@@ -25,6 +25,7 @@ export const StoredProvider = ({ children }) => {
 
       if (res.ok) {
         setUser(data.user);
+        console.log("Fetched user:", data.user);
       } else {
         console.warn("Failed to fetch user:", data.message);
       }

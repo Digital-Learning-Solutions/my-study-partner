@@ -6,6 +6,8 @@ import SoloPage from "./pages/Quiz/SoloPage";
 import LobbyPage from "./pages/Quiz/LobbyPage";
 import GamePage from "./pages/Quiz/GamePage";
 import { useStoredContext } from "./context/useStoredContext";
+import GroupPage from "./pages/Quiz/GroupPage";
+import GroupGameLobbyPage from "./pages/Quiz/GroupGameLobbyPage";
 
 function Quiz() {
   const { user } = useStoredContext();
@@ -51,6 +53,11 @@ function Quiz() {
         <Route path="solo" element={<SoloPage />} />
         <Route path="multiplayer" element={<LobbyPage />} />
         <Route path="game/:code" element={<GamePage />} />
+        <Route path="multiplayer/quiz-groups/:id" element={<GroupPage />} />
+        <Route
+          path="multiplayer/quiz-groups/live/:groupId"
+          element={<GroupGameLobbyPage />}
+        />
       </Routes>
     </main>
     // </div>

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
 
 const SOCKET_URL = "http://localhost:5000";
 
 export default function GamePage() {
-  const { code } = useParams();
+  const { code } = useParams(); // normal roomCode OR groupId
   const [socket, setSocket] = useState(null);
   const [players, setPlayers] = useState([]);
   const [question, setQuestion] = useState(null);
@@ -19,17 +19,45 @@ export default function GamePage() {
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [isHost, setIsHost] = useState(false);
 
-  // Initialize socket and listeners
+  const location = useLocation();
+  const gameType = location.state?.gameType || "normal";
+  const groupAdminId = location.state?.groupAdminId || null;
+
+  const userId = localStorage.getItem("userId");
+  const username = localStorage.getItem("username") || "Player";
+
+  // -------------------------------------------------------------
+  // SOCKET INITIALIZATION (NORMAL + GROUP MODES)
+  // -------------------------------------------------------------
   useEffect(() => {
     const s = io(SOCKET_URL, { transports: ["websocket"] });
     setSocket(s);
 
-    const name = sessionStorage.getItem("playerName") || "Guest";
-    const hostFlag = sessionStorage.getItem("isHost") === "true";
-    setIsHost(hostFlag);
+    // 🔵 NORMAL MODE: Join using method you already had
+    if (gameType === "normal") {
+      const name = sessionStorage.getItem("playerName") || "Guest";
+      const hostFlag = sessionStorage.getItem("isHost") === "true";
+      setIsHost(hostFlag);
 
-    s.emit("join-room", { code, name, isHost: hostFlag });
+      s.emit("join-room", { code, name, isHost: hostFlag });
+    }
 
+    // 🟣 GROUP MODE: Join using DB identity
+    if (gameType === "group") {
+      const amIHost = userId === groupAdminId;
+      setIsHost(amIHost);
+
+      s.emit("join-group-room", {
+        groupId: code,
+        userId,
+        username,
+        isHost: amIHost,
+      });
+    }
+
+    // -----------------------------------------------------------
+    // LISTENERS
+    // -----------------------------------------------------------
     s.off("room-update").on("room-update", ({ players }) => {
       setPlayers(players);
     });
@@ -53,6 +81,7 @@ export default function GamePage() {
           ...new Map(leaderboard.map((p) => [p.name, p])).values(),
         ];
         setLeaderboard(unique.sort((a, b) => b.score - a.score));
+
         setQuestion(null);
         setTimer(0);
 
@@ -61,32 +90,64 @@ export default function GamePage() {
             const selected = answers?.[i]?.selected ?? null;
             return { ...q, selected };
           });
+
           setQuestionsBank(allQuestions);
           setMyAnswers(merged);
-        } else {
-          setQuestionsBank([]);
-          setMyAnswers([]);
+
+          // 🟣 SAVE GROUP RESULT
+          if (gameType === "group" && isHost) {
+            s.emit(
+              "save-group-result",
+              {
+                groupId: code,
+                userId,
+                username,
+                answers: merged,
+                score: unique.find((p) => p.name === username)?.score || 0,
+              },
+              (response) => {
+                console.log("Group result saved:", response);
+              }
+            );
+          }
         }
       }
     );
 
     return () => {
       s.disconnect();
-      sessionStorage.clear();
-    };
-  }, [code]);
 
-  // Handle countdown timer
+      // ❌ DO NOT CLEAR sessionStorage for group mode
+      if (gameType === "normal") {
+        sessionStorage.clear();
+      }
+    };
+  }, [code, gameType, groupAdminId]);
+
+  // ----------------------------------------------------------------
+  // TIMER (supports normal + group mode)
+  // ----------------------------------------------------------------
   useEffect(() => {
     if (question && timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
       return () => clearInterval(interval);
-    } else if (question && timer <= 0) {
-      socket?.emit("next-question", { code });
     }
-  }, [timer, question, socket, code]);
 
+    if (question && timer === 0) {
+      if (gameType === "group") {
+        socket?.emit("next-group-question", { groupId: code });
+      } else {
+        socket?.emit("next-question", { code });
+      }
+    }
+  }, [timer, question, socket, code, gameType]);
+
+  // ----------------------------------------------------------------
+  // NORMAL MODE → LOAD SAMPLE QUESTIONS
+  // ----------------------------------------------------------------
   async function loadQuestionsForHost() {
+    if (gameType === "group") return; // 🚫 disabled in group mode
+
     try {
       setLoadingQuestions(true);
       const res = await axios.get("http://localhost:5000/api/questions/sample");
@@ -98,20 +159,66 @@ export default function GamePage() {
     }
   }
 
-  function startGame() {
+  // ----------------------------------------------------------------
+  // START GAME (DIFFERENT LOGIC FOR NORMAL & GROUP)
+  // ----------------------------------------------------------------
+  async function startGame() {
     if (!socket) return;
-    if (questionsBank.length === 0) {
-      alert("Load questions first");
+
+    // NORMAL MODE
+    if (gameType === "normal") {
+      if (questionsBank.length === 0) {
+        alert("Load questions first");
+        return;
+      }
+
+      socket.emit("start-game", { code, questions: questionsBank });
       return;
     }
-    socket.emit("start-game", { code, questions: questionsBank });
+
+    // GROUP MODE
+    if (gameType === "group") {
+      socket.emit("start-group-game", { groupId: code });
+      try {
+        await fetch(
+          `http://localhost:5000/api/quiz-groups/${code}/end-active`,
+          { method: "POST", headers: { "Content-Type": "application/json" } }
+        );
+        await fetch(
+          `http://localhost:5000/api/quiz-groups/${code}/clear-lobby`,
+          { method: "POST", headers: { "Content-Type": "application/json" } }
+        );
+      } catch (err) {
+        console.error("Group backend sync error:", err);
+      }
+    }
   }
 
+  // ----------------------------------------------------------------
+  // SUBMIT ANSWER
+  // ----------------------------------------------------------------
   function submitAnswer(i) {
     if (!socket || !question || selectedAnswer !== null) return;
     setSelectedAnswer(i);
-    socket.emit("submit-answer", { code, selectedIndex: i });
+
+    if (gameType === "normal") {
+      socket.emit("submit-answer", { code, selectedIndex: i });
+    }
+
+    if (gameType === "group") {
+      socket.emit("submit-group-answer", {
+        groupId: code,
+        userId,
+        username,
+        selectedIndex: i,
+      });
+    }
   }
+
+  // ----------------------------------------------------------------
+  // UI START
+  // ----------------------------------------------------------------
+
   return (
     <div
       className="
@@ -122,14 +229,13 @@ export default function GamePage() {
     "
     >
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Room Code */}
         <h1 className="text-3xl md:text-4xl font-extrabold text-center">
           <span className="text-slate-800 dark:text-white">Room Code: </span>
           <span className="text-indigo-600 dark:text-indigo-400">{code}</span>
         </h1>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {/* Player List & Host Controls */}
+          {/* PLAYERS + HOST PANEL */}
           <div
             className="
             p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg 
@@ -151,10 +257,9 @@ export default function GamePage() {
                   )}
                 </li>
               ))}
-
-              {/* 🔥 NOTHING REMOVED */}
             </ul>
 
+            {/* HOST CONTROLS */}
             {isHost && (
               <div className="mt-5 flex flex-col gap-3">
                 <button
@@ -182,7 +287,7 @@ export default function GamePage() {
             )}
           </div>
 
-          {/* Live Question */}
+          {/* LIVE QUESTION */}
           <div
             className="
             p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg 
@@ -205,6 +310,7 @@ export default function GamePage() {
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
                   {question.question}
                 </h2>
+
                 <div className="grid gap-3">
                   {question.options.map((o, i) => {
                     const isSelected = selectedAnswer === i;
@@ -215,17 +321,19 @@ export default function GamePage() {
                         onClick={() => submitAnswer(i)}
                         disabled={selectedAnswer !== null}
                         className={`
-          p-3 text-left rounded-xl border shadow-sm transition-all
-          dark:text-white dark:border-gray-700
-
-          ${
-            isSelected
-              ? "bg-indigo-100 dark:bg-indigo-900/40" // 🔥 Selected color
-              : "hover:bg-indigo-50 dark:hover:bg-gray-700" // Normal hover
-          }
-
-          ${selectedAnswer !== null && !isSelected ? "opacity-80" : ""}
-        `}
+                          p-3 text-left rounded-xl border shadow-sm transition-all
+                          dark:text-white dark:border-gray-700
+                          ${
+                            isSelected
+                              ? "bg-indigo-100 dark:bg-indigo-900/40"
+                              : "hover:bg-indigo-50 dark:hover:bg-gray-700"
+                          }
+                          ${
+                            selectedAnswer !== null && !isSelected
+                              ? "opacity-80"
+                              : ""
+                          }
+                        `}
                       >
                         {o}
                       </button>
@@ -243,7 +351,7 @@ export default function GamePage() {
           </div>
         </div>
 
-        {/* Leaderboard & Review */}
+        {/* LEADERBOARD + REVIEW */}
         {leaderboard.length > 0 && !question && (
           <div
             className="
@@ -267,50 +375,37 @@ export default function GamePage() {
             </h3>
 
             <ol className="space-y-2 w-2/3 mx-auto">
-              {leaderboard.map((p, i) => {
-                let bg = "bg-gray-50 dark:bg-gray-700";
-                let text = "text-slate-700 dark:text-gray-200";
-                let medal = null;
-                let border = "border-gray-200 dark:border-gray-600";
-
-                if (i === 0) {
-                  bg = "bg-yellow-100 dark:bg-yellow-900/40";
-                  text = "text-yellow-800 dark:text-yellow-300 font-semibold";
-                  border = "border-yellow-300";
-                  medal = "🥇";
-                } else if (i === 1) {
-                  bg = "bg-gray-200 dark:bg-gray-600";
-                  text = "text-gray-800 dark:text-gray-100 font-semibold";
-                  border = "border-gray-400";
-                  medal = "🥈";
-                } else if (i === 2) {
-                  bg = "bg-orange-100 dark:bg-orange-900/40";
-                  text = "text-orange-800 dark:text-orange-300 font-semibold";
-                  border = "border-orange-400";
-                  medal = "🥉";
-                }
-
-                return (
-                  <li
-                    key={i}
-                    className={`
+              {leaderboard.map((p, i) => (
+                <li
+                  key={i}
+                  className={`
                     flex justify-between items-center px-3 py-2 rounded-lg border text-sm shadow-sm
-                    ${bg} ${text} ${border}
+                    ${
+                      i === 0
+                        ? "bg-yellow-100 dark:bg-yellow-900/40 border-yellow-300 text-yellow-800 dark:text-yellow-300"
+                        : i === 1
+                        ? "bg-gray-200 dark:bg-gray-600 border-gray-400 text-gray-800 dark:text-gray-100"
+                        : i === 2
+                        ? "bg-orange-100 dark:bg-orange-900/40 border-orange-400 text-orange-800 dark:text-orange-300"
+                        : "bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-slate-700 dark:text-gray-200"
+                    }
                   `}
-                  >
-                    <span className="flex items-center gap-2">
-                      {medal && <span>{medal}</span>}
-                      {i + 1}. {p.name}
-                    </span>
-                    <span className="font-semibold text-indigo-700 dark:text-indigo-400">
-                      {p.score}
-                    </span>
-                  </li>
-                );
-              })}
+                >
+                  <span className="flex items-center gap-2">
+                    {i === 0 && "🥇"}
+                    {i === 1 && "🥈"}
+                    {i === 2 && "🥉"}
+                    {i + 1}. {p.name}
+                  </span>
+
+                  <span className="font-semibold text-indigo-700 dark:text-indigo-400">
+                    {p.score}
+                  </span>
+                </li>
+              ))}
             </ol>
 
-            {/* Answer Review Section */}
+            {/* REVIEW */}
             {myAnswers.length > 0 && (
               <div className="mt-8">
                 <h4 className="text-base font-semibold text-slate-800 dark:text-white mb-4">
@@ -323,35 +418,27 @@ export default function GamePage() {
                     const isCorrect =
                       !didNotAnswer && ans.selected === ans.answer;
 
-                    let badgeIcon = "⏺️";
-                    let badgeColor =
-                      "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300";
-
-                    if (isCorrect) {
-                      badgeIcon = "✅";
-                      badgeColor =
-                        "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300";
-                    } else if (!didNotAnswer) {
-                      badgeIcon = "❌";
-                      badgeColor =
-                        "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300";
-                    }
-
                     return (
                       <div
                         key={qIndex}
                         className="
-                        relative p-4 border rounded-xl bg-gray-50 dark:bg-gray-700
-                        shadow-sm border-gray-200 dark:border-gray-600
-                      "
+                          relative p-4 border rounded-xl bg-gray-50 dark:bg-gray-700
+                          shadow-sm border-gray-200 dark:border-gray-600
+                        "
                       >
                         <span
                           className={`
-                          absolute top-2 right-2 px-2 py-1 text-xs 
-                          rounded-full font-bold ${badgeColor}
-                        `}
+                            absolute top-2 right-2 px-2 py-1 text-xs rounded-full font-bold
+                            ${
+                              didNotAnswer
+                                ? "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300"
+                                : isCorrect
+                                ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
+                                : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
+                            }
+                          `}
                         >
-                          {badgeIcon}
+                          {didNotAnswer ? "⏺️" : isCorrect ? "✅" : "❌"}
                         </span>
 
                         <h3 className="font-medium text-slate-900 dark:text-white mb-2">
@@ -359,28 +446,24 @@ export default function GamePage() {
                         </h3>
 
                         <p className="mb-1">
-                          <span className="font-medium text-slate-700 dark:text-gray-300">
-                            Your Answer:
-                          </span>{" "}
-                          <span
-                            className={
-                              didNotAnswer
-                                ? "text-gray-500 italic"
-                                : isCorrect
-                                ? "text-green-700 dark:text-green-300 font-semibold"
-                                : "text-red-700 dark:text-red-300 font-semibold"
-                            }
-                          >
-                            {didNotAnswer
-                              ? "You didn’t answer"
-                              : ans.options[ans.selected]}
-                          </span>
+                          <span className="font-medium">Your Answer:</span>{" "}
+                          {didNotAnswer ? (
+                            <span className="text-gray-500 italic">
+                              You didn’t answer
+                            </span>
+                          ) : isCorrect ? (
+                            <span className="text-green-700 dark:text-green-300 font-semibold">
+                              {ans.options[ans.selected]}
+                            </span>
+                          ) : (
+                            <span className="text-red-700 dark:text-red-300 font-semibold">
+                              {ans.options[ans.selected]}
+                            </span>
+                          )}
                         </p>
 
                         <p>
-                          <span className="font-medium text-slate-700 dark:text-gray-300">
-                            Correct Answer:
-                          </span>{" "}
+                          <span className="font-medium">Correct Answer:</span>{" "}
                           <span className="text-green-700 dark:text-green-300 font-semibold">
                             {ans.options[ans.answer]}
                           </span>

@@ -5,39 +5,47 @@ import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
 
-// Import your routes
+// Your existing routes
 import apiRouter from "./routes/QuizRoutes/api.js";
 import sockets from "./sockets.js";
 import courseRouter from "./routes/CoursesRoutes/course.js";
 import authRoutes from "./routes/UserRoutes/authRoutes.js";
-import connectDB from "./config/database.js";
 import enrollRoutes from "./routes/CoursesRoutes/enrollRoutes.js";
 import userRoutes from "./routes/UserRoutes/userRoutes.js";
-import discussionRoutes from "./routes/DiscussionRoutes/discussionRoutes.js";
 import dashboardRoutes from "./routes/UserRoutes/dashboardRoutes.js";
+import discussionRoutes from "./routes/DiscussionRoutes/discussionRoutes.js";
 
-// ✅ Import your DB connection utility
+// 👉 NEW QUIZ-GROUP ROUTES
+
+import connectDB from "./config/database.js";
+import quizGroupRouter from "./routes/QuizRoutes/quizGroupRouter.js";
 
 dotenv.config();
 
-// ✅ Connect to MongoDB once globally
+// DB connect
 connectDB();
+
 const app = express();
 const server = http.createServer(app);
+
+// SOCKET.IO instance
 const io = new Server(server, {
   cors: {
     origin: "*",
   },
 });
 
-// ✅ Global middleware
+// attach io to app (important!)
+app.set("io", io);
+
+// middleware
 app.use(cors());
 app.use(express.json());
-
 app.use("/notes", express.static(path.join(process.cwd(), "notes")));
 
-// ✅ Routes
+// routes
 app.use("/api", apiRouter);
+app.use("/api/quiz-groups", quizGroupRouter);
 app.use("/api/course", courseRouter);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
@@ -45,9 +53,30 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api", enrollRoutes);
 app.use("/api/discussions", discussionRoutes);
 
-// ✅ Initialize sockets
+// 👉 QUIZ GROUP ROUTES
+
+// initialize your previous sockets
 sockets(io);
 
-// ✅ Start the server
+// 👉 **NEW SOCKETS FOR QUIZ GROUP GAME SYSTEM**
+io.on("connection", (socket) => {
+  console.log("🔥 User connected:", socket.id);
+
+  // user joins a room with their userId →
+  // so backend can emit directly using io.to(userId)
+  socket.on("register-user", (userId) => {
+    socket.join(userId);
+  });
+
+  // join quiz-group room
+  socket.on("join-quiz-group", (groupId) => {
+    socket.join(groupId);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ User disconnected:", socket.id);
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

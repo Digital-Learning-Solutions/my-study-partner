@@ -20,7 +20,7 @@ export default function Navbar() {
   const { user, setUser } = useStoredContext();
   const navigate = useNavigate();
 
-  console.log("Navbar User:", user);
+  // console.log("Navbar User:", user);
   // Separate refs for desktop and mobile to prevent conflicts
   const desktopBtnRef = useRef(null);
   const desktopMenuRef = useRef(null);

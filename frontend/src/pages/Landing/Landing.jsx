@@ -6,6 +6,7 @@ function Landing() {
   const { user, getUser } = useStoredContext();
   const [recentActivities, setRecentActivities] = useState([]);
   const [streak, setStreak] = useState(0);
+  console.log("User:", user);
 
   useEffect(() => {
     // Refresh user data on mount
@@ -62,7 +63,7 @@ function Landing() {
       setStreak(0);
       console.error("Error calculating streak:", e);
     }
-  }, [getUser, user]);
+  }, []);
 
   if (!user) {
     return (
