@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
+import { useStoredContext } from "../../context/useStoredContext";
 
 const SOCKET_URL = "http://localhost:5000";
 
@@ -26,6 +27,7 @@ export default function GamePage() {
   const userId = localStorage.getItem("userId");
   const username = localStorage.getItem("username") || "Player";
 
+  const { setSaaraPrompt, setSaaraOpen } = useStoredContext();
   // -------------------------------------------------------------
   // SOCKET INITIALIZATION (NORMAL + GROUP MODES)
   // -------------------------------------------------------------
@@ -468,6 +470,21 @@ export default function GamePage() {
                             {ans.options[ans.answer]}
                           </span>
                         </p>
+                        <button
+                          onClick={() => {
+                            setSaaraPrompt(
+                              `Explain this question:\n${ans.question}`
+                            );
+                            setSaaraOpen(true);
+                          }}
+                          className="
+    mt-3 px-3 py-1.5 text-sm rounded-lg 
+    bg-indigo-600 hover:bg-indigo-700 
+    text-white shadow transition
+  "
+                        >
+                          Ask Saara
+                        </button>
                       </div>
                     );
                   })}

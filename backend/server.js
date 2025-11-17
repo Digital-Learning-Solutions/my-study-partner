@@ -19,6 +19,7 @@ import discussionRoutes from "./routes/DiscussionRoutes/discussionRoutes.js";
 
 import connectDB from "./config/database.js";
 import quizGroupRouter from "./routes/QuizRoutes/quizGroupRouter.js";
+import chatRouter from "./routes/chat.js";
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use("/notes", express.static(path.join(process.cwd(), "notes")));
 
 // routes
 app.use("/api", apiRouter);
+app.use("/api/chat", chatRouter);
 app.use("/api/quiz-groups", quizGroupRouter);
 app.use("/api/course", courseRouter);
 app.use("/api/auth", authRoutes);

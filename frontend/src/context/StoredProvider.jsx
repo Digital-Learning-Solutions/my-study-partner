@@ -3,6 +3,8 @@ import { StoredContext } from "./StoredContext.jsx";
 
 export const StoredProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [saaraOpen, setSaaraOpen] = useState(false);
+  const [saaraPrompt, setSaaraPrompt] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,7 +37,17 @@ export const StoredProvider = ({ children }) => {
   };
 
   return (
-    <StoredContext.Provider value={{ user, setUser, getUser }}>
+    <StoredContext.Provider
+      value={{
+        user,
+        setUser,
+        getUser,
+        saaraOpen,
+        setSaaraOpen,
+        saaraPrompt,
+        setSaaraPrompt,
+      }}
+    >
       {children}
     </StoredContext.Provider>
   );

@@ -10,6 +10,7 @@ import ProfilePage from "./pages/Profile/ProfilePage";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import SubscriptionPage from "./pages/Subscriptions/SubscriptionPage.jsx";
 import { useStoredContext } from "./context/useStoredContext.js";
+import ChatBot from "./components/ChatBot.jsx";
 
 function Layout() {
   const { user } = useStoredContext();
@@ -51,6 +52,7 @@ function Layout() {
           </div>
         </div>
       </footer>
+      <ChatBot />
     </div>
   );
 }
