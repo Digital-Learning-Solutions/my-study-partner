@@ -15,40 +15,67 @@ export async function createGroup(req, res) {
     if (!userId) return res.status(400).json({ message: "userId is required" });
     if (!name) return res.status(400).json({ message: "Name is required" });
 
-    // check unique
+    // Check if name already exists
     const exists = await QuizGroup.findOne({ name });
     if (exists) {
       return res.status(400).json({ message: "Group name already exists" });
     }
 
+    // Load admin user's name
     const adminUser = await User.findById(userId).select("username profile");
 
+    const adminName =
+      adminUser?.username || adminUser?.profile?.fullName || "Admin";
+
+    // Create new group
     const group = new QuizGroup({
       name,
       description,
       admin: userId,
+
       members: [
         {
           user: userId,
-          name: adminUser?.username || adminUser?.profile?.fullName || "Admin",
+          name: adminName,
         },
       ],
+
+      // ⭐ Admin starts in leaderboard with 0 score
+      leaderboard: [
+        {
+          name: adminName,
+          score: 0,
+          updatedAt: new Date(),
+        },
+      ],
+
+      // Optional: add admin to joinedLobby (uncomment if needed)
+      // joinedLobby: [
+      //   {
+      //     userId,
+      //     username: adminName,
+      //     joinedAt: new Date(),
+      //   },
+      // ],
+
       settings: settings || {},
-      leaderboard: [],
       joinRequests: [],
+      resultHistory: [],
     });
 
     await group.save();
+
     console.log("createGroup: saved group with id", group._id.toString());
-    // add to user's enrolled groups
+
+    // Add group to admin's profile -> enrolledQuizGroups
     await User.findByIdAndUpdate(userId, {
       $push: { enrolledQuizGroups: { group: group._id } },
     });
 
-    res.status(201).json({ success: true, group });
+    return res.status(201).json({ success: true, group });
   } catch (err) {
     console.error("❌ createGroup error:", err);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 }
 
@@ -154,6 +181,7 @@ export async function handleJoinRequest(req, res) {
     const group = await QuizGroup.findById(groupId);
     if (!group) return res.status(404).json({ message: "Group not found" });
 
+    // Only admin can approve/reject
     if (group.admin.toString() !== actorId) {
       return res
         .status(403)
@@ -167,25 +195,37 @@ export async function handleJoinRequest(req, res) {
     if (reqIndex === -1)
       return res.status(404).json({ message: "Request not found" });
 
-    // APPROVE
+    // APPROVE REQUEST
     if (action === "approve") {
       const user = await User.findById(requesterId).select("username");
 
+      const username = user?.username || "Unknown";
+
+      // Add to group members
       group.members.push({
         user: requesterId,
-        name: user?.username || "Unknown",
+        name: username,
       });
 
-      // ❗ REMOVE request completely
+      // ⭐ Add to leaderboard with 0 points
+      group.leaderboard.push({
+        name: username,
+        score: 0,
+        updatedAt: new Date(),
+      });
+
+      // Remove join request
       group.joinRequests.splice(reqIndex, 1);
+
       await group.save();
 
-      // update user
+      // Update user model
       await User.findByIdAndUpdate(requesterId, {
         $push: { enrolledQuizGroups: { group: group._id } },
         $pull: { joinRequests: { group: groupId } },
       });
 
+      // Notify user via socket
       const io = req.app.get("io");
       if (io) {
         io.to(requesterId.toString()).emit("group-join-approved", {
@@ -196,12 +236,12 @@ export async function handleJoinRequest(req, res) {
 
       return res.json({
         success: true,
-        message: "User approved and added to group",
+        message: "User approved, added to group and leaderboard",
       });
     }
 
-    // REJECT
-    group.joinRequests.splice(reqIndex, 1); // ❗ remove rejected request
+    // REJECT REQUEST
+    group.joinRequests.splice(reqIndex, 1);
     await group.save();
 
     await User.findByIdAndUpdate(requesterId, {
@@ -216,7 +256,7 @@ export async function handleJoinRequest(req, res) {
       });
     }
 
-    res.json({ success: true, message: "Request rejected" });
+    return res.json({ success: true, message: "Request rejected" });
   } catch (err) {
     console.error("❌ handleJoinRequest error:", err);
     res.status(500).json({ message: "Server error" });
@@ -549,50 +589,54 @@ export async function saveGroupGameResult(req, res) {
       return res.status(400).json({ message: "Invalid leaderboard data" });
     }
 
-    // Fetch fresh group
+    // Fetch group
     let group = await QuizGroup.findById(groupId);
     if (!group) return res.status(404).json({ message: "Group not found" });
 
-    // Ensure history entry exists
-    if (group.resultHistory.length === 0) {
-      await QuizGroup.findByIdAndUpdate(groupId, {
-        $push: { resultHistory: { playedAt: new Date(), results: [] } },
-      });
-      group = await QuizGroup.findById(groupId); // refresh
-    }
+    // STEP 1: CREATE a new history entry (DO NOT override previous)
+    const newHistoryEntry = {
+      playedAt: new Date(),
+      results: leaderboard.map((p) => ({
+        name: p.name,
+        score: p.score,
+      })),
+    };
 
-    // Always use the last resultHistory entry
-    const latestIndex = group.resultHistory.length - 1;
-
-    // STEP 1: Clear previous results of that entry
     await QuizGroup.findByIdAndUpdate(groupId, {
-      $set: { [`resultHistory.${latestIndex}.results`]: [] },
+      $push: { resultHistory: newHistoryEntry },
     });
 
-    // STEP 2: Insert all results at once
-    await QuizGroup.findByIdAndUpdate(groupId, {
-      $push: {
-        [`resultHistory.${latestIndex}.results`]: {
-          $each: leaderboard.map((p) => ({
-            name: p.name,
-            score: p.score,
-          })),
-        },
-      },
-    });
+    // STEP 2: Determine match winner
+    const topScorer = leaderboard.reduce((max, player) =>
+      player.score > max.score ? player : max
+    );
 
-    // STEP 3: Replace leaderboard with the new one
-    await QuizGroup.findByIdAndUpdate(groupId, {
-      $set: {
-        leaderboard: leaderboard.map((p) => ({
-          name: p.name,
-          score: p.score,
+    const winnerName = topScorer.name;
+
+    // Reload group to get latest leaderboard
+    group = await QuizGroup.findById(groupId);
+
+    // STEP 3: Update persistent leaderboard (add +10 points)
+    const updatedLeaderboard = group.leaderboard.map((entry) => {
+      if (entry.name === winnerName) {
+        return {
+          ...entry._doc,
+          score: entry.score + 10,
           updatedAt: new Date(),
-        })),
-      },
+        };
+      }
+      return entry;
     });
 
-    return res.json({ success: true });
+    // Save updated leaderboard
+    await QuizGroup.findByIdAndUpdate(groupId, {
+      $set: { leaderboard: updatedLeaderboard },
+    });
+
+    return res.json({
+      success: true,
+      message: `${winnerName} gained +10 leaderboard points!`,
+    });
   } catch (err) {
     console.error("❌ saveGroupGameResult error:", err);
     return res.status(500).json({ message: "Server error" });

@@ -25,13 +25,12 @@ export default function GroupPage() {
   const [section, setSection] = useState("overview");
   const [selectedHistoryIndex, setSelectedHistoryIndex] = useState(null);
 
-  // Load user
+  // Load logged userId
   useEffect(() => {
-    const uid = localStorage.getItem("userId");
-    setUserId(uid);
+    setUserId(localStorage.getItem("userId"));
   }, []);
 
-  // Socket setup
+  // Initialize Socket
   useEffect(() => {
     const s = io(SOCKET_URL);
     setSocket(s);
@@ -41,7 +40,7 @@ export default function GroupPage() {
     return () => s.disconnect();
   }, [userId]);
 
-  // Load group ONLY WHEN userId exists
+  // Load group when userId exists
   useEffect(() => {
     if (userId) loadGroup();
   }, [id, userId]);
@@ -62,10 +61,12 @@ export default function GroupPage() {
 
       setGroup(g);
 
-      const me = localStorage.getItem("userId");
+      // Check membership
+      const me = userId;
+      setIsMember(g.members.some((m) => String(m.user) === String(me)));
 
-      setIsMember(g.members.some((m) => m.user === me || m.user?._id === me));
-      setIsAdmin(g.admin === me);
+      // Check admin
+      setIsAdmin(String(g.admin) === String(me));
     } catch (err) {
       console.error("Error loading group:", err);
     } finally {
@@ -94,7 +95,7 @@ export default function GroupPage() {
     }
   }
 
-  // Admin → Start game
+  // Start a game
   async function handleStartGame() {
     try {
       const res = await fetch(
@@ -109,10 +110,6 @@ export default function GroupPage() {
       const data = await res.json();
       if (!res.ok) return alert(data.message);
 
-      // ❌ remove loadGroup() — causes stale reload
-      // loadGroup();
-
-      // ✔ go directly to lobby
       navigate(`/quiz/multiplayer/quiz-groups/live/${id}`);
     } catch (err) {
       console.error(err);
@@ -140,8 +137,9 @@ export default function GroupPage() {
     }
   }
 
-  // ---------- UI START ----------
+  // ---------- UI ----------
   if (loading) return <p className="text-center py-10">Loading group…</p>;
+
   if (!group)
     return <p className="text-center py-10 text-red-500">Group not found</p>;
 
@@ -150,18 +148,18 @@ export default function GroupPage() {
       <div className="max-w-5xl mx-auto space-y-7">
         {/* HEADER */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 border dark:border-gray-700">
-          <div className="flex justify-between">
+          <div className="flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold dark:text-white">
                 {group.name}
               </h1>
-              <p className="text-slate-500 dark:text-gray-400">
+              <p className="text-gray-500 dark:text-gray-400">
                 {group.description}
               </p>
             </div>
 
             <div className="text-right">
-              <p className="text-xs text-slate-400">Members</p>
+              <p className="text-xs text-gray-400">Members</p>
               <p className="text-2xl text-indigo-600 dark:text-indigo-400">
                 {group.members?.length}
               </p>
@@ -180,7 +178,7 @@ export default function GroupPage() {
             </div>
           )}
 
-          {/* JOIN GROUP */}
+          {/* JOIN GROUP UI */}
           {!isMember && (
             <div className="mt-4 space-y-3">
               <textarea
@@ -201,31 +199,18 @@ export default function GroupPage() {
           {/* TABS */}
           {isMember && (
             <div className="mt-6 flex gap-3">
-              <button
-                className={`tab-btn ${section === "overview" && "tab-active"}`}
-                onClick={() => setSection("overview")}
-              >
-                Overview
-              </button>
-
-              <button
-                className={`tab-btn ${
-                  section === "leaderboard" && "tab-active"
-                }`}
-                onClick={() => setSection("leaderboard")}
-              >
-                Leaderboard
-              </button>
-
-              <button
-                className={`tab-btn ${section === "history" && "tab-active"}`}
-                onClick={() => {
-                  setSelectedHistoryIndex(null);
-                  setSection("history");
-                }}
-              >
-                History
-              </button>
+              {["overview", "leaderboard", "history"].map((tab) => (
+                <button
+                  key={tab}
+                  className={`tab-btn ${section === tab ? "tab-active" : ""}`}
+                  onClick={() => {
+                    setSelectedHistoryIndex(null);
+                    setSection(tab);
+                  }}
+                >
+                  {tab[0].toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -246,35 +231,37 @@ export default function GroupPage() {
 
             <h4 className="text-lg font-semibold mt-5">Join Requests</h4>
             {!group.joinRequests?.length ? (
-              <p className="text-slate-500">No pending requests</p>
+              <p className="text-gray-500">No pending requests</p>
             ) : (
-              group.joinRequests.map((r) => (
-                <div
-                  key={r.user}
-                  className="p-4 border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-xl mt-2 flex justify-between"
-                >
-                  <div>
-                    <p className="font-semibold">{r.name}</p>
-                    <p className="text-sm text-gray-500">{r.message}</p>
-                  </div>
+              group.joinRequests
+                .filter((r) => r.status === "pending")
+                .map((r) => (
+                  <div
+                    key={r.user}
+                    className="p-4 border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-xl mt-2 flex justify-between"
+                  >
+                    <div>
+                      <p className="font-semibold">{r.name}</p>
+                      <p className="text-sm text-gray-500">{r.message}</p>
+                    </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleAction(r.user, "approve")}
-                      className="px-3 py-1 bg-indigo-600 text-white rounded-xl"
-                    >
-                      Approve
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleAction(r.user, "approve")}
+                        className="px-3 py-1 bg-indigo-600 text-white rounded-xl"
+                      >
+                        Approve
+                      </button>
 
-                    <button
-                      onClick={() => handleAction(r.user, "reject")}
-                      className="px-3 py-1 border dark:border-gray-500 rounded-xl"
-                    >
-                      Reject
-                    </button>
+                      <button
+                        onClick={() => handleAction(r.user, "reject")}
+                        className="px-3 py-1 border dark:border-gray-500 rounded-xl"
+                      >
+                        Reject
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))
             )}
           </div>
         )}
@@ -282,15 +269,16 @@ export default function GroupPage() {
         {/* OVERVIEW */}
         {section === "overview" && (
           <div className="space-y-6">
+            {/* Members */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow border dark:border-gray-700">
               <h3 className="text-xl font-bold mb-4">Members</h3>
-              {group.members.map((m) => (
+              {group.members.map((m, i) => (
                 <div
-                  key={m.user}
+                  key={i}
                   className="p-3 border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-xl mb-2"
                 >
                   {m.name}
-                  {m.user === group.admin && (
+                  {String(m.user) === String(group.admin) && (
                     <span className="text-indigo-600 ml-2">(Admin)</span>
                   )}
                 </div>
@@ -302,7 +290,7 @@ export default function GroupPage() {
               <h3 className="text-xl font-bold mb-4">Recent Games</h3>
 
               {!group.resultHistory?.length ? (
-                <p className="text-slate-500">No games yet</p>
+                <p className="text-gray-500">No games yet</p>
               ) : (
                 group.resultHistory.slice(0, 5).map((h, index) => (
                   <div
@@ -332,7 +320,7 @@ export default function GroupPage() {
         {/* LEADERBOARD */}
         {section === "leaderboard" && (
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow border dark:border-gray-700">
-            <GroupLeaderboard group={group} />
+            <GroupLeaderboard leaderboard={group.leaderboard} />
           </div>
         )}
 
