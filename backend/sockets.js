@@ -93,6 +93,8 @@ export default function (io) {
         correctIndex: currentQ.answer,
       });
 
+      console.log("Player scores updated:", room.players);
+
       const leaderboard = room.players
         .map((p) => ({ name: p.name, score: p.score }))
         .sort((a, b) => b.score - a.score);
@@ -114,6 +116,7 @@ export default function (io) {
         const finalLeaderboard = room.players
           .map((p) => ({ name: p.name, score: p.score }))
           .sort((a, b) => b.score - a.score);
+        console.log("Player scores updated:", finalLeaderboard);
 
         room.players.forEach((p) => {
           io.to(p.id).emit("game-over", {
@@ -320,20 +323,18 @@ export default function (io) {
     });
 
     // manual result save event
-    socket.on(
-      "save-group-result",
-      ({ groupId, userId, username, answers, score }, cb) => {
-        axios
-          .post(`http://localhost:5000/api/quiz-groups/${groupId}/results`, {
-            userId,
-            username,
-            answers,
-            score,
-          })
-          .then(() => cb?.({ success: true }))
-          .catch(() => cb?.({ success: false }));
-      }
-    );
+    socket.on("save-group-result", ({ groupId, leaderboard }, cb) => {
+      console.log("save-group-result event received:", {
+        groupId,
+        leaderboard,
+      });
+      axios
+        .post(`http://localhost:5000/api/quiz-groups/${groupId}/results`, {
+          leaderboard,
+        })
+        .then(() => cb?.({ success: true }))
+        .catch(() => cb?.({ success: false }));
+    });
 
     // =============================================================
     // DISCONNECT

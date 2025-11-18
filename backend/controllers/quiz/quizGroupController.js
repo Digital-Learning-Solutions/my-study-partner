@@ -420,7 +420,6 @@ export async function getGroupHistory(req, res) {
       .select(
         "name description members admin isActiveGame leaderboard resultHistory joinRequests settings createdAt"
       )
-      .populate("resultHistory.results.user", "username profile")
       .lean();
 
     if (!group) return res.status(404).json({ message: "Group not found" });
@@ -540,57 +539,56 @@ export async function getGroupQuestions(req, res) {
 export async function saveGroupGameResult(req, res) {
   try {
     const groupId = req.params.id;
-    const { userId, username, answers, score } = req.body;
+    const { leaderboard } = req.body;
 
-    if (!userId) return res.status(400).json({ message: "userId is required" });
+    if (
+      !leaderboard ||
+      !Array.isArray(leaderboard) ||
+      leaderboard.length === 0
+    ) {
+      return res.status(400).json({ message: "Invalid leaderboard data" });
+    }
 
-    // 1️⃣ Ensure history exists
-    await QuizGroup.findByIdAndUpdate(
-      groupId,
-      {
-        $setOnInsert: {
-          resultHistory: [{ playedAt: new Date(), results: [] }],
-        },
-      },
-      { upsert: false }
-    );
+    // Fetch fresh group
+    let group = await QuizGroup.findById(groupId);
+    if (!group) return res.status(404).json({ message: "Group not found" });
 
-    // 2️⃣ Remove old entry for this user
+    // Ensure history entry exists
+    if (group.resultHistory.length === 0) {
+      await QuizGroup.findByIdAndUpdate(groupId, {
+        $push: { resultHistory: { playedAt: new Date(), results: [] } },
+      });
+      group = await QuizGroup.findById(groupId); // refresh
+    }
+
+    // Always use the last resultHistory entry
+    const latestIndex = group.resultHistory.length - 1;
+
+    // STEP 1: Clear previous results of that entry
     await QuizGroup.findByIdAndUpdate(groupId, {
-      $pull: { "resultHistory.0.results": { user: userId } },
+      $set: { [`resultHistory.${latestIndex}.results`]: [] },
     });
 
-    // 3️⃣ Add new entry
+    // STEP 2: Insert all results at once
     await QuizGroup.findByIdAndUpdate(groupId, {
       $push: {
-        "resultHistory.0.results": {
-          user: userId,
-          name: username,
-          score,
-          answers,
-        },
-      },
-    });
-
-    // 4️⃣ Update leaderboard
-    await QuizGroup.findByIdAndUpdate(groupId, {
-      $pull: { leaderboard: { user: userId } },
-    });
-
-    await QuizGroup.findByIdAndUpdate(groupId, {
-      $push: {
-        leaderboard: {
-          user: userId,
-          name: username,
-          score,
+        [`resultHistory.${latestIndex}.results`]: {
+          $each: leaderboard.map((p) => ({
+            name: p.name,
+            score: p.score,
+          })),
         },
       },
     });
 
-    // 5️⃣ Sort leaderboard
+    // STEP 3: Replace leaderboard with the new one
     await QuizGroup.findByIdAndUpdate(groupId, {
-      $push: {
-        leaderboard: { $each: [], $sort: { score: -1 } },
+      $set: {
+        leaderboard: leaderboard.map((p) => ({
+          name: p.name,
+          score: p.score,
+          updatedAt: new Date(),
+        })),
       },
     });
 

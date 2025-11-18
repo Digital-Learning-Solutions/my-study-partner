@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const leaderboardEntrySchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   name: { type: String },
   score: { type: Number, default: 0 },
   updatedAt: { type: Date, default: Date.now },
@@ -9,13 +8,10 @@ const leaderboardEntrySchema = new mongoose.Schema({
 
 const resultHistorySchema = new mongoose.Schema({
   playedAt: { type: Date, default: Date.now },
-  questions: [{ type: Object }],
   results: [
     {
-      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       name: { type: String },
       score: { type: Number },
-      answers: [{ selected: Number, correct: Number }],
     },
   ],
 });

@@ -9,7 +9,7 @@ export default function CourseModulesPage() {
   const [course, setCourse] = useState({});
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user } = useStoredContext();
+  const { user, getUser } = useStoredContext();
 
   // ---------- FETCH COURSE + USER ----------
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function CourseModulesPage() {
 
         setCourse(fetchedCourse);
         console.log("User:", user);
-
+        getUser(); // Refresh user data
         if (user) {
           const enrolled = user.enrolledCourses.some(
             (c) => String(c.course._id) === String(fetchedCourse._id)
@@ -36,7 +36,7 @@ export default function CourseModulesPage() {
     }
 
     fetchCourseAndUser();
-  }, []);
+  }, [course, isEnrolled]);
 
   // ---------- HANDLE ENROLL ----------
   async function handleEnroll() {

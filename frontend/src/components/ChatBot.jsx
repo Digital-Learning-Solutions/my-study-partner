@@ -47,7 +47,7 @@ export default function ChatBot() {
       const res = await fetch("http://localhost:5000/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ hostory: messages, prompt }),
       });
 
       const data = await res.json();
@@ -163,22 +163,20 @@ export default function ChatBot() {
                   <div
                     key={i}
                     className={`relative p-3 rounded-xl shadow-sm max-w-[80%] ${
-                      isBot
-                        ? "mr-auto bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white"
-                        : "ml-auto bg-indigo-600 text-white"
+                      msg.sender === "user"
+                        ? "ml-auto bg-indigo-600 text-white"
+                        : "mr-auto bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white"
                     }`}
                   >
-                    {cleaned}
+                    <div className="whitespace-pre-wrap leading-relaxed">
+                      {cleaned}
+                    </div>
 
-                    {/* COPY BUTTON for bot messages */}
+                    {/* COPY BUTTON HERE */}
                     {isBot && (
                       <button
                         onClick={() => navigator.clipboard.writeText(cleaned)}
-                        className="
-            absolute top-2 right-2 p-1 rounded-md
-            hover:bg-white/20 dark:hover:bg-black/20
-            transition text-xs
-          "
+                        className="absolute top-2 right-2 p-1 rounded-md hover:bg-white/20 dark:hover:bg-black/20 transition text-xs"
                       >
                         <Copy size={14} />
                       </button>

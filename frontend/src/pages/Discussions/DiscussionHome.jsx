@@ -25,7 +25,7 @@ export default function DiscussionHome() {
     limit: 10,
     sort: "recent",
   });
-  const [category, setCategory] = useState();
+  const [category, setCategory] = useState(null);
   const [showReminder, setShowReminder] = useState(false);
   const { user } = useStoredContext();
 
@@ -55,7 +55,7 @@ export default function DiscussionHome() {
         JSON.stringify(activities.slice(0, 10))
       );
     }
-  }, [category]);
+  }, [category, sectionKey]);
 
   useEffect(() => {
     fetchDiscussions(filters, selectedSection);

@@ -10,7 +10,6 @@ import apiRouter from "./routes/QuizRoutes/api.js";
 import sockets from "./sockets.js";
 import courseRouter from "./routes/CoursesRoutes/course.js";
 import authRoutes from "./routes/UserRoutes/authRoutes.js";
-import enrollRoutes from "./routes/CoursesRoutes/enrollRoutes.js";
 import userRoutes from "./routes/UserRoutes/userRoutes.js";
 import dashboardRoutes from "./routes/UserRoutes/dashboardRoutes.js";
 import discussionRoutes from "./routes/DiscussionRoutes/discussionRoutes.js";
@@ -52,7 +51,6 @@ app.use("/api/course", courseRouter);
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/api", enrollRoutes);
 app.use("/api/discussions", discussionRoutes);
 
 // 👉 QUIZ GROUP ROUTES

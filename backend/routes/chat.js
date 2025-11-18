@@ -11,9 +11,19 @@ const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 chatRouter.post("/", async (req, res) => {
   try {
-    const { prompt } = req.body;
+    const { history, prompt } = req.body;
 
-    const result = await model.generateContent(prompt);
+    // Convert your messages array to Gemini chat format
+    const formattedHistory = history.map((msg) => ({
+      role: msg.sender === "user" ? "user" : "model",
+      parts: [{ text: msg.text }],
+    }));
+
+    const chat = model.startChat({
+      history: formattedHistory,
+    });
+
+    const result = await chat.sendMessage(prompt);
     const output = result.response.text();
 
     res.json({ success: true, answer: output });

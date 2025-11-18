@@ -1,4 +1,4 @@
-import User from "../../models/UserModel/User.js";
+import User from "../../models/UserModel/user.js";
 export const getUserDiscussionById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
@@ -7,7 +7,6 @@ export const getUserDiscussionById = async (req, res) => {
         select:
           "title question createdAt section id tags no_of_answers upvotes",
       })
-
       .lean();
     console.log("Discussions:", user.createdDiscussions);
 
@@ -23,10 +22,10 @@ export async function getUser(req, res) {
   try {
     const { userId } = req.params;
     const user = await User.findById(userId).populate({
-        path: "enrolledCourses.course",
-        select: "title modules _id courseType slug subject",
-      });
-      
+      path: "enrolledCourses.course",
+      select: "title modules _id courseType slug subject",
+    });
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
@@ -23,7 +23,7 @@ export default function GamePage() {
   const location = useLocation();
   const gameType = location.state?.gameType || "normal";
   const groupAdminId = location.state?.groupAdminId || null;
-
+  const isHostRef = useRef(false);
   const userId = localStorage.getItem("userId");
   const username = localStorage.getItem("username") || "Player";
 
@@ -48,7 +48,8 @@ export default function GamePage() {
     if (gameType === "group") {
       const amIHost = userId === groupAdminId;
       setIsHost(amIHost);
-
+      isHostRef.current = amIHost;
+      console.log("Am I Host:", amIHost);
       s.emit("join-group-room", {
         groupId: code,
         userId,
@@ -95,17 +96,19 @@ export default function GamePage() {
 
           setQuestionsBank(allQuestions);
           setMyAnswers(merged);
-
+          console.log("Game type:", gameType, "Is Host:", isHostRef.current);
           // 🟣 SAVE GROUP RESULT
-          if (gameType === "group" && isHost) {
+          console.log("leaderboard", leaderboard);
+          if (gameType === "group" && isHostRef.current) {
+            console.log("Emitting save-group-result", {
+              groupId: code,
+              leaderboard,
+            });
             s.emit(
               "save-group-result",
               {
                 groupId: code,
-                userId,
-                username,
-                answers: merged,
-                score: unique.find((p) => p.name === username)?.score || 0,
+                leaderboard,
               },
               (response) => {
                 console.log("Group result saved:", response);
@@ -124,7 +127,7 @@ export default function GamePage() {
         sessionStorage.clear();
       }
     };
-  }, [code, gameType, groupAdminId]);
+  }, []);
 
   // ----------------------------------------------------------------
   // TIMER (supports normal + group mode)

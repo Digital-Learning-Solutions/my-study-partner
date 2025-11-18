@@ -4,6 +4,7 @@ import fs from "fs";
 import dotenv from "dotenv";
 import Question from "../../models/QuizModel/Question.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { enrollInCourse } from "../../controllers/courses/courceEnroll.js";
 
 dotenv.config();
 const router = express.Router();
@@ -33,12 +34,12 @@ router.get("/questions/sample", (req, res) => {
       ],
       answer: 0,
     },
-    {
-      id: "s3",
-      question: "Which planet is known as the Red Planet?",
-      options: ["Earth", "Mars", "Jupiter", "Venus"],
-      answer: 1,
-    },
+    // {
+    //   id: "s3",
+    //   question: "Which planet is known as the Red Planet?",
+    //   options: ["Earth", "Mars", "Jupiter", "Venus"],
+    //   answer: 1,
+    // },
     // {
     //   id: "s4",
     //   question: "What is the largest mammal in the world?",
@@ -132,5 +133,8 @@ router.post("/upload-notes", upload.single("file"), async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
+
+// POST /api/enroll
+router.post("/enroll", enrollInCourse);
 
 export default router;
