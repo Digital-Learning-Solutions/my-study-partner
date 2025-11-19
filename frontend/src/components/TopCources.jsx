@@ -20,8 +20,9 @@ export default function TopCourses() {
 
         const data = await response.json();
 
-        // ⭐ SORT by enrollCount & pick top 8
-        const topEight = [...data.courses]
+        const coursesArray = Array.isArray(data.courses) ? data.courses : [];
+
+        const topEight = [...coursesArray]
           .sort((a, b) => b.enrollCount - a.enrollCount)
           .slice(0, 8);
 
