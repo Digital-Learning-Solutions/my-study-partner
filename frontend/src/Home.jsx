@@ -166,7 +166,7 @@ export default function Home() {
 
                 <img
                   loading="lazy"
-                  src="https://placehold.co/800x600/ffffff/111?text=AI+Learning"
+                  src="\src\assets\hero_image.webp"
                   alt="AI Learning illustration"
                   className="w-full rounded-2xl shadow-soft-lg relative z-10"
                 />
