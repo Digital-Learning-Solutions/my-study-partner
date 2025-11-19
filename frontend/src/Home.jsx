@@ -1,4 +1,4 @@
-/* src/pages/HomePage.jsx */
+// src/pages/HomePage.jsx
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
@@ -7,6 +7,16 @@ import Button from "./components/ui/Button";
 import FeatureCard from "./components/ui/FeatureCard";
 import CourseCard from "./components/CourseCard";
 import CourseSkeleton from "./components/CourseSkeleton";
+
+/**
+ * Home page (updated & corrected)
+ *
+ * Notes:
+ * - Uses class-based dark mode (tailwind.config.js: darkMode: "class")
+ * - Hero image uses the local uploaded test path for quick dev testing:
+ *     /mnt/data/A_digital_illustration_showcases_AI-powered_educat.png
+ *   For production move the file into `public/images` or `src/assets` and update the path/import.
+ */
 
 export default function Home() {
   const snapRef = useRef(null);
@@ -20,6 +30,7 @@ export default function Home() {
 
     async function fetchCourses() {
       try {
+        // You can change to a relative path or use an env var for production
         const response = await fetch("http://localhost:5000/api/course/all", {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -34,15 +45,12 @@ export default function Home() {
         const data = await response.json();
         const coursesArray = Array.isArray(data.courses) ? data.courses : [];
 
-        console.log("Fetched courses:", coursesArray);
-
+        // sort by enrollCount safely
         const topEight = [...coursesArray]
           .sort((a, b) => (b.enrollCount || 0) - (a.enrollCount || 0))
           .slice(0, 8);
 
         if (mounted) setCourseList(topEight);
-        console.log("Top 8:", topEight);
-
       } catch (error) {
         console.error("Error fetching courses:", error);
         if (mounted) setCourseList([]);
@@ -64,6 +72,7 @@ export default function Home() {
     el.scrollBy({ left: dir * delta, behavior: "smooth" });
   }, []);
 
+  // keyboard arrow support for focused carousel
   useEffect(() => {
     const el = snapRef.current;
     if (!el) return;
@@ -88,20 +97,18 @@ export default function Home() {
   const motionProps = prefersReducedMotion
     ? {}
     : {
-      initial: { opacity: 0, y: 18 },
-      animate: { opacity: 1, y: 0 },
-      transition: { duration: 0.5 },
-    };
+        initial: { opacity: 0, y: 18 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.5 },
+      };
 
   return (
     <div className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
       <main>
-
         {/* HERO */}
         <section className="gradient-hero" aria-label="Hero">
           <div className="section-container py-16 md:py-20">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center relative">
-
               {/* LEFT */}
               <motion.div {...motionProps}>
                 <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-4 text-white">
@@ -136,10 +143,10 @@ export default function Home() {
                 {...(prefersReducedMotion
                   ? {}
                   : {
-                    initial: { opacity: 0, y: 18 },
-                    animate: { opacity: 1, y: 0 },
-                    transition: { duration: 0.6, delay: 0.1 },
-                  })}
+                      initial: { opacity: 0, y: 18 },
+                      animate: { opacity: 1, y: 0 },
+                      transition: { duration: 0.6, delay: 0.1 },
+                    })}
                 className="relative"
               >
                 {/* LIGHT overlay (visible when NOT .dark) */}
@@ -164,18 +171,20 @@ export default function Home() {
                   }}
                 />
 
+                {/* HERO IMAGE */}
+                {/* DEV TEST PATH: /mnt/data/A_digital_illustration_showcases_AI-powered_educat.png */}
+                {/* For production: move image to /public/images or import from src/assets */}
                 <img
                   loading="lazy"
-                  src="\src\assets\hero_image.webp"
+                  src="/src/assets/hero_image.webp"
                   alt="AI Learning illustration"
                   className="w-full rounded-2xl shadow-soft-lg relative z-10"
+                  style={{ objectFit: "cover" }}
                 />
               </motion.div>
             </div>
           </div>
         </section>
-
-
 
         {/* COURSE CAROUSEL */}
         <section className="py-16 md:py-24">
@@ -189,9 +198,7 @@ export default function Home() {
                 <button
                   onClick={() => scrollByCards(-1)}
                   aria-label="Scroll courses left"
-                  className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-soft
-                  hover:shadow-soft-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition 
-                  text-slate-600 dark:text-slate-300"
+                  className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-soft hover:shadow-soft-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
@@ -201,9 +208,7 @@ export default function Home() {
                 <button
                   onClick={() => scrollByCards(1)}
                   aria-label="Scroll courses right"
-                  className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-soft
-                  hover:shadow-soft-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition 
-                  text-slate-600 dark:text-slate-300"
+                  className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-soft hover:shadow-soft-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
@@ -243,11 +248,7 @@ export default function Home() {
 
         {/* PROBLEM SECTION */}
         <section className="py-20 md:py-28 relative overflow-hidden">
-          {/* Decorative gradient blobs */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 pointer-events-none"
-          >
+          <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
             <div className="absolute -top-10 -left-10 w-72 h-72 bg-brand-600/10 dark:bg-brand-400/10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 right-0 w-72 h-72 bg-accent/10 dark:bg-accent/10 rounded-full blur-3xl" />
           </div>
@@ -262,10 +263,7 @@ export default function Home() {
             >
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-slate-200 leading-tight">
                 Tired of the{" "}
-                <span className="text-brand-600 dark:text-brand-400">
-                  “One-Size-Fits-All”
-                </span>{" "}
-                Approach?
+                <span className="text-brand-600 dark:text-brand-400">“One-Size-Fits-All”</span> Approach?
               </h2>
 
               <p className="mt-6 text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
@@ -281,11 +279,9 @@ export default function Home() {
           </div>
         </section>
 
-
         {/* FEATURES SECTION */}
         <section className="bg-slate-50 dark:bg-slate-900 py-20 md:py-28">
           <div className="section-container">
-            {/* Section heading */}
             <motion.div
               initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -297,12 +293,10 @@ export default function Home() {
                 Your Personalized Path to Success
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-400 mt-3">
-                Our platform provides the tools you need to learn effectively and
-                at your own pace.
+                Our platform provides the tools you need to learn effectively and at your own pace.
               </p>
             </motion.div>
 
-            {/* Features Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
                 {
@@ -332,25 +326,14 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="
-            glass rounded-2xl p-6 text-center shadow-soft-lg
-            hover:shadow-xl hover:-translate-y-1 transition-all duration-300
-          "
+                  className="glass rounded-2xl p-6 text-center shadow-soft-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 >
-                  {/* Icon container */}
                   <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-brand-600/20 to-accent/30 dark:from-brand-400/20 dark:to-accent/20">
                     <item.icon className="w-8 h-8 text-brand-600 dark:text-brand-400" />
                   </div>
 
-                  {/* Title */}
-                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">
-                    {item.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                    {item.desc}
-                  </p>
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">{item.title}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -359,7 +342,6 @@ export default function Home() {
 
         {/* TECHNOLOGY SECTION */}
         <section className="py-20 md:py-28 relative overflow-hidden">
-          {/* Soft decorative background glows */}
           <div aria-hidden="true">
             <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-600/10 dark:bg-brand-400/10 rounded-full blur-3xl"></div>
             <div className="absolute bottom-0 right-10 w-72 h-72 bg-accent/10 dark:bg-accent/10 rounded-full blur-3xl"></div>
@@ -378,56 +360,37 @@ export default function Home() {
               </h2>
 
               <p className="mt-6 text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
-                We use advanced AI models and modern web technologies to deliver a
-                seamless, intelligent, and human-like learning experience.
+                We use advanced AI models and modern web technologies to deliver a seamless, intelligent, and human-like learning experience.
               </p>
             </motion.div>
 
-            {/* Icons row */}
             <motion.div
               initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: 0.15 }}
-              className="
-        flex flex-col sm:flex-row items-center justify-center 
-        gap-10 mt-14
-      "
+              className="flex flex-col sm:flex-row items-center justify-center gap-10 mt-14"
             >
-              {/* Icon 1 */}
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-3xl flex items-center justify-center 
-          bg-gradient-to-br from-brand-600/20 to-accent/30 
-          dark:from-brand-400/20 dark:to-accent/20 
-          shadow-lg backdrop-blur-md
-        ">
+                <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-gradient-to-br from-brand-600/20 to-accent/30 dark:from-brand-400/20 dark:to-accent/20 shadow-lg backdrop-blur-md">
                   <Cpu className="w-10 h-10 text-brand-600 dark:text-brand-400" />
                 </div>
                 <p className="mt-3 text-slate-600 dark:text-slate-400 font-medium">AI Models</p>
               </div>
 
-              {/* Icon 2 */}
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-3xl flex items-center justify-center 
-          bg-gradient-to-br from-accent/25 to-brand-600/20 
-          dark:from-accent/10 dark:to-brand-400/20 
-          shadow-lg backdrop-blur-md
-        ">
+                <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-gradient-to-br from-accent/25 to-brand-600/20 dark:from-accent/10 dark:to-brand-400/20 shadow-lg backdrop-blur-md">
                   <Layers className="w-10 h-10 text-accent dark:text-accent" />
                 </div>
                 <p className="mt-3 text-slate-600 dark:text-slate-400 font-medium">Neural Layers</p>
               </div>
 
-              {/* Label Text */}
               <div className="flex flex-col items-center">
-                <span className="text-2xl md:text-3xl font-semibold text-slate-700 dark:text-slate-300">
-                  GPT-Style Models
-                </span>
+                <span className="text-2xl md:text-3xl font-semibold text-slate-700 dark:text-slate-300">GPT-Style Models</span>
               </div>
             </motion.div>
           </div>
         </section>
-
 
         {/* SPONSORS SECTION */}
         <section className="py-12 bg-slate-50 dark:bg-slate-900 overflow-hidden" aria-label="Sponsors">
@@ -437,23 +400,12 @@ export default function Home() {
               <p className="text-sm text-slate-500 dark:text-slate-400">Trusted by institutions & companies</p>
             </div>
 
-            {/* Marquee wrapper: on small screens we show a grid fallback */}
             <div className="relative">
-              {/* Fade edges */}
               <div className="pointer-events-none absolute inset-y-0 left-0 w-16 z-20 hidden md:block" aria-hidden="true" />
               <div className="pointer-events-none absolute inset-y-0 right-0 w-16 z-20 hidden md:block" aria-hidden="true" />
 
-              {/* Marquee (desktop) */}
-              <div
-                className="hidden md:block"
-                role="group"
-                aria-label="Sponsor logos carousel"
-              >
-                <div
-                  className="marquee animate-marquee will-change-transform"
-                // pause on hover or focus for accessibility
-                // use data attribute to allow CSS selector if needed
-                >
+              <div className="hidden md:block" role="group" aria-label="Sponsor logos carousel">
+                <div className="marquee animate-marquee will-change-transform">
                   <div className="marquee__track flex items-center gap-12">
                     {["A", "B", "C", "D", "E", "F", "A", "B", "C", "D", "E", "F"].map((s, idx) => (
                       <div key={idx} className="flex-shrink-0">
@@ -470,13 +422,11 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Pause on hover/focus instructions for screen readers */}
                 <div className="sr-only" aria-hidden="false">
                   Hover or focus the carousel to pause the animation.
                 </div>
               </div>
 
-              {/* Grid fallback (mobile) */}
               <div className="grid grid-cols-3 gap-6 md:hidden">
                 {["A", "B", "C", "D", "E", "F"].map((s, idx) => (
                   <div key={idx} className="flex items-center justify-center">
@@ -493,8 +443,7 @@ export default function Home() {
           </div>
         </section>
 
-
-        {/* FINAL CTA — polished, responsive, accessible */}
+        {/* FINAL CTA */}
         <section className="gradient-hero" aria-label="Call to action">
           <div className="section-container py-16 md:py-24">
             <div className="max-w-4xl mx-auto text-center">
@@ -513,42 +462,24 @@ export default function Home() {
                   and 1:1 AI assistance. Start small — learn faster — build momentum.
                 </p>
 
-                {/* CTA buttons: primary + secondary */}
                 <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
                   <Link to="/register" aria-label="Get started for free">
-                    <Button
-                      className="px-6 py-3 rounded-full font-semibold shadow-2xl transform-gpu hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-white/30"
-                    >
+                    <Button className="px-6 py-3 rounded-full font-semibold shadow-2xl transform-gpu hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-white/30">
                       Get Started — Free
                     </Button>
                   </Link>
 
                   <Link to="/subscriptions" aria-label="See subscription plans">
-                    <Button
-                      variant="outline"
-                      className="px-5 py-3 rounded-full border-white/30 bg-white/10 text-white hover:bg-white/15 focus-visible:ring-4 focus-visible:ring-white/20"
-                    >
+                    <Button variant="outline" className="px-5 py-3 rounded-full border-white/30 bg-white/10 text-white hover:bg-white/15 focus-visible:ring-4 focus-visible:ring-white/20">
                       View Plans
                     </Button>
                   </Link>
                 </div>
 
-                {/* small reassurance text */}
-                <p className="mt-4 text-sm text-white/80">
-                  No credit card required • Cancel anytime • Student pricing available
-                </p>
+                <p className="mt-4 text-sm text-white/80">No credit card required • Cancel anytime • Student pricing available</p>
               </motion.div>
 
-              {/* Decorative accent (subtle, non-interactive) */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none mt-8"
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  gap: 12,
-                }}
-              >
+              <div aria-hidden="true" className="pointer-events-none mt-8" style={{ display: "flex", justifyContent: "center", gap: 12 }}>
                 <span className="inline-block w-3 h-3 rounded-full bg-white/20 dark:bg-white/10" />
                 <span className="inline-block w-3 h-3 rounded-full bg-white/15 dark:bg-white/8" />
                 <span className="inline-block w-3 h-3 rounded-full bg-white/10 dark:bg-white/6" />
@@ -556,8 +487,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-
       </main>
     </div>
   );

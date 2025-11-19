@@ -127,7 +127,7 @@ export default function Navbar() {
         <Link to="/" className="flex items-center space-x-2">
           <img
             src="https://placehold.co/150x50/3b82f6/ffffff?text=YourLogo"
-            alt="Logo"
+            alt="LearniVerse"
             className="h-10 w-auto rounded"
           />
         </Link>
