@@ -88,10 +88,10 @@ export default function Home() {
   const motionProps = prefersReducedMotion
     ? {}
     : {
-        initial: { opacity: 0, y: 18 },
-        animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.5 },
-      };
+      initial: { opacity: 0, y: 18 },
+      animate: { opacity: 1, y: 0 },
+      transition: { duration: 0.5 },
+    };
 
   return (
     <div className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
@@ -101,7 +101,7 @@ export default function Home() {
         <section className="gradient-hero" aria-label="Hero">
           <div className="section-container py-16 md:py-20">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center relative">
-              
+
               {/* LEFT */}
               <motion.div {...motionProps}>
                 <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-4 text-white">
@@ -136,10 +136,10 @@ export default function Home() {
                 {...(prefersReducedMotion
                   ? {}
                   : {
-                      initial: { opacity: 0, y: 18 },
-                      animate: { opacity: 1, y: 0 },
-                      transition: { duration: 0.6, delay: 0.1 },
-                    })}
+                    initial: { opacity: 0, y: 18 },
+                    animate: { opacity: 1, y: 0 },
+                    transition: { duration: 0.6, delay: 0.1 },
+                  })}
                 className="relative"
               >
                 <div
@@ -228,56 +228,192 @@ export default function Home() {
         </section>
 
         {/* PROBLEM SECTION */}
-        <section className="py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-slate-200 mb-4">
-              Tired of the "One-Size-Fits-All" Approach?
-            </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed">
-              Traditional education often fails to accommodate diverse learning
-              styles and speeds. This leads to gaps in understanding, low
-              engagement, and unnecessary academic pressure.
-            </p>
+        <section className="py-20 md:py-28 relative overflow-hidden">
+          {/* Decorative gradient blobs */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none"
+          >
+            <div className="absolute -top-10 -left-10 w-72 h-72 bg-brand-600/10 dark:bg-brand-400/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-0 right-0 w-72 h-72 bg-accent/10 dark:bg-accent/10 rounded-full blur-3xl" />
+          </div>
+
+          <div className="section-container relative">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="text-center max-w-4xl mx-auto"
+            >
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-slate-200 leading-tight">
+                Tired of the{" "}
+                <span className="text-brand-600 dark:text-brand-400">
+                  “One-Size-Fits-All”
+                </span>{" "}
+                Approach?
+              </h2>
+
+              <p className="mt-6 text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                Traditional education often fails to accommodate diverse learning styles
+                and speeds. This leads to gaps in understanding, decreased motivation,
+                low engagement, and unnecessary academic pressure.
+              </p>
+
+              <p className="mt-4 text-base md:text-lg text-slate-600 dark:text-slate-400">
+                Every student is different — your learning experience should be too.
+              </p>
+            </motion.div>
           </div>
         </section>
 
-        {/* FEATURES */}
-        <section className="bg-slate-50 dark:bg-slate-900 py-16 md:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-slate-200">
+
+        {/* FEATURES SECTION */}
+        <section className="bg-slate-50 dark:bg-slate-900 py-20 md:py-28">
+          <div className="section-container">
+            {/* Section heading */}
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="text-center max-w-3xl mx-auto mb-14"
+            >
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-slate-200">
                 Your Personalized Path to Success
               </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400 mt-2">
+              <p className="text-lg text-slate-600 dark:text-slate-400 mt-3">
                 Our platform provides the tools you need to learn effectively and
                 at your own pace.
               </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <FeatureCard icon={MessageSquare} title="Real-time AI Support" description="Instant help via intelligent chat and voice interface." />
-              <FeatureCard icon={Zap} title="Adaptive Quizzes" description="Quizzes that adjust to your personal skill level." />
-              <FeatureCard icon={BookOpen} title="Personalized Content" description="Study materials and recommendations tailored to you." />
-              <FeatureCard icon={BarChart2} title="Progress Tracking" description="Visualize your learning with clear dashboards." />
+            </motion.div>
+
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                {
+                  icon: MessageSquare,
+                  title: "Real-time AI Support",
+                  desc: "Instant help via intelligent chat and voice assistance."
+                },
+                {
+                  icon: Zap,
+                  title: "Adaptive Quizzes",
+                  desc: "Quizzes that adjust to your skill level in real-time."
+                },
+                {
+                  icon: BookOpen,
+                  title: "Personalized Content",
+                  desc: "Study plans and resources tailored specifically to you."
+                },
+                {
+                  icon: BarChart2,
+                  title: "Progress Tracking",
+                  desc: "Track your learning with clear insights and analytics."
+                }
+              ].map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  className="
+            glass rounded-2xl p-6 text-center shadow-soft-lg
+            hover:shadow-xl hover:-translate-y-1 transition-all duration-300
+          "
+                >
+                  {/* Icon container */}
+                  <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-brand-600/20 to-accent/30 dark:from-brand-400/20 dark:to-accent/20">
+                    <item.icon className="w-8 h-8 text-brand-600 dark:text-brand-400" />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">
+                    {item.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* TECHNOLOGY */}
-        <section className="py-16 md:py-24">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-slate-200 mb-4">
-              Powered by Cutting-Edge AI
-            </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-8">
-              We use advanced AI models and modern web technologies to deliver a seamless, intelligent, and human-like learning experience.
-            </p>
-            <div className="flex justify-center items-center space-x-8">
-              <Cpu className="w-16 h-16 text-slate-500 dark:text-slate-400" />
-              <Layers className="w-16 h-16 text-slate-500 dark:text-slate-400" />
-              <span className="text-2xl font-bold text-slate-500 dark:text-slate-400">GPT-style models</span>
-            </div>
+        {/* TECHNOLOGY SECTION */}
+        <section className="py-20 md:py-28 relative overflow-hidden">
+          {/* Soft decorative background glows */}
+          <div aria-hidden="true">
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand-600/10 dark:bg-brand-400/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 right-10 w-72 h-72 bg-accent/10 dark:bg-accent/10 rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="section-container relative">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="text-center max-w-3xl mx-auto"
+            >
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-slate-200 leading-tight">
+                Powered by Cutting-Edge AI
+              </h2>
+
+              <p className="mt-6 text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
+                We use advanced AI models and modern web technologies to deliver a
+                seamless, intelligent, and human-like learning experience.
+              </p>
+            </motion.div>
+
+            {/* Icons row */}
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="
+        flex flex-col sm:flex-row items-center justify-center 
+        gap-10 mt-14
+      "
+            >
+              {/* Icon 1 */}
+              <div className="flex flex-col items-center">
+                <div className="w-20 h-20 rounded-3xl flex items-center justify-center 
+          bg-gradient-to-br from-brand-600/20 to-accent/30 
+          dark:from-brand-400/20 dark:to-accent/20 
+          shadow-lg backdrop-blur-md
+        ">
+                  <Cpu className="w-10 h-10 text-brand-600 dark:text-brand-400" />
+                </div>
+                <p className="mt-3 text-slate-600 dark:text-slate-400 font-medium">AI Models</p>
+              </div>
+
+              {/* Icon 2 */}
+              <div className="flex flex-col items-center">
+                <div className="w-20 h-20 rounded-3xl flex items-center justify-center 
+          bg-gradient-to-br from-accent/25 to-brand-600/20 
+          dark:from-accent/10 dark:to-brand-400/20 
+          shadow-lg backdrop-blur-md
+        ">
+                  <Layers className="w-10 h-10 text-accent dark:text-accent" />
+                </div>
+                <p className="mt-3 text-slate-600 dark:text-slate-400 font-medium">Neural Layers</p>
+              </div>
+
+              {/* Label Text */}
+              <div className="flex flex-col items-center">
+                <span className="text-2xl md:text-3xl font-semibold text-slate-700 dark:text-slate-300">
+                  GPT-Style Models
+                </span>
+              </div>
+            </motion.div>
           </div>
         </section>
+
 
         {/* SPONSORS */}
         <section className="bg-slate-50 dark:bg-slate-900 py-12">
