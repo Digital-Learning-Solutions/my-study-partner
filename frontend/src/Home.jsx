@@ -142,12 +142,24 @@ export default function Home() {
                   })}
                 className="relative"
               >
+                {/* LIGHT overlay (visible when NOT .dark) */}
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute -inset-4 rounded-3xl blur-3xl opacity-30 dark:opacity-20"
+                  className="pointer-events-none absolute -inset-4 rounded-3xl blur-3xl opacity-30 block dark:hidden"
                   style={{
                     background:
                       "radial-gradient(800px 400px at 10% 20%, rgba(255,255,255,0.06), transparent 20%), radial-gradient(600px 300px at 90% 80%, rgba(255,255,255,0.04), transparent 30%)",
+                    mixBlendMode: "overlay",
+                  }}
+                />
+
+                {/* DARK overlay (visible when .dark present) */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -inset-4 rounded-3xl blur-3xl opacity-25 hidden dark:block"
+                  style={{
+                    background:
+                      "radial-gradient(800px 400px at 10% 20%, rgba(3,7,18,0.55), transparent 20%), radial-gradient(600px 300px at 90% 80%, rgba(3,7,18,0.35), transparent 30%)",
                     mixBlendMode: "overlay",
                   }}
                 />
@@ -162,6 +174,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+
 
         {/* COURSE CAROUSEL */}
         <section className="py-16 md:py-24">
@@ -415,38 +429,134 @@ export default function Home() {
         </section>
 
 
-        {/* SPONSORS */}
-        <section className="bg-slate-50 dark:bg-slate-900 py-12">
-          <div className="w-full overflow-hidden">
-            <div className="flex animate-marquee">
-              <div className="flex w-max items-center">
-                {["A", "B", "C", "D", "E", "F", "A", "B", "C", "D", "E", "F"].map(
-                  (s, idx) => (
+        {/* SPONSORS SECTION */}
+        <section className="py-12 bg-slate-50 dark:bg-slate-900 overflow-hidden" aria-label="Sponsors">
+          <div className="section-container relative">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200">Our Partners</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Trusted by institutions & companies</p>
+            </div>
+
+            {/* Marquee wrapper: on small screens we show a grid fallback */}
+            <div className="relative">
+              {/* Fade edges */}
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 z-20 hidden md:block" aria-hidden="true" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 z-20 hidden md:block" aria-hidden="true" />
+
+              {/* Marquee (desktop) */}
+              <div
+                className="hidden md:block"
+                role="group"
+                aria-label="Sponsor logos carousel"
+              >
+                <div
+                  className="marquee animate-marquee will-change-transform"
+                // pause on hover or focus for accessibility
+                // use data attribute to allow CSS selector if needed
+                >
+                  <div className="marquee__track flex items-center gap-12">
+                    {["A", "B", "C", "D", "E", "F", "A", "B", "C", "D", "E", "F"].map((s, idx) => (
+                      <div key={idx} className="flex-shrink-0">
+                        <img
+                          src={`https://placehold.co/200x100/e2e8f0/a0aec0?text=Sponsor+${s}`}
+                          alt={`Sponsor ${s}`}
+                          loading="lazy"
+                          width="200"
+                          height="100"
+                          className="h-10 object-contain grayscale opacity-80 dark:opacity-60"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pause on hover/focus instructions for screen readers */}
+                <div className="sr-only" aria-hidden="false">
+                  Hover or focus the carousel to pause the animation.
+                </div>
+              </div>
+
+              {/* Grid fallback (mobile) */}
+              <div className="grid grid-cols-3 gap-6 md:hidden">
+                {["A", "B", "C", "D", "E", "F"].map((s, idx) => (
+                  <div key={idx} className="flex items-center justify-center">
                     <img
-                      key={idx}
-                      src={`https://placehold.co/200x100/e2e8f0/a0aec0?text=Sponsor+${s}`}
+                      src={`https://placehold.co/160x80/e2e8f0/a0aec0?text=Sponsor+${s}`}
                       alt={`Sponsor ${s}`}
-                      className="mx-8 h-10 grayscale opacity-80 dark:opacity-60"
                       loading="lazy"
+                      className="h-10 object-contain grayscale opacity-80 dark:opacity-60"
                     />
-                  )
-                )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
 
-        {/* FINAL CTA */}
-        <section className="gradient-hero">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Revolutionize Your Learning?</h2>
-            <div className="mt-8">
-              <Link to="/register">
-                <Button className="shadow-soft-lg">Get Started</Button>
-              </Link>
+
+        {/* FINAL CTA — polished, responsive, accessible */}
+        <section className="gradient-hero" aria-label="Call to action">
+          <div className="section-container py-16 md:py-24">
+            <div className="max-w-4xl mx-auto text-center">
+              <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
+                  Ready to revolutionize your learning?
+                </h2>
+
+                <p className="mt-4 text-white/90 text-base sm:text-lg max-w-2xl mx-auto">
+                  Join thousands of learners using AI-driven study plans, adaptive quizzes,
+                  and 1:1 AI assistance. Start small — learn faster — build momentum.
+                </p>
+
+                {/* CTA buttons: primary + secondary */}
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                  <Link to="/register" aria-label="Get started for free">
+                    <Button
+                      className="px-6 py-3 rounded-full font-semibold shadow-2xl transform-gpu hover:-translate-y-0.5 focus-visible:ring-4 focus-visible:ring-white/30"
+                    >
+                      Get Started — Free
+                    </Button>
+                  </Link>
+
+                  <Link to="/subscriptions" aria-label="See subscription plans">
+                    <Button
+                      variant="outline"
+                      className="px-5 py-3 rounded-full border-white/30 bg-white/10 text-white hover:bg-white/15 focus-visible:ring-4 focus-visible:ring-white/20"
+                    >
+                      View Plans
+                    </Button>
+                  </Link>
+                </div>
+
+                {/* small reassurance text */}
+                <p className="mt-4 text-sm text-white/80">
+                  No credit card required • Cancel anytime • Student pricing available
+                </p>
+              </motion.div>
+
+              {/* Decorative accent (subtle, non-interactive) */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none mt-8"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: 12,
+                }}
+              >
+                <span className="inline-block w-3 h-3 rounded-full bg-white/20 dark:bg-white/10" />
+                <span className="inline-block w-3 h-3 rounded-full bg-white/15 dark:bg-white/8" />
+                <span className="inline-block w-3 h-3 rounded-full bg-white/10 dark:bg-white/6" />
+              </div>
             </div>
           </div>
         </section>
+
 
       </main>
     </div>
