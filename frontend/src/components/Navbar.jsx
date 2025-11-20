@@ -133,7 +133,7 @@ export default function Navbar() {
           <img
             src={logoIcon}
             alt="LearniVerse Logo"
-            className="max-h-40 sm:max-h-12 md:max-h-20 lg:max-h-14 object-contain"
+            className="max-h-10 sm:max-h-12 md:max-h-12 lg:max-h-14 object-contain"
           />
 
           {/* Wordmark */}
