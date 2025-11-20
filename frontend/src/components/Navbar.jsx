@@ -123,14 +123,41 @@ export default function Navbar() {
   return (
     <nav className="glass sticky top-0 z-50">
       <div className="section-container py-3 flex justify-between items-center">
-        {/* ✅ Logo */}
-        <Link to="/" className="flex items-center space-x-2">
+
+        <Link to="/" className="flex items-center gap-3 select-none">
+
+          {/* Logo Icon */}
           <img
-            src="https://placehold.co/150x50/3b82f6/ffffff?text=YourLogo"
-            alt="LearniVerse"
-            className="h-10 w-auto rounded"
+            src="/src/assets/logo.png"
+            alt="LearniVerse Logo"
+            className="
+      h-10
+      sm:h-12
+      md:h-14
+      lg:h-16
+      object-contain
+    "
           />
+
+          {/* Text Logo */}
+          <img
+            src="/src/assets/text.png"
+            alt="LearniVerse Text"
+            className="
+      h-6
+      sm:h-8
+      md:h-10
+      lg:h-12
+      object-contain
+      hidden xs:block  /* hide on very small devices */
+    "
+          />
+
         </Link>
+
+
+
+
 
         {/* ✅ Desktop Menu */}
         <div className="hidden md:flex items-center space-x-6">
@@ -139,10 +166,9 @@ export default function Navbar() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `text-slate-600 dark:text-slate-300 hover:text-brand-700 dark:hover:text-brand-600 transition font-medium ${
-                  isActive
-                    ? "text-brand-700 dark:text-brand-600 font-semibold"
-                    : ""
+                `text-slate-600 dark:text-slate-300 hover:text-brand-700 dark:hover:text-brand-600 transition font-medium ${isActive
+                  ? "text-brand-700 dark:text-brand-600 font-semibold"
+                  : ""
                 }`
               }
             >
@@ -181,9 +207,8 @@ export default function Navbar() {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className={`h-4 w-4 transition-transform ${
-                    profileOpen ? "rotate-180" : "rotate-0"
-                  }`}
+                  className={`h-4 w-4 transition-transform ${profileOpen ? "rotate-180" : "rotate-0"
+                    }`}
                   aria-hidden="true"
                 >
                   <path
@@ -199,11 +224,10 @@ export default function Navbar() {
                 ref={desktopMenuRef}
                 role="menu"
                 aria-label="Profile options"
-                className={`absolute right-0 mt-2 w-60 origin-top-right rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 shadow-xl transition-all duration-150 ${
-                  profileOpen
-                    ? "pointer-events-auto scale-100 opacity-100"
-                    : "pointer-events-none scale-95 opacity-0"
-                }`}
+                className={`absolute right-0 mt-2 w-60 origin-top-right rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 shadow-xl transition-all duration-150 ${profileOpen
+                  ? "pointer-events-auto scale-100 opacity-100"
+                  : "pointer-events-none scale-95 opacity-0"
+                  }`}
               >
                 <DropdownLink
                   to="/dashboard"
@@ -300,26 +324,23 @@ export default function Navbar() {
       {/* ✅ MOBILE PROFILE SLIDING SIDEBAR */}
       {/* Overlay + Panel */}
       <div
-        className={`md:hidden fixed inset-0 z-[60] transition ${
-          mobileSidebarOpen ? "pointer-events-auto" : "pointer-events-none"
-        }`}
+        className={`md:hidden fixed inset-0 z-[60] transition ${mobileSidebarOpen ? "pointer-events-auto" : "pointer-events-none"
+          }`}
         role="presentation"
         aria-hidden={!mobileSidebarOpen}
         aria-modal={mobileSidebarOpen}
       >
         {/* overlay */}
         <div
-          className={`absolute inset-0 transition-opacity duration-200 ${
-            mobileSidebarOpen ? "opacity-100" : "opacity-0"
-          } bg-gradient-to-br from-slate-900/70 via-slate-900/60 to-slate-900/40 dark:from-black/70 dark:via-black/60 dark:to-black/40 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:backdrop-blur-md`}
+          className={`absolute inset-0 transition-opacity duration-200 ${mobileSidebarOpen ? "opacity-100" : "opacity-0"
+            } bg-gradient-to-br from-slate-900/70 via-slate-900/60 to-slate-900/40 dark:from-black/70 dark:via-black/60 dark:to-black/40 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:backdrop-blur-md`}
           onClick={() => setMobileSidebarOpen(false)}
         />
         {/* panel */}
         <aside
           ref={mobilePanelRef}
-          className={`absolute right-0 top-0 h-full w-72 max-w-[80vw] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl transition-transform duration-200 ${
-            mobileSidebarOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`absolute right-0 top-0 h-full w-72 max-w-[80vw] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl transition-transform duration-200 ${mobileSidebarOpen ? "translate-x-0" : "translate-x-full"
+            }`}
           role="dialog"
           aria-label="Account"
         >
