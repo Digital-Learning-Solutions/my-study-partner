@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useStoredContext } from "./context/useStoredContext";
+import logoIcon from "./assets/logo.png";
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -48,7 +49,7 @@ function LoginPage() {
           {/* Branding Panel (Left Side) */}
           <div className="hidden md:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-blue-600 to-blue-800 text-white dark:from-blue-700 dark:to-blue-900 transition-colors duration-300">
             <img
-              src="https://placehold.co/150x60/ffffff/3b82f6?text=YourLogo"
+              src={logoIcon}
               alt="Logo"
               className="h-16 mb-6 rounded-lg"
             />

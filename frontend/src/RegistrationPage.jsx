@@ -1,5 +1,7 @@
+import { LogOutIcon } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import logoIcon from "./assets/logo.png";
 
 function RegistrationPage() {
   const [formData, setFormData] = useState({
@@ -47,7 +49,7 @@ function RegistrationPage() {
           {/* Left side branding */}
           <div className="hidden md:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-700 dark:to-indigo-900 text-white">
             <img
-              src="https://placehold.co/150x60/ffffff/3b82f6?text=YourLogo"
+              src={logoIcon}
               alt="Logo"
               className="h-16 mb-6 rounded-lg"
             />
