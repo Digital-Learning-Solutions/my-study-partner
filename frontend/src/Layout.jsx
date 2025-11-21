@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import Intro from "./Intro";
 import LoginPage from "./LoginPage";
 import RegistrationPage from "./RegistrationPage";
 import Quiz from "./Quiz";
@@ -9,11 +8,14 @@ import Discussion from "./Discussion";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import Dashboard from "./pages/Dashboard/Dashboard.jsx";
 import SubscriptionPage from "./pages/Subscriptions/SubscriptionPage.jsx";
-import { useStoredContext } from "./context/useStoredContext.js";
 import ChatBot from "./components/ChatBot.jsx";
+import Landing from "./pages/Landing/Landing.jsx";
+import Home from "./Home.jsx";
+import { useStoredContext } from "./context/useStoredContext.js";
+import PageNotFound from "./pages/PageNotFound.jsx";
 
 function Layout() {
-  const { user } = useStoredContext();
+  const { token } = useStoredContext();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -23,22 +25,21 @@ function Layout() {
 
       <main className="flex-grow bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
         <Routes>
-          <Route index element={<Intro />} />
+          {token ? (
+            <Route index element={<Landing />} />
+          ) : (
+            <Route index element={<Home />} />
+          )}
 
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegistrationPage />} />
-          <Route path="/quiz/*" element={<Quiz />} />
-          <Route path="/courses/*" element={<Cource />} />
-          <Route path="/discussions/*" element={<Discussion />} />
-          <Route path="/profile" element={<ProfilePage />} />
-
-          {/* 🔥 Updated Dashboard Route */}
-          <Route
-            path="/dashboard"
-            element={user ? <Dashboard /> : <Navigate to="/login" replace />}
-          />
-
+          {token && <Route path="/quiz/*" element={<Quiz />} />}
+          {token && <Route path="/courses/*" element={<Cource />} />}
+          {token && <Route path="/discussions/*" element={<Discussion />} />}
+          {token && <Route path="/profile" element={<ProfilePage />} />}
+          {token && <Route path="/dashboard" element={<Dashboard />} />}
           <Route path="/subscriptions" element={<SubscriptionPage />} />
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
       </main>
 
@@ -52,7 +53,7 @@ function Layout() {
           </div>
         </div>
       </footer>
-      <ChatBot />
+      {token && <ChatBot />}
     </div>
   );
 }

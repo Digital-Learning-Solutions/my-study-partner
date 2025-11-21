@@ -2,7 +2,14 @@
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
-import { BookOpen, Zap, BarChart2, MessageSquare, Cpu, Layers } from "react-feather";
+import {
+  BookOpen,
+  Zap,
+  BarChart2,
+  MessageSquare,
+  Cpu,
+  Layers,
+} from "react-feather";
 import Button from "./components/ui/Button";
 import FeatureCard from "./components/ui/FeatureCard";
 import CourseCard from "./components/CourseCard";
@@ -200,8 +207,18 @@ export default function Home() {
                   aria-label="Scroll courses left"
                   className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-soft hover:shadow-soft-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    ></path>
                   </svg>
                 </button>
 
@@ -210,8 +227,18 @@ export default function Home() {
                   aria-label="Scroll courses right"
                   className="bg-white dark:bg-slate-800 p-3 rounded-full shadow-soft hover:shadow-soft-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-300"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5l7 7-7 7"
+                    ></path>
                   </svg>
                 </button>
               </div>
@@ -228,15 +255,24 @@ export default function Home() {
               >
                 {courseList === null ? (
                   Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[30%] xl:w-[24%]">
+                    <div
+                      key={i}
+                      className="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[30%] xl:w-[24%]"
+                    >
                       <CourseSkeleton />
                     </div>
                   ))
                 ) : courseList.length === 0 ? (
-                  <p className="text-slate-600 dark:text-slate-400">No courses found.</p>
+                  <p className="text-slate-600 dark:text-slate-400">
+                    No courses found.
+                  </p>
                 ) : (
                   courseList.map((c) => (
-                    <div key={c._id || c.id} data-card className="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[30%] xl:w-[24%]">
+                    <div
+                      key={c._id || c.id}
+                      data-card
+                      className="snap-start shrink-0 w-[85%] sm:w-[60%] md:w-[45%] lg:w-[30%] xl:w-[24%]"
+                    >
                       <CourseCard course={c} />
                     </div>
                   ))
@@ -248,7 +284,10 @@ export default function Home() {
 
         {/* PROBLEM SECTION */}
         <section className="py-20 md:py-28 relative overflow-hidden">
-          <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 pointer-events-none"
+          >
             <div className="absolute -top-10 -left-10 w-72 h-72 bg-brand-600/10 dark:bg-brand-400/10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 right-0 w-72 h-72 bg-accent/10 dark:bg-accent/10 rounded-full blur-3xl" />
           </div>
@@ -263,17 +302,22 @@ export default function Home() {
             >
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 dark:text-slate-200 leading-tight">
                 Tired of the{" "}
-                <span className="text-brand-600 dark:text-brand-400">“One-Size-Fits-All”</span> Approach?
+                <span className="text-brand-600 dark:text-brand-400">
+                  “One-Size-Fits-All”
+                </span>{" "}
+                Approach?
               </h2>
 
               <p className="mt-6 text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
-                Traditional education often fails to accommodate diverse learning styles
-                and speeds. This leads to gaps in understanding, decreased motivation,
-                low engagement, and unnecessary academic pressure.
+                Traditional education often fails to accommodate diverse
+                learning styles and speeds. This leads to gaps in understanding,
+                decreased motivation, low engagement, and unnecessary academic
+                pressure.
               </p>
 
               <p className="mt-4 text-base md:text-lg text-slate-600 dark:text-slate-400">
-                Every student is different — your learning experience should be too.
+                Every student is different — your learning experience should be
+                too.
               </p>
             </motion.div>
           </div>
@@ -293,7 +337,8 @@ export default function Home() {
                 Your Personalized Path to Success
               </h2>
               <p className="text-lg text-slate-600 dark:text-slate-400 mt-3">
-                Our platform provides the tools you need to learn effectively and at your own pace.
+                Our platform provides the tools you need to learn effectively
+                and at your own pace.
               </p>
             </motion.div>
 
@@ -302,23 +347,23 @@ export default function Home() {
                 {
                   icon: MessageSquare,
                   title: "Real-time AI Support",
-                  desc: "Instant help via intelligent chat and voice assistance."
+                  desc: "Instant help via intelligent chat and voice assistance.",
                 },
                 {
                   icon: Zap,
                   title: "Adaptive Quizzes",
-                  desc: "Quizzes that adjust to your skill level in real-time."
+                  desc: "Quizzes that adjust to your skill level in real-time.",
                 },
                 {
                   icon: BookOpen,
                   title: "Personalized Content",
-                  desc: "Study plans and resources tailored specifically to you."
+                  desc: "Study plans and resources tailored specifically to you.",
                 },
                 {
                   icon: BarChart2,
                   title: "Progress Tracking",
-                  desc: "Track your learning with clear insights and analytics."
-                }
+                  desc: "Track your learning with clear insights and analytics.",
+                },
               ].map((item, idx) => (
                 <motion.div
                   key={idx}
@@ -332,8 +377,12 @@ export default function Home() {
                     <item.icon className="w-8 h-8 text-brand-600 dark:text-brand-400" />
                   </div>
 
-                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">{item.title}</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{item.desc}</p>
+                  <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                    {item.desc}
+                  </p>
                 </motion.div>
               ))}
             </div>
@@ -360,7 +409,8 @@ export default function Home() {
               </h2>
 
               <p className="mt-6 text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
-                We use advanced AI models and modern web technologies to deliver a seamless, intelligent, and human-like learning experience.
+                We use advanced AI models and modern web technologies to deliver
+                a seamless, intelligent, and human-like learning experience.
               </p>
             </motion.div>
 
@@ -375,39 +425,75 @@ export default function Home() {
                 <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-gradient-to-br from-brand-600/20 to-accent/30 dark:from-brand-400/20 dark:to-accent/20 shadow-lg backdrop-blur-md">
                   <Cpu className="w-10 h-10 text-brand-600 dark:text-brand-400" />
                 </div>
-                <p className="mt-3 text-slate-600 dark:text-slate-400 font-medium">AI Models</p>
+                <p className="mt-3 text-slate-600 dark:text-slate-400 font-medium">
+                  AI Models
+                </p>
               </div>
 
               <div className="flex flex-col items-center">
                 <div className="w-20 h-20 rounded-3xl flex items-center justify-center bg-gradient-to-br from-accent/25 to-brand-600/20 dark:from-accent/10 dark:to-brand-400/20 shadow-lg backdrop-blur-md">
                   <Layers className="w-10 h-10 text-accent dark:text-accent" />
                 </div>
-                <p className="mt-3 text-slate-600 dark:text-slate-400 font-medium">Neural Layers</p>
+                <p className="mt-3 text-slate-600 dark:text-slate-400 font-medium">
+                  Neural Layers
+                </p>
               </div>
 
               <div className="flex flex-col items-center">
-                <span className="text-2xl md:text-3xl font-semibold text-slate-700 dark:text-slate-300">GPT-Style Models</span>
+                <span className="text-2xl md:text-3xl font-semibold text-slate-700 dark:text-slate-300">
+                  GPT-Style Models
+                </span>
               </div>
             </motion.div>
           </div>
         </section>
 
         {/* SPONSORS SECTION */}
-        <section className="py-12 bg-slate-50 dark:bg-slate-900 overflow-hidden" aria-label="Sponsors">
+        <section
+          className="py-12 bg-slate-50 dark:bg-slate-900 overflow-hidden"
+          aria-label="Sponsors"
+        >
           <div className="section-container relative">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200">Our Partners</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Trusted by institutions & companies</p>
+              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200">
+                Our Partners
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Trusted by institutions & companies
+              </p>
             </div>
 
             <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 z-20 hidden md:block" aria-hidden="true" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-16 z-20 hidden md:block" aria-hidden="true" />
+              <div
+                className="pointer-events-none absolute inset-y-0 left-0 w-16 z-20 hidden md:block"
+                aria-hidden="true"
+              />
+              <div
+                className="pointer-events-none absolute inset-y-0 right-0 w-16 z-20 hidden md:block"
+                aria-hidden="true"
+              />
 
-              <div className="hidden md:block" role="group" aria-label="Sponsor logos carousel">
+              <div
+                className="hidden md:block"
+                role="group"
+                aria-label="Sponsor logos carousel"
+              >
                 <div className="marquee animate-marquee will-change-transform">
                   <div className="marquee__track flex items-center gap-12">
-                    {["A", "B", "C", "D", "E", "F", "A", "B", "C", "D", "E", "F"].map((s, idx) => (
+                    {[
+                      "A",
+                      "B",
+                      "C",
+                      "D",
+                      "E",
+                      "F",
+                      "A",
+                      "B",
+                      "C",
+                      "D",
+                      "E",
+                      "F",
+                    ].map((s, idx) => (
                       <div key={idx} className="flex-shrink-0">
                         <img
                           src={`https://placehold.co/200x100/e2e8f0/a0aec0?text=Sponsor+${s}`}
@@ -458,8 +544,9 @@ export default function Home() {
                 </h2>
 
                 <p className="mt-4 text-white/90 text-base sm:text-lg max-w-2xl mx-auto">
-                  Join thousands of learners using AI-driven study plans, adaptive quizzes,
-                  and 1:1 AI assistance. Start small — learn faster — build momentum.
+                  Join thousands of learners using AI-driven study plans,
+                  adaptive quizzes, and 1:1 AI assistance. Start small — learn
+                  faster — build momentum.
                 </p>
 
                 <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
@@ -470,16 +557,26 @@ export default function Home() {
                   </Link>
 
                   <Link to="/subscriptions" aria-label="See subscription plans">
-                    <Button variant="outline" className="px-5 py-3 rounded-full border-white/30 bg-white/10 text-white hover:bg-white/15 focus-visible:ring-4 focus-visible:ring-white/20">
+                    <Button
+                      variant="outline"
+                      className="px-5 py-3 rounded-full border-white/30 bg-white/10 text-white hover:bg-white/15 focus-visible:ring-4 focus-visible:ring-white/20"
+                    >
                       View Plans
                     </Button>
                   </Link>
                 </div>
 
-                <p className="mt-4 text-sm text-white/80">No credit card required • Cancel anytime • Student pricing available</p>
+                <p className="mt-4 text-sm text-white/80">
+                  No credit card required • Cancel anytime • Student pricing
+                  available
+                </p>
               </motion.div>
 
-              <div aria-hidden="true" className="pointer-events-none mt-8" style={{ display: "flex", justifyContent: "center", gap: 12 }}>
+              <div
+                aria-hidden="true"
+                className="pointer-events-none mt-8"
+                style={{ display: "flex", justifyContent: "center", gap: 12 }}
+              >
                 <span className="inline-block w-3 h-3 rounded-full bg-white/20 dark:bg-white/10" />
                 <span className="inline-block w-3 h-3 rounded-full bg-white/15 dark:bg-white/8" />
                 <span className="inline-block w-3 h-3 rounded-full bg-white/10 dark:bg-white/6" />

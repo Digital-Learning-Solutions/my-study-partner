@@ -8,7 +8,7 @@ function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useStoredContext();
+  const { setUser, setToken } = useStoredContext();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,6 +32,7 @@ function LoginPage() {
       // ✅ Save JWT & user info
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.user._id);
+      setToken(data.token);
       setUser(data.user);
       // ✅ Redirect after login
       navigate("/"); // change this to your actual home page route
@@ -48,11 +49,7 @@ function LoginPage() {
         <div className="bg-white dark:bg-slate-800 shadow-2xl rounded-xl overflow-hidden md:grid md:grid-cols-2 transition-colors duration-300">
           {/* Branding Panel (Left Side) */}
           <div className="hidden md:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-blue-600 to-blue-800 text-white dark:from-blue-700 dark:to-blue-900 transition-colors duration-300">
-            <img
-              src={logoIcon}
-              alt="Logo"
-              className="h-16 mb-6 rounded-lg"
-            />
+            <img src={logoIcon} alt="Logo" className="h-16 mb-6 rounded-lg" />
             <h1 className="text-3xl font-bold text-center mb-3">
               Welcome Back
             </h1>

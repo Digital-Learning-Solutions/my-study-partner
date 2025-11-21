@@ -5,11 +5,10 @@ export const StoredProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [saaraOpen, setSaaraOpen] = useState(false);
   const [saaraPrompt, setSaaraPrompt] = useState("");
-
+  const [token, setToken] = useState(localStorage.getItem("token"));
   useEffect(() => {
-    const token = localStorage.getItem("token");
     if (token) getUser();
-  }, []);
+  }, [token]);
 
   const getUser = async () => {
     try {
@@ -29,6 +28,7 @@ export const StoredProvider = ({ children }) => {
         setUser(data.user);
         console.log("Fetched user:", data.user);
       } else {
+        setUser(null);
         console.warn("Failed to fetch user:", data.message);
       }
     } catch (err) {
@@ -46,6 +46,8 @@ export const StoredProvider = ({ children }) => {
         setSaaraOpen,
         saaraPrompt,
         setSaaraPrompt,
+        token,
+        setToken,
       }}
     >
       {children}

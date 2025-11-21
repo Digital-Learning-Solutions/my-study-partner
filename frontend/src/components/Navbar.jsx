@@ -21,7 +21,7 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-  const { user, setUser } = useStoredContext();
+  const { user, setUser, setToken } = useStoredContext();
   const navigate = useNavigate();
 
   const desktopBtnRef = useRef(null);
@@ -106,6 +106,7 @@ export default function Navbar() {
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
       setUser(null);
+      setToken("");
       setProfileOpen(false);
       setMobileSidebarOpen(false);
       navigate("/login");
@@ -124,23 +125,24 @@ export default function Navbar() {
   return (
     <nav className="glass sticky top-0 z-50">
       <div className="section-container py-3 flex justify-between items-center">
-
-        <Link to="/" className="flex items-center gap-3 select-none overflow-hidden">
-
+        <Link
+          to="/"
+          className="flex items-center gap-3 select-none overflow-hidden"
+        >
           {/* Icon */}
           <img
             src={logoIcon}
             alt="LearniVerse Logo"
-            className="max-h-10 sm:max-h-12 md:max-h-12 lg:max-h-14 object-contain"/>
+            className="max-h-40 sm:max-h-12 md:max-h-20 lg:max-h-14 object-contain"
+          />
 
           {/* Wordmark */}
           <img
             src={logoText}
             alt="LearniVerse"
-            className="hidden sm:block max-h-6 sm:max-h-8 md:max-h-10 lg:max-h-12 object-contain"/>
+            className="hidden sm:block max-h-6 sm:max-h-8 md:max-h-10 lg:max-h-12 object-contain"
+          />
         </Link>
-
-
 
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-6">
@@ -149,7 +151,10 @@ export default function Navbar() {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `text-slate-600 dark:text-slate-300 hover:text-brand-700 dark:hover:text-brand-600 transition font-medium ${isActive ? "text-brand-700 dark:text-brand-600 font-semibold" : ""
+                `text-slate-600 dark:text-slate-300 hover:text-brand-700 dark:hover:text-brand-600 transition font-medium ${
+                  isActive
+                    ? "text-brand-700 dark:text-brand-600 font-semibold"
+                    : ""
                 }`
               }
             >
@@ -188,7 +193,9 @@ export default function Navbar() {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className={`h-4 w-4 transition-transform ${profileOpen ? "rotate-180" : "rotate-0"}`}
+                  className={`h-4 w-4 transition-transform ${
+                    profileOpen ? "rotate-180" : "rotate-0"
+                  }`}
                   aria-hidden="true"
                 >
                   <path
@@ -204,22 +211,37 @@ export default function Navbar() {
                 ref={desktopMenuRef}
                 role="menu"
                 aria-label="Profile options"
-                className={`absolute right-0 mt-2 w-60 origin-top-right rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 shadow-xl transition-all duration-150 ${profileOpen ? "pointer-events-auto scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"
-                  }`}
+                className={`absolute right-0 mt-2 w-60 origin-top-right rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1 shadow-xl transition-all duration-150 ${
+                  profileOpen
+                    ? "pointer-events-auto scale-100 opacity-100"
+                    : "pointer-events-none scale-95 opacity-0"
+                }`}
               >
-                <DropdownLink to="/dashboard" onClick={() => setProfileOpen(false)}>
+                <DropdownLink
+                  to="/dashboard"
+                  onClick={() => setProfileOpen(false)}
+                >
                   <LayoutDashboard className="h-4 w-4" />
                   <span>Dashboard</span>
                 </DropdownLink>
-                <DropdownLink to="/settings" onClick={() => setProfileOpen(false)}>
+                <DropdownLink
+                  to="/settings"
+                  onClick={() => setProfileOpen(false)}
+                >
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
                 </DropdownLink>
-                <DropdownLink to="/profile" onClick={() => setProfileOpen(false)}>
+                <DropdownLink
+                  to="/profile"
+                  onClick={() => setProfileOpen(false)}
+                >
                   <Edit className="h-4 w-4" />
                   <span>Edit Profile</span>
                 </DropdownLink>
-                <DropdownLink to="/subscriptions" onClick={() => setProfileOpen(false)}>
+                <DropdownLink
+                  to="/subscriptions"
+                  onClick={() => setProfileOpen(false)}
+                >
                   <CreditCard className="h-4 w-4" />
                   <span>Subscriptions</span>
                 </DropdownLink>
@@ -232,7 +254,10 @@ export default function Navbar() {
             </div>
           ) : (
             <>
-              <Link to="/login" className="text-slate-600 dark:text-slate-300 font-medium hover:text-brand-700 transition">
+              <Link
+                to="/login"
+                className="text-slate-600 dark:text-slate-300 font-medium hover:text-brand-700 transition"
+              >
                 Login
               </Link>
               <Link to="/register">
@@ -256,7 +281,11 @@ export default function Navbar() {
               className="flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden focus:outline-none focus:ring-2 focus:ring-brand-600"
             >
               {avatar ? (
-                <img src={avatar} alt={displayName} className="w-9 h-9 object-cover" />
+                <img
+                  src={avatar}
+                  alt={displayName}
+                  className="w-9 h-9 object-cover"
+                />
               ) : (
                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-200 flex items-center justify-center w-full h-full">
                   {initial}
@@ -265,7 +294,10 @@ export default function Navbar() {
             </button>
           ) : (
             <>
-              <Link to="/login" className="text-slate-600 dark:text-slate-300 font-medium hover:text-brand-700 transition">
+              <Link
+                to="/login"
+                className="text-slate-600 dark:text-slate-300 font-medium hover:text-brand-700 transition"
+              >
                 Login
               </Link>
               <Link to="/register">
@@ -278,56 +310,92 @@ export default function Navbar() {
 
       {/* Mobile Profile Sliding Sidebar (overlay + panel) */}
       <div
-        className={`md:hidden fixed inset-0 z-[60] transition ${mobileSidebarOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+        className={`md:hidden fixed inset-0 z-[60] transition ${
+          mobileSidebarOpen ? "pointer-events-auto" : "pointer-events-none"
+        }`}
         role="presentation"
         aria-hidden={!mobileSidebarOpen}
         aria-modal={mobileSidebarOpen}
       >
         <div
-          className={`absolute inset-0 transition-opacity duration-200 ${mobileSidebarOpen ? "opacity-100" : "opacity-0"} bg-gradient-to-br from-slate-900/70 via-slate-900/60 to-slate-900/40 dark:from-black/70 dark:via-black/60 dark:to-black/40 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:backdrop-blur-md`}
+          className={`absolute inset-0 transition-opacity duration-200 ${
+            mobileSidebarOpen ? "opacity-100" : "opacity-0"
+          } bg-gradient-to-br from-slate-900/70 via-slate-900/60 to-slate-900/40 dark:from-black/70 dark:via-black/60 dark:to-black/40 backdrop-blur-md backdrop-saturate-150 supports-[backdrop-filter]:backdrop-blur-md`}
           onClick={() => setMobileSidebarOpen(false)}
         />
         <aside
           ref={mobilePanelRef}
-          className={`absolute right-0 top-0 h-full w-72 max-w-[80vw] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl transition-transform duration-200 ${mobileSidebarOpen ? "translate-x-0" : "translate-x-full"
-            }`}
+          className={`absolute right-0 top-0 h-full w-72 max-w-[80vw] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shadow-2xl transition-transform duration-200 ${
+            mobileSidebarOpen ? "translate-x-0" : "translate-x-full"
+          }`}
           role="dialog"
           aria-label="Account"
         >
           <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-3">
               {avatar ? (
-                <img src={avatar} alt={displayName} className="w-10 h-10 rounded-full object-cover" />
+                <img
+                  src={avatar}
+                  alt={displayName}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
               ) : (
                 <div className="w-10 h-10 bg-brand-600 text-white flex items-center justify-center rounded-full font-semibold">
                   {initial}
                 </div>
               )}
               <div className="leading-tight">
-                <div className="text-slate-800 dark:text-slate-100 font-medium">{displayName}</div>
-                <div className="text-slate-500 dark:text-slate-400 text-xs">Account</div>
+                <div className="text-slate-800 dark:text-slate-100 font-medium">
+                  {displayName}
+                </div>
+                <div className="text-slate-500 dark:text-slate-400 text-xs">
+                  Account
+                </div>
               </div>
             </div>
-            <button className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close" onClick={() => setMobileSidebarOpen(false)}>
+            <button
+              className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label="Close"
+              onClick={() => setMobileSidebarOpen(false)}
+            >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <div className="p-2">
-            <MobileItem to="/dashboard" setMenuOpen={() => setMobileSidebarOpen(false)} icon={<LayoutDashboard className="h-4 w-4" />}>
+            <MobileItem
+              to="/dashboard"
+              setMenuOpen={() => setMobileSidebarOpen(false)}
+              icon={<LayoutDashboard className="h-4 w-4" />}
+            >
               Dashboard
             </MobileItem>
-            <MobileItem to="/settings" setMenuOpen={() => setMobileSidebarOpen(false)} icon={<Settings className="h-4 w-4" />}>
+            <MobileItem
+              to="/settings"
+              setMenuOpen={() => setMobileSidebarOpen(false)}
+              icon={<Settings className="h-4 w-4" />}
+            >
               Settings
             </MobileItem>
-            <MobileItem to="/profile" setMenuOpen={() => setMobileSidebarOpen(false)} icon={<Edit className="h-4 w-4" />}>
+            <MobileItem
+              to="/profile"
+              setMenuOpen={() => setMobileSidebarOpen(false)}
+              icon={<Edit className="h-4 w-4" />}
+            >
               Edit Profile
             </MobileItem>
-            <MobileItem to="/subscriptions" setMenuOpen={() => setMobileSidebarOpen(false)} icon={<CreditCard className="h-4 w-4" />}>
+            <MobileItem
+              to="/subscriptions"
+              setMenuOpen={() => setMobileSidebarOpen(false)}
+              icon={<CreditCard className="h-4 w-4" />}
+            >
               Subscriptions
             </MobileItem>
 
-            <button onClick={handleLogout} className="mt-1 w-full inline-flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-white/5">
+            <button
+              onClick={handleLogout}
+              className="mt-1 w-full inline-flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-white/5"
+            >
               <LogOut className="h-4 w-4" /> Logout
             </button>
           </div>
@@ -367,7 +435,11 @@ function DropdownButton({ onClick, children }) {
 
 function MobileItem({ to, setMenuOpen, icon, children }) {
   return (
-    <Link to={to} onClick={setMenuOpen} className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
+    <Link
+      to={to}
+      onClick={setMenuOpen}
+      className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+    >
       {icon}
       {children}
     </Link>
