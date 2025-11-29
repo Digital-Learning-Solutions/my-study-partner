@@ -5,8 +5,8 @@ const CourseDatabase = [
     description:
       "A complete beginner to intermediate guide on algebraic concepts, equations, and problem solving.",
     courseType: "maths",
-    image: "https://img.youtube.com/vi/f9KqSgS1C1I/maxresdefault.jpg",
     enrollCount: 0,
+    image : "https://miro.medium.com/v2/resize:fit:1200/1*W-lDuwtIpvoWzrHunlkwLg.png",
     ratings: [],
     moduleCount: 3,
     modules: [
@@ -72,7 +72,7 @@ const CourseDatabase = [
     description:
       "Dive into fundamental physics concepts that explain how the universe works.",
     courseType: "science",
-    image: "https://img.youtube.com/vi/2uVZ2T_S6x0/maxresdefault.jpg",
+    image: "https://tse1.mm.bing.net/th/id/OIP.SBWCFHQa0o9wrWby2F396wHaEK?pid=Api&P=0&h=180",
     enrollCount: 0,
     ratings: [],
     moduleCount: 2,
@@ -182,7 +182,7 @@ const CourseDatabase = [
     description:
       "Master trigonometric ratios, identities, and real-world applications.",
     courseType: "maths",
-    image: "https://img.youtube.com/vi/uq7S9w5jKyc/maxresdefault.jpg",
+    image: "https://tse1.mm.bing.net/th/id/OIP.Au6p01qNcJL_ErvSgvwwoQHaEK?pid=Api&P=0&h=180",
     enrollCount: 0,
     ratings: [],
     moduleCount: 2,
@@ -228,7 +228,7 @@ const CourseDatabase = [
     description:
       "Learn shapes, theorems, coordinate geometry, and problem-solving techniques.",
     courseType: "maths",
-    image: "https://img.youtube.com/vi/ZT7U6C3D5oY/maxresdefault.jpg",
+    image: "https://tse4.mm.bing.net/th/id/OIP.PUXUgTMSGZzNEVU0ouaPowAAAA?pid=Api&P=0&h=180",
     enrollCount: 0,
     ratings: [],
     moduleCount: 2,
@@ -313,7 +313,7 @@ const CourseDatabase = [
     title: "Probability & Statistics",
     description: "Learn basic probability concepts and descriptive statistics.",
     courseType: "maths",
-    image: "https://img.youtube.com/vi/k6U-i4gXkLM/maxresdefault.jpg",
+    image: "https://tse4.mm.bing.net/th/id/OIP.t2gGQrtfMjs3ud3yg_1u7AHaDe?pid=Api&P=0&h=180",
     enrollCount: 0,
     ratings: [],
     moduleCount: 2,
@@ -355,7 +355,7 @@ const CourseDatabase = [
     description:
       "Introduction to carbon compounds, functional groups, and reactions.",
     courseType: "science",
-    image: "https://img.youtube.com/vi/3eqE_JXlAdI/maxresdefault.jpg",
+    image: "https://tse1.mm.bing.net/th/id/OIP.xwwnP_66sMA5xOapmhbljwHaEK?pid=Api&P=0&h=180",
     enrollCount: 0,
     ratings: [],
     moduleCount: 2,
