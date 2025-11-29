@@ -9,6 +9,7 @@ import { useStoredContext } from "../../context/useStoredContext";
 import { LogOut } from "lucide-react";
 
 export default function ProfilePage() {
+  console.log("Rendering Profile Page");
   const userId = localStorage.getItem("userId");
   const { user, setUser, getUser } = useStoredContext();
   const [section, setSection] = useState("courses");

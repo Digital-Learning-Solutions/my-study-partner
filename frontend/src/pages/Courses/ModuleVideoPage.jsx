@@ -5,6 +5,7 @@ import QuizSection from "./QuizSection";
 import NotesButton from "../../components/NotesButton";
 
 export default function ModuleVideosPage() {
+  console.log("Rendering Module Video Page");
   const location = useLocation();
   const { classes, title, content, courseId } = location.state;
 

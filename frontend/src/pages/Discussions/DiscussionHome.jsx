@@ -8,6 +8,7 @@ import { useDiscussionContext } from "../../context/useDiscussionContext";
 import { useStoredContext } from "../../context/useStoredContext";
 import categories from "../../utils/Category";
 export default function DiscussionHome() {
+  console.log("Rendering DiscussionHome");
   const {
     fetchDiscussions,
     listState,

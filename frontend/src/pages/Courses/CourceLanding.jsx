@@ -7,6 +7,7 @@ import WhatWeProvide from "../../components/WhatWeProvide";
 import { useStoredContext } from "../../context/useStoredContext";
 
 export default function CourseLanding() {
+  console.log("Rendering Course Landing Page");
   const { user } = useStoredContext();
 
   return (

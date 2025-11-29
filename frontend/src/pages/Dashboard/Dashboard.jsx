@@ -30,6 +30,7 @@ function GlassCard({ children, className = "" }) {
 }
 
 export default function Dashboard() {
+  console.log("Rendering Dashboard Page");
   const userId =
     typeof window !== "undefined" ? localStorage.getItem("userId") : null;
   const [data, setData] = useState(null);

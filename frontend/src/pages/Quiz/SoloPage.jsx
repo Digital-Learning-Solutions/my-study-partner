@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export default function SoloPage() {
+  console.log("Rendering Solo Quiz Page");
   const [notes, setNotes] = useState("");
   const [file, setFile] = useState(null);
   const [questions, setQuestions] = useState([]);

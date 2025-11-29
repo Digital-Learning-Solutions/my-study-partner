@@ -7,6 +7,7 @@ import { useStoredContext } from "../../context/useStoredContext";
 const SOCKET_URL = "http://localhost:5000";
 
 export default function GamePage() {
+  console.log("Rendering Game Page");
   const { code } = useParams(); // normal roomCode OR groupId
   const [socket, setSocket] = useState(null);
   const [players, setPlayers] = useState([]);

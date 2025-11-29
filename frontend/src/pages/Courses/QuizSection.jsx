@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 export default function QuizSection({ videoUrl, title, id, courseId }) {
+  console.log("Rendering Quiz Section for video:", title);
   const [questions, setQuestions] = useState([]);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);

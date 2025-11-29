@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import CourseCard from "../../components/CourseCard";
 
 export default function Subjects() {
+  console.log("Rendering Category Page");
   const location = useLocation();
   const category = location.state;
   const { subject } = useParams();

@@ -10,6 +10,7 @@ import CreateQuizGroup from "../../components/Quiz/CreateQuizGroup";
 const SOCKET_URL = "http://localhost:5000";
 
 export default function LobbyPage() {
+  console.log("Rendering Lobby Page");
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [mode, setMode] = useState("");

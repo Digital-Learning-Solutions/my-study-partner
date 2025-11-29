@@ -19,6 +19,7 @@ import {
 import { useStoredContext } from "../../context/useStoredContext.js";
 
 export default function DiscussionView() {
+  console.log("Rendering Discussion View Page");
   const { sectionKey, id } = useParams();
   const [discussion, setDiscussion] = useState(null);
   const [answerText, setAnswerText] = useState("");

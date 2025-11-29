@@ -9,6 +9,7 @@ import GroupHistoryDetails from "../../components/Quiz/GroupHistoryDetails.jsx";
 const SOCKET_URL = "http://localhost:5000";
 
 export default function GroupPage() {
+  console.log("Rendering Group Page");
   const { id } = useParams();
   const navigate = useNavigate();
 

@@ -5,13 +5,15 @@ import { useStoredContext } from "../../context/useStoredContext";
 import CourseRating from "../../components/CourseRating";
 
 export default function CourseModulesPage() {
+  console.log("Rendering Course Modules Page");
   const { id } = useParams();
   const [course, setCourse] = useState({});
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { user, getUser } = useStoredContext();
+  const { user } = useStoredContext();
 
   // ---------- FETCH COURSE + USER ----------
+
   useEffect(() => {
     async function fetchCourseAndUser() {
       try {
@@ -22,21 +24,21 @@ export default function CourseModulesPage() {
         const fetchedCourse = courseData.course;
 
         setCourse(fetchedCourse);
-        console.log("User:", user);
-        getUser(); // Refresh user data
         if (user) {
           const enrolled = user.enrolledCourses.some(
             (c) => String(c.course._id) === String(fetchedCourse._id)
           );
           setIsEnrolled(enrolled);
+          console.log("Is Enrolled:", enrolled);
+        } else {
+          console.log("No user logged in", user);
         }
       } catch (err) {
         console.error(err);
       }
     }
-
     fetchCourseAndUser();
-  }, [course, isEnrolled]);
+  }, [user]);
 
   // ---------- HANDLE ENROLL ----------
   async function handleEnroll() {

@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import { useStoredContext } from "../../context/useStoredContext";
 
 function Landing() {
+  console.log("Rendering Landing Page");
   const { user, getUser } = useStoredContext();
   const [recentActivities, setRecentActivities] = useState([]);
   const [streak, setStreak] = useState(0);
-  console.log("User:", user);
 
   useEffect(() => {
     // Refresh user data on mount

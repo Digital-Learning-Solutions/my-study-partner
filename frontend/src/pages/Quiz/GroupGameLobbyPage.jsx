@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useStoredContext } from "../../context/useStoredContext";
 
 export default function GroupGameLobbyPage() {
+  console.log("Rendering Group Game Lobby Page");
   const { groupId } = useParams();
 
   const navigate = useNavigate();
@@ -218,6 +219,7 @@ export default function GroupGameLobbyPage() {
               <button
                 onClick={() =>
                   navigate(`/quiz/game/${groupId}`, {
+                    replace: true,
                     state: {
                       gameType: "group",
                       groupAdminId: adminId,
