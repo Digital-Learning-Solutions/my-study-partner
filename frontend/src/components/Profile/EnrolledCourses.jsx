@@ -33,7 +33,7 @@ export default function EnrolledCourses({ courses = [] }) {
 
             return (
               <Link
-                to={`/courses/${c.course.courseType}/${c.course._id}`}
+                to={`/courses/${c.course?.courseType}/${c.course?._id}`}
                 key={c._id}
                 className="block p-4 rounded-xl border bg-gray-50 dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-sm"
               >

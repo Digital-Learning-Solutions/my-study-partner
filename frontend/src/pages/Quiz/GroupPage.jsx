@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 
-import GroupLeaderboard from "../../components/Quiz/GroupLeaderboardPage.jsx";
-import GroupHistoryDetails from "../../components/Quiz/GroupHistoryDetailsPage.jsx";
+import GroupLeaderboard from "../../components/Quiz/GroupLeaderboard.jsx";
+import GroupHistoryDetails from "../../components/Quiz/GroupHistoryDetails.jsx";
 
 const SOCKET_URL = "http://localhost:5000";
 
@@ -13,6 +13,7 @@ export default function GroupPage() {
   const navigate = useNavigate();
 
   const [group, setGroup] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [socket, setSocket] = useState(null);
 
   const [userId, setUserId] = useState(null);
@@ -22,7 +23,6 @@ export default function GroupPage() {
   const [joinMessage, setJoinMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const [section, setSection] = useState("overview");
   const [selectedHistoryIndex, setSelectedHistoryIndex] = useState(null);
 
   // Load logged userId
@@ -43,6 +43,7 @@ export default function GroupPage() {
   // Load group when userId exists
   useEffect(() => {
     if (userId) loadGroup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, userId]);
 
   // Load group details
@@ -61,11 +62,12 @@ export default function GroupPage() {
 
       setGroup(g);
 
-      // Check membership
+      // Check membership/admin safely
       const me = userId;
-      setIsMember(g.members.some((m) => String(m.user) === String(me)));
-
-      // Check admin
+      setIsMember(
+        Array.isArray(g.members) &&
+          g.members.some((m) => String(m.user) === String(me))
+      );
       setIsAdmin(String(g.admin) === String(me));
     } catch (err) {
       console.error("Error loading group:", err);
@@ -87,10 +89,13 @@ export default function GroupPage() {
       );
 
       const data = await res.json();
-      if (!res.ok) return alert(data.message);
+      if (!res.ok) return alert(data.message || "Failed to send request");
 
       alert("Join request sent!");
+      setJoinMessage("");
+      loadGroup();
     } catch (err) {
+      console.error(err);
       alert("Error sending join request");
     }
   }
@@ -108,11 +113,13 @@ export default function GroupPage() {
       );
 
       const data = await res.json();
-      if (!res.ok) return alert(data.message);
+      if (!res.ok) return alert(data.message || "Failed to start game");
 
+      // navigate to live page
       navigate(`/quiz/multiplayer/quiz-groups/live/${id}`);
     } catch (err) {
       console.error(err);
+      alert("Error starting game");
     }
   }
 
@@ -129,232 +136,357 @@ export default function GroupPage() {
       );
 
       const data = await res.json();
-      if (!res.ok) return alert(data.message);
+      if (!res.ok) return alert(data.message || "Action failed");
 
       loadGroup();
     } catch (err) {
       console.error(err);
+      alert("Error processing request");
     }
   }
 
-  // ---------- UI ----------
-  if (loading) return <p className="text-center py-10">Loading group…</p>;
+  // UI states
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#060417]">
+        <div className="text-white/80 text-lg">Loading group…</div>
+      </div>
+    );
+  }
 
-  if (!group)
-    return <p className="text-center py-10 text-red-500">Group not found</p>;
+  if (!group) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#060417]">
+        <div className="text-red-400 text-lg font-semibold">
+          Group not found
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen px-4 py-10 bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-black dark:to-gray-900">
-      <div className="max-w-5xl mx-auto space-y-7">
-        {/* HEADER */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow p-6 border dark:border-gray-700">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-3xl font-bold dark:text-white">
-                {group.name}
-              </h1>
-              <p className="text-gray-500 dark:text-gray-400">
-                {group.description}
-              </p>
-            </div>
+    <div className="min-h-screen px-6 py-10 bg-[#060417] relative overflow-hidden">
+      {/* Background glows */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className="absolute -top-28 -left-16 w-96 h-96 blur-[140px] opacity-30"
+          style={{ background: "linear-gradient(135deg,#7c3aed,#06b6d4)" }}
+        />
+        <div
+          className="absolute -bottom-20 right-6 w-80 h-80 blur-[120px] opacity-24"
+          style={{ background: "linear-gradient(135deg,#604584,#a78bda)" }}
+        />
+      </div>
 
-            <div className="text-right">
-              <p className="text-xs text-gray-400">Members</p>
-              <p className="text-2xl text-indigo-600 dark:text-indigo-400">
-                {group.members?.length}
-              </p>
+      <div className="relative z-10 max-w-6xl mx-auto space-y-8">
+        {/* HEADER (group name left) + compact stats right */}
+        <div className="grid lg:grid-cols-3 gap-6 items-start">
+          <div className="lg:col-span-2 p-6 rounded-2xl bg-white/6 backdrop-blur-lg border border-white/8 shadow-[0_18px_50px_rgba(99,102,241,0.06)]">
+            <h1 className="text-3xl font-extrabold text-white">{group.name}</h1>
+            <p className="mt-2 text-sm text-[#cbd5e1] max-w-3xl">
+              {group.description}
+            </p>
+
+            <div className="mt-4 flex items-center gap-3">
+              <span className="text-xs px-3 py-1 rounded-full bg-white/8 text-[#c7d2fe]">
+                ID: {String(group._id).slice(0, 6)}
+              </span>
+
+              {group.isActiveGame && isMember && (
+                <button
+                  onClick={() =>
+                    navigate(`/quiz/multiplayer/quiz-groups/live/${id}`)
+                  }
+                  className="px-3 py-1 rounded-full bg-gradient-to-r from-emerald-400 to-green-600 text-white text-sm shadow-[0_10px_30px_rgba(16,185,129,0.12)]"
+                >
+                  ⚡ Live Game — Join
+                </button>
+              )}
+
+              {!isMember && (
+                <span className="ml-2 text-sm text-[#9ca3af]">
+                  You are not a member — send a request below
+                </span>
+              )}
             </div>
           </div>
 
-          {/* LIVE BANNER */}
-          {group.isActiveGame && (
-            <div
-              className="mt-5 p-4 bg-green-600 text-white rounded-xl shadow-lg animate-pulse cursor-pointer"
-              onClick={() =>
-                navigate(`/quiz/multiplayer/quiz-groups/live/${id}`)
-              }
-            >
-              ⚡ A Live Game is Active — Click to Join!
+          {/* Compact leaderboard / stats on the right */}
+          <div className="p-6 rounded-2xl bg-white/6 backdrop-blur-lg border border-white/8 shadow-[0_12px_40px_rgba(99,102,241,0.06)]">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs text-[#9ca3af]">Members</p>
+                <p className="text-2xl font-extrabold text-[#93c5fd]">
+                  {group.members?.length || 0}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-[#9ca3af]">Games</p>
+                <p className="text-2xl font-extrabold text-[#fca5a5]">
+                  {group.resultHistory?.length || 0}
+                </p>
+              </div>
             </div>
-          )}
 
-          {/* JOIN GROUP UI */}
-          {!isMember && (
-            <div className="mt-4 space-y-3">
-              <textarea
-                value={joinMessage}
-                onChange={(e) => setJoinMessage(e.target.value)}
-                className="w-full p-3 rounded-xl border dark:bg-gray-700 dark:text-white"
-                placeholder="Message to admin (optional)"
-              />
-              <button
-                onClick={handleRequestJoin}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-xl"
-              >
-                Request To Join
-              </button>
-            </div>
-          )}
-
-          {/* TABS */}
-          {isMember && (
-            <div className="mt-6 flex gap-3">
-              {["overview", "leaderboard", "history"].map((tab) => (
-                <button
-                  key={tab}
-                  className={`tab-btn ${section === tab ? "tab-active" : ""}`}
-                  onClick={() => {
-                    setSelectedHistoryIndex(null);
-                    setSection(tab);
-                  }}
-                >
-                  {tab[0].toUpperCase() + tab.slice(1)}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ADMIN PANEL */}
-        {isAdmin && section === "overview" && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow border dark:border-gray-700">
-            <h3 className="text-xl font-bold mb-3 text-indigo-600">
-              Admin Panel
-            </h3>
-
-            <button
-              onClick={handleStartGame}
-              className="px-4 py-2 bg-green-600 text-white rounded-xl"
-            >
-              Start Game
-            </button>
-
-            <h4 className="text-lg font-semibold mt-5">Join Requests</h4>
-            {!group.joinRequests?.length ? (
-              <p className="text-gray-500">No pending requests</p>
+            <h4 className="text-sm text-white font-semibold mb-3">
+              Top Players
+            </h4>
+            {!group.leaderboard?.length ? (
+              <p className="text-sm text-[#9ca3af]">No leaderboards yet</p>
             ) : (
-              group.joinRequests
-                .filter((r) => r.status === "pending")
-                .map((r) => (
-                  <div
-                    key={r.user}
-                    className="p-4 border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-xl mt-2 flex justify-between"
-                  >
-                    <div>
-                      <p className="font-semibold">{r.name}</p>
-                      <p className="text-sm text-gray-500">{r.message}</p>
+              <div className="space-y-2">
+                {group.leaderboard
+                  .slice()
+                  .sort((a, b) => b.score - a.score)
+                  .slice(0, 3)
+                  .map((p, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between p-2 rounded-lg bg-white/5"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm font-semibold">
+                          {i + 1}
+                        </div>
+                        <div className="text-sm text-white">{p.name}</div>
+                      </div>
+                      <div className="text-sm text-[#93c5fd] font-bold">
+                        {p.score}
+                      </div>
                     </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleAction(r.user, "approve")}
-                        className="px-3 py-1 bg-indigo-600 text-white rounded-xl"
-                      >
-                        Approve
-                      </button>
-
-                      <button
-                        onClick={() => handleAction(r.user, "reject")}
-                        className="px-3 py-1 border dark:border-gray-500 rounded-xl"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  </div>
-                ))
+                  ))}
+              </div>
             )}
           </div>
-        )}
+        </div>
 
-        {/* OVERVIEW */}
-        {section === "overview" && (
-          <div className="space-y-6">
-            {/* Members */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow border dark:border-gray-700">
-              <h3 className="text-xl font-bold mb-4">Members</h3>
-              {group.members.map((m, i) => (
-                <div
-                  key={i}
-                  className="p-3 border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-xl mb-2"
+        {/* ADMIN PANEL (FULL WIDTH under header) */}
+        {isAdmin && (
+          <div className="p-6 rounded-2xl bg-white/6 backdrop-blur-lg border border-white/8 shadow-[0_18px_60px_rgba(124,58,237,0.06)]">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-white">Admin Panel</h3>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleStartGame}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-400 to-green-600 text-white font-semibold shadow-[0_10px_30px_rgba(16,185,129,0.12)]"
                 >
-                  {m.name}
-                  {String(m.user) === String(group.admin) && (
-                    <span className="text-indigo-600 ml-2">(Admin)</span>
-                  )}
-                </div>
-              ))}
+                  Start Game
+                </button>
+              </div>
             </div>
 
-            {/* Recent History */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow border dark:border-gray-700">
-              <h3 className="text-xl font-bold mb-4">Recent Games</h3>
+            <div className="mt-6">
+              <h4 className="text-sm text-[#cbd5e1] mb-3">
+                Pending Join Requests
+              </h4>
 
-              {!group.resultHistory?.length ? (
-                <p className="text-gray-500">No games yet</p>
+              {!group.joinRequests?.length ? (
+                <div className="text-sm text-[#9ca3af]">
+                  No pending requests
+                </div>
               ) : (
-                group.resultHistory.slice(0, 5).map((h, index) => (
-                  <div
-                    key={index}
-                    className="p-4 border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-xl mb-3 cursor-pointer"
-                    onClick={() => {
-                      setSelectedHistoryIndex(index);
-                      setSection("history");
-                    }}
-                  >
-                    <p className="text-sm text-gray-500">
-                      {new Date(h.playedAt).toLocaleString()}
-                    </p>
-                    <p className="font-semibold mt-1">
-                      Winner:{" "}
-                      <span className="text-indigo-600">
-                        {h.results[0]?.name}
-                      </span>
-                    </p>
-                  </div>
-                ))
+                <div className="grid gap-3">
+                  {group.joinRequests
+                    .filter((r) => r.status === "pending")
+                    .map((r) => (
+                      <div
+                        key={r.user}
+                        className="p-3 rounded-xl bg-white/5 border border-white/8 flex items-center justify-between"
+                      >
+                        <div>
+                          <div className="font-medium text-white">{r.name}</div>
+                          <div className="text-xs text-[#9ca3af]">
+                            {r.message}
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleAction(r.user, "approve")}
+                            className="px-3 py-1 rounded-lg bg-indigo-600 text-white"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleAction(r.user, "reject")}
+                            className="px-3 py-1 rounded-lg border border-white/8 text-[#cbd5e1]"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
               )}
             </div>
           </div>
         )}
 
-        {/* LEADERBOARD */}
-        {section === "leaderboard" && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow border dark:border-gray-700">
-            <GroupLeaderboard leaderboard={group.leaderboard} />
+        {/* JOIN REQUEST (for visitors) */}
+        {!isMember && (
+          <div className="p-6 rounded-2xl bg-white/6 backdrop-blur-lg border border-white/8">
+            <h3 className="text-lg font-semibold text-white mb-3">
+              Request to Join
+            </h3>
+            <textarea
+              value={joinMessage}
+              onChange={(e) => setJoinMessage(e.target.value)}
+              placeholder="Message to admin (optional)"
+              className="w-full p-3 rounded-xl bg-white/8 text-white placeholder:text-[#9ca3af] border border-white/10"
+            />
+            <div className="mt-3 flex gap-3">
+              <button
+                onClick={handleRequestJoin}
+                className="px-4 py-2 rounded-xl bg-indigo-600 text-white font-semibold"
+              >
+                Request To Join
+              </button>
+              <button
+                onClick={() => {
+                  setJoinMessage("");
+                }}
+                className="px-4 py-2 rounded-xl border border-white/10 text-[#cbd5e1]"
+              >
+                Clear
+              </button>
+            </div>
           </div>
         )}
 
-        {/* HISTORY */}
-        {section === "history" && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow border dark:border-gray-700">
-            {selectedHistoryIndex === null ? (
-              <div className="space-y-4">
-                {group.resultHistory.map((h, index) => (
+        {/* MEMBERS + RECENT GAMES */}
+        <div className="grid lg:grid-cols-2 gap-6">
+          {/* Members */}
+          <div className="p-6 rounded-2xl bg-white/6 backdrop-blur-lg border border-white/8">
+            <h3 className="text-xl font-semibold text-white mb-4">Members</h3>
+            <div className="space-y-3 max-h-[360px] overflow-auto pr-2">
+              {group.members.map((m, i) => (
+                <div
+                  key={i}
+                  className="p-3 rounded-xl bg-white/5 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold">
+                      {m.name?.charAt(0)?.toUpperCase() || "?"}
+                    </div>
+                    <div>
+                      <div className="font-medium text-white">{m.name}</div>
+                      <div className="text-xs text-[#9ca3af]">
+                        {m.email || ""}
+                      </div>
+                    </div>
+                  </div>
+
+                  {String(m.user) === String(group.admin) && (
+                    <div className="text-xs font-semibold text-[#c7d2fe]">
+                      Admin
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Games */}
+          <div className="p-6 rounded-2xl bg-white/6 backdrop-blur-lg border border-white/8">
+            <h3 className="text-xl font-semibold text-white mb-4">
+              Recent Games
+            </h3>
+
+            {!group.resultHistory?.length ? (
+              <p className="text-sm text-[#9ca3af]">No games yet</p>
+            ) : (
+              <div
+                className="space-y-3 max-h-[360px] overflow-auto pr-2 [&::-webkit-scrollbar]:w-2
+    [&::-webkit-scrollbar-track]:bg-white/5
+    [&::-webkit-scrollbar-track]:rounded-full
+
+    [&::-webkit-scrollbar-thumb]:bg-[rgba(124,58,237,0.55)]
+    [&::-webkit-scrollbar-thumb]:rounded-full
+    [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(124,58,237,0.75)]
+
+    dark:[&::-webkit-scrollbar-track]:bg-white/10
+    dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(167,139,250,0.55)]
+    dark:[&::-webkit-scrollbar-thumb:hover]:bg-[rgba(167,139,250,0.75)]"
+              >
+                {group.resultHistory.slice(0, 5).map((h, index) => (
                   <div
                     key={index}
-                    className="p-4 border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 rounded-xl cursor-pointer"
                     onClick={() => setSelectedHistoryIndex(index)}
+                    className="p-3 rounded-xl bg-white/5 cursor-pointer hover:bg-white/10 transition"
                   >
-                    <p className="text-sm text-gray-500">
+                    <div className="text-sm text-[#cbd5e1]">
                       {new Date(h.playedAt).toLocaleString()}
-                    </p>
-                    <p className="font-semibold">
+                    </div>
+                    <div className="font-medium text-white mt-1">
                       Winner:{" "}
-                      <span className="text-indigo-600">
+                      <span className="text-[#93c5fd]">
                         {h.results[0]?.name}
                       </span>
-                    </p>
+                    </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <GroupHistoryDetails
-                historyItem={group.resultHistory[selectedHistoryIndex]}
-                goBack={() => setSelectedHistoryIndex(null)}
-              />
             )}
           </div>
-        )}
+        </div>
+
+        {/* FULL HISTORY + DETAILS */}
+        <div className="p-6 rounded-2xl bg-white/6 backdrop-blur-lg border border-white/8">
+          <h3 className="text-xl font-semibold text-white mb-4">
+            Full History
+          </h3>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* list */}
+            <div className="space-y-3 max-h-[420px] overflow-auto pr-2">
+              {group.resultHistory?.length ? (
+                group.resultHistory.map((h, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setSelectedHistoryIndex(idx)}
+                    className={`p-3 rounded-xl cursor-pointer transition ${
+                      selectedHistoryIndex === idx
+                        ? "bg-white/10 border-purple-400/30"
+                        : "bg-white/5 border border-white/10"
+                    }`}
+                  >
+                    <div className="text-sm text-[#cbd5e1]">
+                      {new Date(h.playedAt).toLocaleString()}
+                    </div>
+                    <div className="font-medium text-white mt-1">
+                      Winner:{" "}
+                      <span className="text-[#93c5fd]">
+                        {h.results[0]?.name}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-[#9ca3af]">No history available</p>
+              )}
+            </div>
+
+            {/* details */}
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 min-h-[220px]">
+              {selectedHistoryIndex === null ? (
+                <div className="text-center text-[#9ca3af] mt-12">
+                  Select a history item to view details
+                </div>
+              ) : (
+                <GroupHistoryDetails
+                  historyItem={group.resultHistory[selectedHistoryIndex]}
+                  goBack={() => setSelectedHistoryIndex(null)}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* FULL LEADERBOARD */}
+        <div className="p-6 rounded-2xl bg-white/6 backdrop-blur-lg border border-white/8">
+          <h3 className="text-xl font-semibold text-white mb-4">Leaderboard</h3>
+          <GroupLeaderboard leaderboard={group.leaderboard || []} />
+        </div>
       </div>
     </div>
   );

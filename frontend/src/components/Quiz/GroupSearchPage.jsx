@@ -9,12 +9,12 @@ export default function GroupSearchPage() {
 
   const navigate = useNavigate();
 
-  // ✅ FIXED useEffect (no async return)
   useEffect(() => {
     async function fetchInitial() {
       await loadGroups("");
     }
     fetchInitial();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadGroups(searchTerm) {
@@ -36,9 +36,8 @@ export default function GroupSearchPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold dark:text-white">Find Groups</h2>
+      <h2 className="text-2xl font-extrabold mb-4 text-white">Find Groups</h2>
 
-      {/* Search Bar */}
       <input
         value={query}
         onChange={(e) => {
@@ -47,84 +46,80 @@ export default function GroupSearchPage() {
         }}
         placeholder="Search group by name..."
         className="
-          w-full p-4 rounded-xl 
-          bg-white dark:bg-gray-800 
-          border dark:border-gray-700 shadow
+          w-full p-4 rounded-2xl placeholder:text-[#94a3b8]
+          bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.04)]
+          focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/50 text-white
         "
       />
 
-      {/* Loading Skeleton */}
       {loading ? (
         <div className="space-y-4 animate-pulse">
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="p-4 bg-white dark:bg-gray-800 rounded-xl shadow flex items-center gap-4"
-              style={{ minHeight: "80px" }}
+              className="p-4 rounded-2xl flex items-center gap-4"
+              style={{
+                minHeight: "80px",
+                background: "rgba(255,255,255,0.02)",
+              }}
             >
-              <div className="w-12 h-12 rounded-full bg-gray-300 dark:bg-gray-700"></div>
-              <div className="flex-1 space-y-3">
-                <div className="h-4 w-1/3 bg-gray-300 dark:bg-gray-700 rounded"></div>
-                <div className="h-3 w-2/3 bg-gray-200 dark:bg-gray-600 rounded"></div>
+              <div className="w-12 h-12 rounded-full bg-[#111827]" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-1/3 bg-[#111827] rounded" />
+                <div className="h-3 w-2/3 bg-[#0b1220] rounded" />
               </div>
             </div>
           ))}
         </div>
       ) : (
         <div className="space-y-4">
-          {/* Always reserve 5 slots */}
           {[0, 1, 2, 3, 4].map((i) => {
             const g = groups[i];
 
             return (
               <div
                 key={i}
-                className={`
-                  rounded-xl flex items-center gap-4 transition
-                  ${
-                    g
-                      ? "p-4 bg-white dark:bg-gray-800 shadow hover:shadow-xl hover:scale-[1.01]"
-                      : ""
-                  }
-                `}
+                className={`rounded-2xl flex items-center gap-4 transition transform-gpu ${
+                  g
+                    ? "p-4 bg-[linear-gradient(90deg,rgba(255,255,255,0.02),rgba(124,58,237,0.02))] border border-[rgba(255,255,255,0.03)] hover:scale-[1.01] shadow-[0_8px_30px_rgba(124,58,237,0.06)]"
+                    : ""
+                }`}
                 style={{ minHeight: "80px" }}
               >
                 {g ? (
                   <>
-                    {/* Avatar */}
                     <div
                       className="
                         w-12 h-12 flex items-center justify-center rounded-full
-                        bg-indigo-200 dark:bg-indigo-500 font-bold
-                        text-indigo-700 dark:text-white
+                        bg-gradient-to-r from-[#60a5fa] to-[#a78bfa] font-bold text-white
                       "
                     >
                       {g.name.charAt(0).toUpperCase()}
                     </div>
 
-                    {/* Text */}
                     <div className="flex-1">
-                      <h4 className="text-lg font-bold dark:text-white">
-                        {g.name}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-300">
+                      <h4 className="text-lg font-bold text-white">{g.name}</h4>
+                      <p className="text-sm text-[#9ca3af]">
                         {g.description || "No description"}
                       </p>
                     </div>
 
-                    {/* Button */}
                     <button
                       onClick={() =>
                         navigate(`/quiz/multiplayer/quiz-groups/${g._id}`)
                       }
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg"
+                      className="
+                        px-4 py-2 rounded-lg text-white font-semibold
+                        bg-[linear-gradient(90deg,#06b6d4,#7c3aed)]
+                        shadow-[0_8px_30px_rgba(6,182,212,0.12)]
+                        hover:scale-[1.03] transition transform-gpu
+                      "
                     >
                       View
                     </button>
                   </>
                 ) : (
-                  // Invisible placeholder to keep fixed height
-                  <div className="opacity-0 w-full h-full"></div>
+                  <div className="opacity-0 w-full h-full" />
                 )}
               </div>
             );

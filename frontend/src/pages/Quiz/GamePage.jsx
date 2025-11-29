@@ -23,6 +23,7 @@ export default function GamePage() {
   const location = useLocation();
   const gameType = location.state?.gameType || "normal";
   const groupAdminId = location.state?.groupAdminId || null;
+  const roomName = location.state?.roomName || null;
   const isHostRef = useRef(false);
   const userId = localStorage.getItem("userId");
   const username = localStorage.getItem("username") || "Player";
@@ -234,10 +235,20 @@ export default function GamePage() {
     "
     >
       <div className="max-w-6xl mx-auto space-y-8">
-        <h1 className="text-3xl md:text-4xl font-extrabold text-center">
-          <span className="text-slate-800 dark:text-white">Room Code: </span>
-          <span className="text-indigo-600 dark:text-indigo-400">{code}</span>
-        </h1>
+        {gameType == "normal" && (
+          <h1 className="text-3xl md:text-4xl font-extrabold text-center">
+            <span className="text-slate-800 dark:text-white">Room Code: </span>
+            <span className="text-indigo-600 dark:text-indigo-400">{code}</span>
+          </h1>
+        )}
+        {gameType == "group" && (
+          <h1 className="text-3xl md:text-4xl font-extrabold text-center">
+            <span className="text-slate-800 dark:text-white">Room Name: </span>
+            <span className="text-indigo-600 dark:text-indigo-400">
+              {roomName}
+            </span>
+          </h1>
+        )}
 
         <div className="grid md:grid-cols-3 gap-6">
           {/* PLAYERS + HOST PANEL */}

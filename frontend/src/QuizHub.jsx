@@ -16,9 +16,14 @@ export default function QuizHubPage() {
         url: "/quiz",
         timestamp: new Date().toISOString(),
       };
-      const activities = JSON.parse(localStorage.getItem("recentActivities") || "[]");
+      const activities = JSON.parse(
+        localStorage.getItem("recentActivities") || "[]"
+      );
       activities.unshift(activity);
-      localStorage.setItem("recentActivities", JSON.stringify(activities.slice(0, 10))); // Keep last 10
+      localStorage.setItem(
+        "recentActivities",
+        JSON.stringify(activities.slice(0, 10))
+      ); // Keep last 10
     }
   }, [user]);
 

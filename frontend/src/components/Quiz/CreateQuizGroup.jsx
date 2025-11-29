@@ -29,6 +29,7 @@ export default function CreateQuizGroup({ onCreated }) {
       onCreated(data.group._id);
     } catch (err) {
       console.error(err);
+      alert("Failed to create group. See console for details.");
     } finally {
       setLoading(false);
     }
@@ -37,38 +38,41 @@ export default function CreateQuizGroup({ onCreated }) {
   return (
     <div
       className="
-      bg-white/50 dark:bg-gray-800/60 
-      p-6 rounded-2xl shadow-xl backdrop-blur-xl 
-      border border-white/30 dark:border-gray-700
-    "
+        p-6 rounded-2xl
+        bg-[linear-gradient(135deg,rgba(99,102,241,0.08),rgba(236,72,153,0.06))]
+        border border-[rgba(255,255,255,0.04)]
+        shadow-[0_20px_60px_rgba(99,102,241,0.08)]
+        backdrop-blur-lg
+      "
     >
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+      <h2 className="text-2xl font-extrabold mb-4 text-white">
         Create a Quiz Group
       </h2>
 
       <div className="space-y-3">
         <input
-          className="w-full p-3 rounded-xl border dark:bg-gray-700 dark:text-white"
+          className="w-full p-3 rounded-xl placeholder:text-[#94a3b8] bg-[rgba(0,0,0,0.25)] border border-[rgba(255,255,255,0.04)] focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/40 text-white"
           placeholder="Group Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
 
         <textarea
-          className="w-full p-3 rounded-xl border dark:bg-gray-700 dark:text-white"
+          className="w-full p-3 rounded-xl placeholder:text-[#94a3b8] bg-[rgba(0,0,0,0.25)] border border-[rgba(255,255,255,0.04)] focus:outline-none focus:ring-2 focus:ring-[#7c3aed]/40 text-white"
           placeholder="Description (optional)"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-        ></textarea>
+          rows={3}
+        />
 
         <button
           onClick={handleCreate}
           disabled={loading}
-          className="
-            w-full py-3 rounded-xl text-white font-semibold
-            bg-indigo-600 hover:bg-indigo-700
-            disabled:bg-indigo-300 transition
-          "
+          className={`w-full py-3 rounded-2xl font-semibold text-white transition transform-gpu ${
+            loading
+              ? "opacity-60 cursor-not-allowed bg-[linear-gradient(90deg,#9ca3ff,#fbcfe8)]"
+              : "bg-[linear-gradient(90deg,#06b6d4,#7c3aed)] hover:scale-[1.02] shadow-[0_12px_40px_rgba(124,58,237,0.12)]"
+          }`}
         >
           {loading ? "Creating..." : "Create Group"}
         </button>

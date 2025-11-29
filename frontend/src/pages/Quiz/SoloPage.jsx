@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function SoloPage() {
   const [notes, setNotes] = useState("");
@@ -9,7 +10,7 @@ export default function SoloPage() {
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  const navigate = useNavigate();
   async function generate() {
     setLoading(true);
     setError("");
@@ -54,7 +55,26 @@ export default function SoloPage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-10 flex flex-col items-center justify-start bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black transition-colors duration-300">
+    <div className="relative min-h-screen px-4 py-10 flex flex-col items-center justify-start bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-950 dark:to-black transition-colors duration-300">
+      {/* Beautiful Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="
+    absolute left-5 top-8
+    px-4 py-2 rounded-lg flex items-center gap-2
+
+    text-sm font-medium
+  text-white
+
+    bg-indigo-600 hover:bg-indigo-700
+
+
+    transition-all duration-200
+  "
+      >
+        ← Back
+      </button>
+
       {/* Title */}
       <h1 className="text-3xl md:text-5xl font-extrabold text-slate-800 dark:text-white mb-4 text-center">
         Solo{" "}
