@@ -1,4 +1,5 @@
 import { useState } from "react";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function NotesButton({ videoUrl, title, id }) {
   const [loading, setLoading] = useState(false);
@@ -9,7 +10,7 @@ export default function NotesButton({ videoUrl, title, id }) {
     try {
       // 1. Fetch transcript
       const transcriptRes = await fetch(
-        "http://localhost:5000/api/course/get-transcript",
+        `${BACKEND_URL}/api/course/get-transcript`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -23,21 +24,18 @@ export default function NotesButton({ videoUrl, title, id }) {
       const plainText = transcriptData.text;
 
       // 2. Generate Notes PDF
-      const notesRes = await fetch(
-        "http://localhost:5000/api/course/generate-notes",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: plainText, id }),
-        }
-      );
+      const notesRes = await fetch(`${BACKEND_URL}/api/course/generate-notes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: plainText, id }),
+      });
 
       if (!notesRes.ok) throw new Error("Failed to generate notes");
 
       const data = await notesRes.json();
 
       // PDF URL returned by backend
-      const fileUrl = `http://localhost:5000${data.file}`;
+      const fileUrl = `${BACKEND_URL}${data.file}`;
 
       // ✅ 3. PREVIEW PDF instead of downloading
       window.open(fileUrl, "_blank");

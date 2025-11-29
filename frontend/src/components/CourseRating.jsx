@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Star, CheckCircle } from "lucide-react";
 import { useStoredContext } from "../context/useStoredContext";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function CourseRating({
   courseId,
@@ -31,7 +32,7 @@ export default function CourseRating({
     setLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/course/rate/${courseId}`,
+        `${BACKEND_URL}/api/course/rate/${courseId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

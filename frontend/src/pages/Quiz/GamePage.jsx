@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import { useStoredContext } from "../../context/useStoredContext";
 
-const SOCKET_URL = "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function GamePage() {
   console.log("Rendering Game Page");
@@ -34,7 +34,7 @@ export default function GamePage() {
   // SOCKET INITIALIZATION (NORMAL + GROUP MODES)
   // -------------------------------------------------------------
   useEffect(() => {
-    const s = io(SOCKET_URL, { transports: ["websocket"] });
+    const s = io(BACKEND_URL, { transports: ["websocket"] });
     setSocket(s);
 
     // 🔵 NORMAL MODE: Join using method you already had
@@ -157,7 +157,7 @@ export default function GamePage() {
 
     try {
       setLoadingQuestions(true);
-      const res = await axios.get("http://localhost:5000/api/questions/sample");
+      const res = await axios.get(`${BACKEND_URL}/api/questions/sample`);
       setQuestionsBank(res.data.questions);
     } catch (err) {
       console.error("Error loading questions", err);
@@ -187,14 +187,14 @@ export default function GamePage() {
     if (gameType === "group") {
       socket.emit("start-group-game", { groupId: code });
       try {
-        await fetch(
-          `http://localhost:5000/api/quiz-groups/${code}/end-active`,
-          { method: "POST", headers: { "Content-Type": "application/json" } }
-        );
-        await fetch(
-          `http://localhost:5000/api/quiz-groups/${code}/clear-lobby`,
-          { method: "POST", headers: { "Content-Type": "application/json" } }
-        );
+        await fetch(`${BACKEND_URL}/api/quiz-groups/${code}/end-active`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        await fetch(`${BACKEND_URL}/api/quiz-groups/${code}/clear-lobby`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
       } catch (err) {
         console.error("Group backend sync error:", err);
       }

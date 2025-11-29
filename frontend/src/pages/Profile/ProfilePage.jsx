@@ -7,6 +7,7 @@ import EnrolledGroups from "../../components/Profile/EnrolledGroups";
 import SettingsSection from "../../components/Profile/SettingsSection";
 import { useStoredContext } from "../../context/useStoredContext";
 import { LogOut } from "lucide-react";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function ProfilePage() {
   console.log("Rendering Profile Page");
@@ -23,7 +24,7 @@ export default function ProfilePage() {
 
   const handleUpdate = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/user/${userId}`, {
+      const res = await fetch(`${BACKEND_URL}/api/user/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

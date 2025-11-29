@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Star, Users, Layers, Lock } from "lucide-react";
 import { useStoredContext } from "../../context/useStoredContext";
 import CourseRating from "../../components/CourseRating";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function CourseModulesPage() {
   console.log("Rendering Course Modules Page");
@@ -18,7 +19,7 @@ export default function CourseModulesPage() {
     async function fetchCourseAndUser() {
       try {
         const courseRes = await fetch(
-          `http://localhost:5000/api/course/get-course/${id}`
+          `${BACKEND_URL}/api/course/get-course/${id}`
         );
         const courseData = await courseRes.json();
         const fetchedCourse = courseData.course;
@@ -46,7 +47,7 @@ export default function CourseModulesPage() {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/enroll", {
+      const response = await fetch(`${BACKEND_URL}/api/enroll`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user._id, courseId: course._id }),

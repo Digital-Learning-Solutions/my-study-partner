@@ -2,11 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 import GroupLeaderboard from "../../components/Quiz/GroupLeaderboard.jsx";
 import GroupHistoryDetails from "../../components/Quiz/GroupHistoryDetails.jsx";
-
-const SOCKET_URL = "http://localhost:5000";
 
 export default function GroupPage() {
   console.log("Rendering Group Page");
@@ -33,7 +32,7 @@ export default function GroupPage() {
 
   // Initialize Socket
   useEffect(() => {
-    const s = io(SOCKET_URL);
+    const s = io(BACKEND_URL);
     setSocket(s);
 
     if (userId) s.emit("register-user", userId);
@@ -53,7 +52,7 @@ export default function GroupPage() {
       setLoading(true);
 
       const res = await fetch(
-        `http://localhost:5000/api/quiz-groups/${id}/history?userId=${userId}`
+        `${BACKEND_URL}/api/quiz-groups/${id}/history?userId=${userId}`
       );
 
       if (!res.ok) return;
@@ -80,14 +79,11 @@ export default function GroupPage() {
   // Send join request
   async function handleRequestJoin() {
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/quiz-groups/${id}/request`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, message: joinMessage }),
-        }
-      );
+      const res = await fetch(`${BACKEND_URL}/api/quiz-groups/${id}/request`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, message: joinMessage }),
+      });
 
       const data = await res.json();
       if (!res.ok) return alert(data.message || "Failed to send request");
@@ -104,14 +100,11 @@ export default function GroupPage() {
   // Start a game
   async function handleStartGame() {
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/quiz-groups/${id}/start`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId, questionsCount: 10 }),
-        }
-      );
+      const res = await fetch(`${BACKEND_URL}/api/quiz-groups/${id}/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, questionsCount: 10 }),
+      });
 
       const data = await res.json();
       if (!res.ok) return alert(data.message || "Failed to start game");
@@ -128,7 +121,7 @@ export default function GroupPage() {
   async function handleAction(targetUserId, action) {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/quiz-groups/${id}/requests/${targetUserId}`,
+        `${BACKEND_URL}/api/quiz-groups/${id}/requests/${targetUserId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

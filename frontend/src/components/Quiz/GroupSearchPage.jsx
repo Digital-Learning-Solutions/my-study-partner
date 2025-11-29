@@ -1,6 +1,7 @@
 // src/pages/GroupSearchPage.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function GroupSearchPage() {
   const [query, setQuery] = useState("");
@@ -21,7 +22,7 @@ export default function GroupSearchPage() {
     try {
       setLoading(true);
       const res = await fetch(
-        `http://localhost:5000/api/quiz-groups?search=${encodeURIComponent(
+        `${BACKEND_URL}/api/quiz-groups?search=${encodeURIComponent(
           searchTerm
         )}`
       );

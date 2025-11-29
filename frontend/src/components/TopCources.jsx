@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CourseCard from "./CourseCard";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function TopCourses() {
   const [courseList, setCourseList] = useState([]);
@@ -11,7 +12,7 @@ export default function TopCourses() {
   useEffect(() => {
     async function fetchCourses() {
       try {
-        const response = await fetch("http://localhost:5000/api/course/all", {
+        const response = await fetch(`${BACKEND_URL}/api/course/all`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });

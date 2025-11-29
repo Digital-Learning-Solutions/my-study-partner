@@ -1,6 +1,7 @@
 // src/components/Quiz/JoinedQuizGroups.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function JoinedQuizGroups() {
   const [groups, setGroups] = useState([]);
@@ -13,7 +14,7 @@ export default function JoinedQuizGroups() {
     async function load() {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/quiz-groups/mine?userId=${userId}`
+          `${BACKEND_URL}/api/quiz-groups/mine?userId=${userId}`
         );
         const data = await res.json();
         setGroups(data.groups || []);

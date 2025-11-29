@@ -1,5 +1,6 @@
 // src/components/Quiz/CreateQuizGroup.jsx
 import React, { useState } from "react";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function CreateQuizGroup({ onCreated }) {
   const [name, setName] = useState("");
@@ -15,7 +16,7 @@ export default function CreateQuizGroup({ onCreated }) {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/quiz-groups", {
+      const res = await fetch(`${BACKEND_URL}/api/quiz-groups`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

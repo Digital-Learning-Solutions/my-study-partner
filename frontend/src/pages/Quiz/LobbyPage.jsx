@@ -7,7 +7,7 @@ import JoinedQuizGroups from "../../components/Quiz/JoinedQuizGroups";
 import GroupSearchPage from "../../components/Quiz/GroupSearchPage";
 import CreateQuizGroup from "../../components/Quiz/CreateQuizGroup";
 
-const SOCKET_URL = "http://localhost:5000";
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function LobbyPage() {
   console.log("Rendering Lobby Page");

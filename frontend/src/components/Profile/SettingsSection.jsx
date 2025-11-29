@@ -1,12 +1,13 @@
 import { useState } from "react";
 import ThemeToggler from "../ThemeToggler.jsx";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function SettingsSection({ user, setUser }) {
   const [email, setEmail] = useState(user.email);
   const [password, setPassword] = useState("");
 
   const updateEmail = async () => {
-    await fetch(`http://localhost:5000/api/user/update-email/${user._id}`, {
+    await fetch(`${BACKEND_URL}/api/user/update-email/${user._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -14,7 +15,7 @@ export default function SettingsSection({ user, setUser }) {
   };
 
   const updatePassword = async () => {
-    await fetch(`http://localhost:5000/api/user/update-password/${user._id}`, {
+    await fetch(`${BACKEND_URL}/api/user/update-password/${user._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password }),
@@ -22,7 +23,7 @@ export default function SettingsSection({ user, setUser }) {
   };
 
   const deleteAccount = async () => {
-    await fetch(`http://localhost:5000/api/user/${user._id}`, {
+    await fetch(`${BACKEND_URL}/api/user/${user._id}`, {
       method: "DELETE",
     });
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function SearchResultCard({ course }) {
   return (
@@ -38,7 +39,7 @@ export default function SearchBar() {
     }
     async function fetchCourses() {
       try {
-        const response = await fetch("http://localhost:5000/api/course/all", {
+        const response = await fetch(`${BACKEND_URL}/api/course/all`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

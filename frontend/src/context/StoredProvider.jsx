@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { StoredContext } from "./StoredContext.jsx";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const StoredProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -17,7 +18,7 @@ export const StoredProvider = ({ children }) => {
 
       const userId = localStorage.getItem("userId");
 
-      const res = await fetch(`http://localhost:5000/api/user/${userId}`, {
+      const res = await fetch(`${BACKEND_URL}/api/user/${userId}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });

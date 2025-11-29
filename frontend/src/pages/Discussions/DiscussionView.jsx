@@ -17,6 +17,7 @@ import {
   Star,
 } from "lucide-react";
 import { useStoredContext } from "../../context/useStoredContext.js";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function DiscussionView() {
   console.log("Rendering Discussion View Page");
@@ -119,7 +120,7 @@ export default function DiscussionView() {
   const syncAnswerWithBackend = async (answerId, type) => {
     try {
       await fetch(
-        `http://localhost:5000/api/discussions/discussions/${id}/answers/${answerId}/${type}`,
+        `${BACKEND_URL}/api/discussions/discussions/${id}/answers/${answerId}/${type}`,
         { method: "POST" }
       );
     } catch (err) {

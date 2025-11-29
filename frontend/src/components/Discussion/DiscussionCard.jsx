@@ -8,6 +8,7 @@ import {
   Flag,
   UserCircle,
 } from "lucide-react";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function DiscussionCard({ d }) {
   const [upvotes, setUpvotes] = useState(d.upvotes || 0);
@@ -59,7 +60,7 @@ export default function DiscussionCard({ d }) {
   const syncWithBackend = async (type) => {
     try {
       await fetch(
-        `http://localhost:5000/api/discussions/discussions/${d.id}/${type}`,
+        `${BACKEND_URL}/api/discussions/discussions/${d.id}/${type}`,
         { method: "POST" }
       );
     } catch (err) {

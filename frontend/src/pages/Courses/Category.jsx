@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import CourseCard from "../../components/CourseCard";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function Subjects() {
   console.log("Rendering Category Page");
@@ -19,7 +20,7 @@ export default function Subjects() {
     async function fetchCourses() {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/course/category/${subject}`,
+          `${BACKEND_URL}/api/course/category/${subject}`,
           {
             method: "GET",
             headers: {

@@ -1,5 +1,7 @@
 // src/api/profileApi.js
-const API_BASE = "http://localhost:5000/api/user";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+const API_BASE = `${BACKEND_URL}/api/user`;
 
 export const profileApi = {
   // ✅ Update user profile

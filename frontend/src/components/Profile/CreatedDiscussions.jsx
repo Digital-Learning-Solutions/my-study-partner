@@ -9,6 +9,7 @@ import {
   MessageCircle,
   Tag,
 } from "lucide-react";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function CreatedDiscussions({ userId }) {
   const [discussions, setDiscussions] = useState([]);
@@ -20,7 +21,7 @@ export default function CreatedDiscussions({ userId }) {
     const fetchCreatedDiscussions = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/api/user/discussions/${userId}`
+          `${BACKEND_URL}/api/user/discussions/${userId}`
         );
         if (!res.ok) throw new Error("Failed to fetch created discussions");
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function SoloPage() {
   console.log("Rendering Solo Quiz Page");
@@ -21,7 +22,7 @@ export default function SoloPage() {
       else formData.append("text", notes);
 
       const res = await axios.post(
-        "http://localhost:5000/api/upload-notes",
+        `${BACKEND_URL}/api/upload-notes`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

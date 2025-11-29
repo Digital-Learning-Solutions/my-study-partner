@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-vars */
 // src/api/apiClient.js
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const API_BASE = "http://localhost:5000/api/discussions";
+const API_BASE = `${BACKEND_URL}/api/discussions`;
 
 async function request(path, opts = {}) {
   const res = await fetch(`${API_BASE}${path}`, {

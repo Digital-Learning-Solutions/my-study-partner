@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useStoredContext } from "../../context/useStoredContext";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function GroupGameLobbyPage() {
   console.log("Rendering Group Game Lobby Page");
@@ -27,7 +28,7 @@ export default function GroupGameLobbyPage() {
     try {
       setLoadingMembers(true);
       const res = await fetch(
-        `http://localhost:5000/api/quiz-groups/${groupId}/history`
+        `${BACKEND_URL}/api/quiz-groups/${groupId}/history`
       );
 
       const data = await res.json();
@@ -49,7 +50,7 @@ export default function GroupGameLobbyPage() {
     try {
       setLoadingLobby(true);
       const res = await fetch(
-        `http://localhost:5000/api/quiz-groups/${groupId}/lobby`
+        `${BACKEND_URL}/api/quiz-groups/${groupId}/lobby`
       );
       const data = await res.json();
 
@@ -67,7 +68,7 @@ export default function GroupGameLobbyPage() {
   const joinGame = async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/quiz-groups/${groupId}/join-lobby`,
+        `${BACKEND_URL}/api/quiz-groups/${groupId}/join-lobby`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

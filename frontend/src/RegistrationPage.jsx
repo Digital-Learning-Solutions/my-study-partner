@@ -2,6 +2,7 @@ import { LogOutIcon } from "lucide-react";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logoIcon from "./assets/logo.png";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function RegistrationPage() {
   const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ function RegistrationPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -48,11 +49,7 @@ function RegistrationPage() {
         <div className="bg-white dark:bg-gray-800 shadow-2xl rounded-xl overflow-hidden md:grid md:grid-cols-2 border border-gray-200 dark:border-gray-700 transition-colors">
           {/* Left side branding */}
           <div className="hidden md:flex flex-col justify-center items-center p-12 bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-700 dark:to-indigo-900 text-white">
-            <img
-              src={logoIcon}
-              alt="Logo"
-              className="h-16 mb-6 rounded-lg"
-            />
+            <img src={logoIcon} alt="Logo" className="h-16 mb-6 rounded-lg" />
             <h1 className="text-3xl font-bold text-center mb-3">
               Join Us Today
             </h1>

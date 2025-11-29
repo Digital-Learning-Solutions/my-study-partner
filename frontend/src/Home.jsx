@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // src/pages/HomePage.jsx
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
@@ -14,6 +15,7 @@ import Button from "./components/ui/Button";
 import FeatureCard from "./components/ui/FeatureCard";
 import CourseCard from "./components/CourseCard";
 import CourseSkeleton from "./components/CourseSkeleton";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 /**
  * Home page (updated & corrected)
@@ -38,7 +40,7 @@ export default function Home() {
     async function fetchCourses() {
       try {
         // You can change to a relative path or use an env var for production
-        const response = await fetch("http://localhost:5000/api/course/all", {
+        const response = await fetch(`${BACKEND_URL}/api/course/all`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });

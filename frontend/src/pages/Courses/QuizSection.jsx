@@ -1,4 +1,5 @@
 import { useState } from "react";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function QuizSection({ videoUrl, title, id, courseId }) {
   console.log("Rendering Quiz Section for video:", title);
@@ -19,7 +20,7 @@ export default function QuizSection({ videoUrl, title, id, courseId }) {
 
     try {
       const transcriptRes = await fetch(
-        "http://localhost:5000/api/course/get-transcript",
+        `${BACKEND_URL}/api/course/get-transcript`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -35,7 +36,7 @@ export default function QuizSection({ videoUrl, title, id, courseId }) {
       const formData = new FormData();
       formData.append("text", plainText);
 
-      const quizRes = await fetch("http://localhost:5000/api/upload-notes", {
+      const quizRes = await fetch(`${BACKEND_URL}/api/upload-notes`, {
         method: "POST",
         body: formData,
       });
@@ -64,7 +65,7 @@ export default function QuizSection({ videoUrl, title, id, courseId }) {
 
   async function sendProgressUpdate() {
     try {
-      await fetch("http://localhost:5000/api/course/update-progress", {
+      await fetch(`${BACKEND_URL}/api/course/update-progress`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ videoId: id, userId, courseId }),
