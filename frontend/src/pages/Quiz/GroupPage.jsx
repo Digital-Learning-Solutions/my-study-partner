@@ -402,23 +402,27 @@ export default function GroupPage() {
     dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(167,139,250,0.55)]
     dark:[&::-webkit-scrollbar-thumb:hover]:bg-[rgba(167,139,250,0.75)]"
               >
-                {group.resultHistory.slice(0, 5).map((h, index) => (
-                  <div
-                    key={index}
-                    onClick={() => setSelectedHistoryIndex(index)}
-                    className="p-3 rounded-xl bg-white/5 cursor-pointer hover:bg-white/10 transition"
-                  >
-                    <div className="text-sm text-[#cbd5e1]">
-                      {new Date(h.playedAt).toLocaleString()}
+                {[...group.resultHistory]
+                  .slice()
+                  .reverse()
+                  .slice(0, 5)
+                  .map((h, index) => (
+                    <div
+                      key={index}
+                      onClick={() => setSelectedHistoryIndex(index)}
+                      className="p-3 rounded-xl bg-white/5 cursor-pointer hover:bg-white/10 transition"
+                    >
+                      <div className="text-sm text-[#cbd5e1]">
+                        {new Date(h.playedAt).toLocaleString()}
+                      </div>
+                      <div className="font-medium text-white mt-1">
+                        Winner:{" "}
+                        <span className="text-[#93c5fd]">
+                          {h.results[0]?.name}
+                        </span>
+                      </div>
                     </div>
-                    <div className="font-medium text-white mt-1">
-                      Winner:{" "}
-                      <span className="text-[#93c5fd]">
-                        {h.results[0]?.name}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </div>
@@ -432,29 +436,49 @@ export default function GroupPage() {
 
           <div className="grid md:grid-cols-2 gap-6">
             {/* list */}
-            <div className="space-y-3 max-h-[420px] overflow-auto pr-2">
+            <div
+              className="space-y-3 max-h-[420px] overflow-auto pr-2 [&::-webkit-scrollbar]:w-2
+    [&::-webkit-scrollbar-track]:bg-white/5
+    [&::-webkit-scrollbar-track]:rounded-full
+
+    [&::-webkit-scrollbar-thumb]:bg-[rgba(124,58,237,0.55)]
+    [&::-webkit-scrollbar-thumb]:rounded-full
+    [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(124,58,237,0.75)]
+
+    dark:[&::-webkit-scrollbar-track]:bg-white/10
+    dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(167,139,250,0.55)]
+    dark:[&::-webkit-scrollbar-thumb:hover]:bg-[rgba(167,139,250,0.75)]"
+            >
               {group.resultHistory?.length ? (
-                group.resultHistory.map((h, idx) => (
-                  <div
-                    key={idx}
-                    onClick={() => setSelectedHistoryIndex(idx)}
-                    className={`p-3 rounded-xl cursor-pointer transition ${
-                      selectedHistoryIndex === idx
-                        ? "bg-white/10 border-purple-400/30"
-                        : "bg-white/5 border border-white/10"
-                    }`}
-                  >
-                    <div className="text-sm text-[#cbd5e1]">
-                      {new Date(h.playedAt).toLocaleString()}
+                [...group.resultHistory]
+                  .slice()
+                  .reverse()
+                  .map((h, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() =>
+                        setSelectedHistoryIndex(
+                          group.resultHistory?.length - idx - 1
+                        )
+                      }
+                      className={`p-3 rounded-xl cursor-pointer transition ${
+                        selectedHistoryIndex ===
+                        group.resultHistory?.length - idx - 1
+                          ? "bg-white/15 border-purple-400/30"
+                          : "bg-white/5 border border-white/10"
+                      } hover:bg-[#bbb]/10`}
+                    >
+                      <div className="text-sm text-[#cbd5e1]">
+                        {new Date(h.playedAt).toLocaleString()}
+                      </div>
+                      <div className="font-medium text-white mt-1">
+                        Winner:{" "}
+                        <span className="text-[#93c5fd]">
+                          {h.results[0]?.name}
+                        </span>
+                      </div>
                     </div>
-                    <div className="font-medium text-white mt-1">
-                      Winner:{" "}
-                      <span className="text-[#93c5fd]">
-                        {h.results[0]?.name}
-                      </span>
-                    </div>
-                  </div>
-                ))
+                  ))
               ) : (
                 <p className="text-sm text-[#9ca3af]">No history available</p>
               )}

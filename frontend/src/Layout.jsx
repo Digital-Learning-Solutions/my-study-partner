@@ -11,11 +11,16 @@ import SubscriptionPage from "./pages/Subscriptions/SubscriptionPage.jsx";
 import ChatBot from "./components/ChatBot.jsx";
 import Landing from "./pages/Landing/Landing.jsx";
 import Home from "./Home.jsx";
-import { useStoredContext } from "./context/useStoredContext.js";
 import PageNotFound from "./pages/PageNotFound.jsx";
+import { useEffect, useState } from "react";
 
 function Layout() {
-  const { token } = useStoredContext();
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">
