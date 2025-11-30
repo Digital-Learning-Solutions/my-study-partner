@@ -1,12 +1,14 @@
-import { pipeline } from "@xenova/transformers";
+// import { pipeline } from "@xenova/transformers";
+// TEMPORARILY DISABLED - causes native binding errors on Windows
+// Re-enable when onnxruntime is properly configured
 
 // Load the model once
 let classifier = null;
 async function loadModel() {
   if (!classifier) {
     console.log("⏳ Loading toxic-bert ML model...");
-    classifier = await pipeline("text-classification", "Xenova/toxic-bert");
-    console.log("✅ toxic-bert model loaded successfully");
+    // classifier = await pipeline("text-classification", "Xenova/toxic-bert");
+    console.log("✅ toxic-bert model disabled (use fallback keyword check)");
   }
 }
 

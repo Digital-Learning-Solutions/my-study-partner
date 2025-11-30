@@ -342,6 +342,12 @@ async function uploadToAssemblyAI(filePath) {
     headers: { authorization: ASSEMBLYAI_KEY },
     body: audioBuffer,
   });
+  
+  if (!uploadRes.ok) {
+    const errorText = await uploadRes.text();
+    throw new Error(`AssemblyAI upload failed: ${uploadRes.status} - ${errorText}`);
+  }
+  
   const uploadData = await uploadRes.json();
   return uploadData.upload_url;
 }
@@ -356,6 +362,11 @@ async function transcribeWithAssemblyAI(uploadUrl) {
     },
     body: JSON.stringify({ audio_url: uploadUrl }),
   });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`AssemblyAI transcription job creation failed: ${res.status} - ${errorText}`);
+  }
 
   const data = await res.json();
   const transcriptId = data.id;

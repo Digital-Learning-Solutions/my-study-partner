@@ -6,11 +6,18 @@ const dashboardRoutes = express.Router();
 dashboardRoutes.get("/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const user = await User.findById(userId).lean().populate({
-      path: "enrolledCourses.course",
-      model: "Course",
-      select: "title category subject content slug _id",
-    });
+    const user = await User.findById(userId)
+      .lean()
+      .populate({
+        path: "enrolledCourses.course",
+        model: "Course",
+        select: "title category subject content slug _id",
+      })
+      .populate({
+        path: "createdDiscussions",
+        model: "Discussion",
+        select: "title content createdAt updatedAt _id",
+      });
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -76,8 +83,14 @@ dashboardRoutes.get("/:userId", async (req, res) => {
       byCourse: [],
     };
 
-    // Discussions - fallback if stored differently
-    const discussions = { enrolled: user.joinedDiscussions || [] };
+    // Created discussions - instead of enrolled
+    const createdDiscussions = (user.createdDiscussions || []).map((d) => ({
+      _id: d._id,
+      title: d.title || "Untitled Discussion",
+      snippet: d.content ? d.content.substring(0, 100) : "",
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt,
+    }));
 
     return res.json({
       courses: {
@@ -89,7 +102,7 @@ dashboardRoutes.get("/:userId", async (req, res) => {
         watchedClasses,
       },
       quiz: quizStats,
-      discussions,
+      discussions: { created: createdDiscussions },
       updatedAt: user.updatedAt,
     });
   } catch (err) {
