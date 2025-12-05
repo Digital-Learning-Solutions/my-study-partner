@@ -1,7 +1,6 @@
 // src/components/Navbar.jsx
 import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import ThemeToggler from "./ThemeToggler";
 import Button from "./ui/Button";
 import {
   X,
@@ -162,8 +161,6 @@ export default function Navbar() {
             </NavLink>
           ))}
 
-          <ThemeToggler />
-
           {/* Profile dropdown / auth */}
           {authenticated && user ? (
             <div className="relative">
@@ -225,18 +222,11 @@ export default function Navbar() {
                   <span>Dashboard</span>
                 </DropdownLink>
                 <DropdownLink
-                  to="/settings"
-                  onClick={() => setProfileOpen(false)}
-                >
-                  <Settings className="h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownLink>
-                <DropdownLink
                   to="/profile"
                   onClick={() => setProfileOpen(false)}
                 >
                   <Edit className="h-4 w-4" />
-                  <span>Edit Profile</span>
+                  <span>Profile</span>
                 </DropdownLink>
                 <DropdownLink
                   to="/subscriptions"
@@ -269,7 +259,6 @@ export default function Navbar() {
 
         {/* Mobile header right */}
         <div className="md:hidden flex items-center gap-3">
-          <ThemeToggler />
 
           {authenticated && user ? (
             <button

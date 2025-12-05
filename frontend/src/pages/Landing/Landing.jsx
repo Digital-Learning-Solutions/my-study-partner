@@ -108,6 +108,22 @@ function Landing() {
       (ec) => !ec.isComplete && getTotalClasses(ec.course) > 0
     ) || [];
 
+  // Find next class to complete for a course
+  const findNextClassForCourse = (enrolledCourse) => {
+    const course = enrolledCourse.course;
+    const progress = enrolledCourse.progress || [];
+    if (!course.modules) return null;
+
+    for (const mod of course.modules) {
+      for (const cls of mod.classes) {
+        if (!progress[cls.id]) {
+          return { module: mod, class: cls };
+        }
+      }
+    }
+    return null; // All classes completed
+  };
+
   // Activity icons
   const getActivityIcon = (type) => {
     switch (type.toLowerCase()) {
@@ -149,16 +165,51 @@ function Landing() {
               </Link>
             </div>
           </div>
-          <div className="text-right ml-8">
-            <div className="text-xs text-slate-500">Current Streak</div>
-            <div className="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent animate-pulse flex items-center justify-center">
-              {streak}
-              <span className="text-3xl ml-4 drop-shadow-2xl text-orange-500 filter brightness-125">
-                🔥
-              </span>
-            </div>
-            <div className="text-sm text-slate-500 dark:text-slate-300">
-              {streak === 1 ? "day" : "days"}
+          <div className="ml-8">
+            <div className="relative group">
+              {/* Glowing background effect */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-orange-400 via-red-500 to-pink-500 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+
+              {/* Main streak card */}
+              <div className="relative bg-white/10 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl p-6 border border-white/20 dark:border-slate-700/50 shadow-2xl hover:shadow-orange-500/25 transition-all duration-500 hover:scale-105">
+                {/* Header */}
+                <div className="text-center mb-4">
+                  <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    Current Streak
+                  </div>
+
+                  {/* Streak number with enhanced styling */}
+                  <div className="relative flex items-center justify-center">
+                    <div className="text-5xl font-black bg-gradient-to-r from-orange-400 via-red-500 to-pink-500 bg-clip-text text-transparent animate-pulse drop-shadow-lg">
+                      {streak}
+                    </div>
+
+                    {/* Static fire design */}
+                    <div className="ml-3 text-4xl">
+                      <span className="filter drop-shadow-2xl">🔥</span>
+                    </div>
+
+                    {/* Glowing ring effect */}
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-orange-400/20 to-pink-500/20 blur-xl animate-pulse"></div>
+                  </div>
+                </div>
+
+                {/* Days text with futuristic styling */}
+                <div className="text-center">
+                  <span className="inline-block px-3 py-1 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-full text-sm font-medium text-slate-600 dark:text-slate-300 border border-orange-300/30">
+                    {streak === 1 ? "day" : "days"}
+                  </span>
+                </div>
+
+                {/* Achievement badge for streaks */}
+                {streak >= 7 && (
+                  <div className="mt-3 text-center">
+                    <span className="inline-block px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full animate-bounce">
+                      🔥 HOT STREAK!
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -189,14 +240,26 @@ function Landing() {
                   ec.progress,
                   totalClasses
                 );
-                const courseLink = course
-                  ? `/courses/${course.courseType || course.slug}/${course._id}`
-                  : "/courses";
+                const nextClassInfo = findNextClassForCourse(ec);
+                const courseLink = nextClassInfo
+                  ? `/courses/${course.courseType || course.slug}/${course._id}/${nextClassInfo.module.title.toLowerCase().split(" ").join("-")}`
+                  : `/courses/${course.courseType || course.slug}/${course._id}`;
 
                 return (
                   <Link
                     key={ec._id}
                     to={courseLink}
+                    state={
+                      nextClassInfo
+                        ? {
+                            classes: nextClassInfo.module.classes,
+                            title: nextClassInfo.module.title,
+                            content: nextClassInfo.module.content,
+                            courseId: course._id,
+                            nextClassId: nextClassInfo.class.id,
+                          }
+                        : null
+                    }
                     className="group block bg-gradient-to-br from-white to-slate-50 dark:from-slate-700 dark:to-slate-600 rounded-xl p-6 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 border border-slate-200 dark:border-slate-600"
                   >
                     <div className="flex items-start justify-between mb-4">
@@ -235,22 +298,30 @@ function Landing() {
                 Ultimate Knowledge Challenge
               </h3>
               <p className="text-orange-100 mb-6">
-                Test your skills in this trending quiz with 1000+ participants!
-              </p>
+                Test your skills in this trending quiz with 100+ participants and and compete with your friends!              </p>
               <div className="flex justify-center space-x-4 mb-4">
                 <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
-                  1000+ Players
+                  100+ Players
                 </span>
                 <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm">
-                  High Score: 95%
+                  Friends: Everyone
                 </span>
               </div>
-              <Link
-                to="/quiz"
+              
+              <div className="flex justify-center space-x-4 mb-4">
+                <Link
+                to="/quiz/solo"
                 className="inline-block px-8 py-3 bg-white text-orange-500 font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
-                Join Now
+                Go Solo
               </Link>
+               <Link
+                to="/quiz/multiplayer"
+                className="inline-block px-8 py-3 bg-white text-orange-500 font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              >
+                With Friends
+              </Link>
+              </div>
             </div>
           </div>
         </div>

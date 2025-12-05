@@ -1,23 +1,27 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SubscriptionPage = () => {
+  const navigate = useNavigate();
+
   const plans = [
     {
-      name: 'Basic',
-      price: '$9.99/month',
+      name: 'Free',
+      price: 'Current Plan',
       features: [
         'Access to 10 courses',
         'Basic quizzes',
         'Community discussions',
         'Email support'
       ],
-      buttonText: 'Get Basic',
-      gradient: 'from-blue-500 to-cyan-500',
-      hover: 'hover:from-blue-600 hover:to-cyan-600'
+      buttonText: 'Get Started',
+      gradient: 'from-gray-500 to-slate-500',
+      hover: 'hover:from-gray-600 hover:to-slate-600',
+      isFree: true
     },
     {
       name: 'Pro',
-      price: '$19.99/month',
+      price: '₹199/month',
       features: [
         'Access to all courses',
         'Advanced quizzes with AI feedback',
@@ -32,11 +36,11 @@ const SubscriptionPage = () => {
     },
     {
       name: 'Premium',
-      price: '$29.99/month',
+      price: '₹349/month',
       features: [
         'Everything in Pro',
-        'Personalized AI tutor',
-        'Exclusive webinars',
+        'All community access',
+        'Exclusive merch',
         'Certificate downloads',
         'Custom study plans'
       ],
@@ -62,8 +66,8 @@ const SubscriptionPage = () => {
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 transform transition-all duration-500 hover:scale-105 hover:shadow-cyan-500/25 ${
-                plan.popular ? 'ring-2 ring-purple-500 scale-105' : ''
+              className={`relative bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 ${
+                plan.popular ? 'ring-2 ring-purple-500' : ''
               }`}
             >
               {plan.popular && (
@@ -88,11 +92,23 @@ const SubscriptionPage = () => {
                 ))}
               </ul>
 
-              <button
-                className={`w-full py-4 px-6 bg-gradient-to-r ${plan.gradient} ${plan.hover} text-white font-bold rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl`}
-              >
-                {plan.buttonText}
-              </button>
+              {plan.isFree ? (
+                <button
+                  onClick={() => {
+                    console.log('Navigating to home page');
+                    navigate('/');
+                  }}
+                  className={`w-full py-4 px-6 bg-gradient-to-r ${plan.gradient} ${plan.hover} text-white font-bold rounded-full shadow-lg border-2 border-gray-400 pointer-events-auto`}
+                >
+                  {plan.buttonText}
+                </button>
+              ) : (
+                <button
+                  className={`w-full py-4 px-6 bg-gradient-to-r ${plan.gradient} ${plan.hover} text-white font-bold rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl`}
+                >
+                  {plan.buttonText}
+                </button>
+              )}
             </div>
           ))}
         </div>

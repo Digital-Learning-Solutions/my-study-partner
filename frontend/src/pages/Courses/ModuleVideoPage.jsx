@@ -7,9 +7,14 @@ import NotesButton from "../../components/NotesButton";
 export default function ModuleVideosPage() {
   console.log("Rendering Module Video Page");
   const location = useLocation();
-  const { classes, title, content, courseId } = location.state;
+  const { classes, title, content, courseId, nextClassId } = location.state;
 
-  const [activeVideo, setActiveVideo] = useState(classes[0] || null);
+  const [activeVideo, setActiveVideo] = useState(() => {
+    if (nextClassId) {
+      return classes.find(cls => cls.id === nextClassId) || classes[0] || null;
+    }
+    return classes[0] || null;
+  });
 
   function extractYouTubeId(url) {
     const regExp =

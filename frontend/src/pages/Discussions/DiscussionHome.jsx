@@ -111,7 +111,7 @@ export default function DiscussionHome() {
                   page: 1,
                 }))
               }
-              className="border rounded px-2 py-1"
+              className="border border-gray-300 dark:border-gray-600 rounded px-3 py-1 pr-8 bg-white dark:bg-slate-700 text-gray-900 dark:text-white"
             >
               <option value="recent">Recent</option>
               <option value="popular">Popular</option>

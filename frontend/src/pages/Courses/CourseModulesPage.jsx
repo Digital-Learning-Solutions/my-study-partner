@@ -11,6 +11,7 @@ export default function CourseModulesPage() {
   const [course, setCourse] = useState({});
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [userProgress, setUserProgress] = useState({});
   const { user } = useStoredContext();
 
   // ---------- FETCH COURSE + USER ----------
@@ -31,6 +32,14 @@ export default function CourseModulesPage() {
           );
           setIsEnrolled(enrolled);
           console.log("Is Enrolled:", enrolled);
+
+          // Get user progress for this course
+          const enrolledCourse = user.enrolledCourses.find(
+            (c) => String(c.course._id) === String(fetchedCourse._id)
+          );
+          if (enrolledCourse) {
+            setUserProgress(enrolledCourse.progress || []);
+          }
         } else {
           console.log("No user logged in", user);
         }
@@ -40,6 +49,17 @@ export default function CourseModulesPage() {
     }
     fetchCourseAndUser();
   }, [user]);
+
+  // ---------- FIND NEXT CLASS TO COMPLETE ----------
+  const findNextClass = (module) => {
+    if (!userProgress || userProgress.length === 0) return null;
+    for (const cls of module.classes) {
+      if (!userProgress[cls.id]) {
+        return cls.id;
+      }
+    }
+    return null; // All classes completed
+  };
 
   // ---------- HANDLE ENROLL ----------
   async function handleEnroll() {
@@ -170,43 +190,47 @@ export default function CourseModulesPage() {
             </div>
           )}
 
-          {course?.modules?.map((mod, index) => (
-            <Link
-              key={index}
-              to={
-                isEnrolled
-                  ? `${mod.title.toLowerCase().split(" ").join("-")}`
-                  : "#"
-              }
-              state={
-                isEnrolled
-                  ? {
-                      classes: mod.classes,
-                      title: mod.title,
-                      content: mod.content,
-                      courseId: course._id,
-                    }
-                  : null
-              }
-              onClick={(e) => {
-                if (!isEnrolled) e.preventDefault();
-              }}
-            >
-              <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow hover:bg-blue-50 dark:hover:bg-gray-800 hover:shadow-md transition-colors cursor-pointer flex flex-col justify-between h-full">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                    {mod.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    {mod.content}
+          {course?.modules?.map((mod, index) => {
+            const nextClassId = findNextClass(mod);
+            return (
+              <Link
+                key={index}
+                to={
+                  isEnrolled
+                    ? `${mod.title.toLowerCase().split(" ").join("-")}`
+                    : "#"
+                }
+                state={
+                  isEnrolled
+                    ? {
+                        classes: mod.classes,
+                        title: mod.title,
+                        content: mod.content,
+                        courseId: course._id,
+                        nextClassId: nextClassId,
+                      }
+                    : null
+                }
+                onClick={(e) => {
+                  if (!isEnrolled) e.preventDefault();
+                }}
+              >
+                <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow hover:bg-blue-50 dark:hover:bg-gray-800 hover:shadow-md transition-colors cursor-pointer flex flex-col justify-between h-full">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                      {mod.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      {mod.content}
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    📺 {mod.classCount} Classes
                   </p>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  📺 {mod.classCount} Classes
-                </p>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </div>

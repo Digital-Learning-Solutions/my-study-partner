@@ -13,6 +13,11 @@ export default function SoloPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  // Scroll to top when component mounts
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   async function generate() {
     setLoading(true);
     setError("");

@@ -12,6 +12,11 @@ export default function GroupPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // Scroll to top when component mounts
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const [group, setGroup] = useState(null);
   // eslint-disable-next-line no-unused-vars
   const [socket, setSocket] = useState(null);
@@ -326,7 +331,7 @@ export default function GroupPage() {
               value={joinMessage}
               onChange={(e) => setJoinMessage(e.target.value)}
               placeholder="Message to admin (optional)"
-              className="w-full p-3 rounded-xl bg-white/8 text-white placeholder:text-[#9ca3af] border border-white/10"
+              className="w-full p-3 rounded-xl bg-white/20 text-white placeholder:text-[#9ca3af] border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             <div className="mt-3 flex gap-3">
               <button
