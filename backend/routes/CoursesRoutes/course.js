@@ -336,18 +336,32 @@ function extractYouTubeId(url) {
 
 // Upload audio file to AssemblyAI
 async function uploadToAssemblyAI(filePath) {
+  if (!ASSEMBLYAI_KEY) throw new Error("Missing AssemblyAI API key (ASSEMBLYAI_API_KEY)");
+
   const audioBuffer = fs.readFileSync(filePath);
   const uploadRes = await fetch("https://api.assemblyai.com/v2/upload", {
     method: "POST",
     headers: { authorization: ASSEMBLYAI_KEY },
     body: audioBuffer,
   });
-  const uploadData = await uploadRes.json();
-  return uploadData.upload_url;
+
+  // Try to parse JSON, but safely fallback to text for human readable errors
+  const ct = (uploadRes.headers.get("content-type") || "").toLowerCase();
+  if (ct.includes("application/json")) {
+    const uploadData = await uploadRes.json();
+    if (!uploadRes.ok) throw new Error(uploadData.error || JSON.stringify(uploadData));
+    return uploadData.upload_url;
+  } else {
+    const txt = await uploadRes.text();
+    // AssemblyAI sometimes returns plain text errors like "Invalid API key"
+    throw new Error(txt || `AssemblyAI upload failed with status ${uploadRes.status}`);
+  }
 }
 
 // Submit transcription job and wait for completion
 async function transcribeWithAssemblyAI(uploadUrl) {
+  if (!ASSEMBLYAI_KEY) throw new Error("Missing AssemblyAI API key (ASSEMBLYAI_API_KEY)");
+
   const res = await fetch("https://api.assemblyai.com/v2/transcript", {
     method: "POST",
     headers: {
@@ -357,7 +371,17 @@ async function transcribeWithAssemblyAI(uploadUrl) {
     body: JSON.stringify({ audio_url: uploadUrl }),
   });
 
-  const data = await res.json();
+  // Safely parse response (JSON expected) or fallback to text
+  const resCt = (res.headers.get("content-type") || "").toLowerCase();
+  let data;
+  if (resCt.includes("application/json")) {
+    data = await res.json();
+    if (!res.ok) throw new Error(data.error || JSON.stringify(data));
+  } else {
+    const txt = await res.text();
+    throw new Error(txt || `AssemblyAI transcript submission failed with status ${res.status}`);
+  }
+
   const transcriptId = data.id;
 
   // Poll until transcription is done
@@ -366,10 +390,18 @@ async function transcribeWithAssemblyAI(uploadUrl) {
       `https://api.assemblyai.com/v2/transcript/${transcriptId}`,
       { headers: { authorization: ASSEMBLYAI_KEY } }
     );
-    const statusData = await statusRes.json();
+
+    const statusCt = (statusRes.headers.get("content-type") || "").toLowerCase();
+    let statusData;
+    if (statusCt.includes("application/json")) {
+      statusData = await statusRes.json();
+    } else {
+      const txt = await statusRes.text();
+      throw new Error(txt || `AssemblyAI status check failed with status ${statusRes.status}`);
+    }
 
     if (statusData.status === "completed") return statusData.text;
-    if (statusData.status === "error") throw new Error(statusData.error);
+    if (statusData.status === "error") throw new Error(statusData.error || JSON.stringify(statusData));
 
     console.log("[LOG] Transcription in progress...");
     await new Promise((r) => setTimeout(r, 5000));

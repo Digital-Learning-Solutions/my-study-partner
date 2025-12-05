@@ -81,7 +81,7 @@ router.post("/upload-notes", upload.single("file"), async (req, res) => {
 
     "${text}"
 
-    Create 3 clear and natural multiple-choice questions that do NOT mention the text or source. 
+    Create 10 clear and natural multiple-choice questions that do NOT mention the text or source. 
     The questions should be general, as if they are standalone quiz questions.
 
     Each question must follow this exact JSON format:
@@ -91,7 +91,7 @@ router.post("/upload-notes", upload.single("file"), async (req, res) => {
       "answer": index_of_correct_option (0-based)
     }
 
-    Return ONLY a JSON array with the 3 questions. No extra text.
+    Return ONLY a JSON array with the 10 questions. No extra text.
     `;
 
     // Call Gemini API

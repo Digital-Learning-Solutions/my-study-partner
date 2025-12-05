@@ -86,7 +86,7 @@ export default function QuizSection({ videoUrl, title, id, courseId }) {
     } else {
       const finalScore = score + (isCorrect ? 10 : 0);
 
-      const didPass = finalScore >= 0; // ✅ Minimum 7 correct required
+      const didPass = finalScore >= 70; // ✅ Minimum 7 correct required
 
       setPassed(didPass);
       setFinished(true);
