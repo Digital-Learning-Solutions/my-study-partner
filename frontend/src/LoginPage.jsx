@@ -35,6 +35,8 @@ function LoginPage() {
       localStorage.setItem("userId", data.user._id);
       setToken(data.token);
       setUser(data.user);
+      // ✅ Reset recent activity on login
+      localStorage.removeItem("recentActivities");
       // ✅ Redirect after login
       navigate("/"); // change this to your actual home page route
     } catch (err) {

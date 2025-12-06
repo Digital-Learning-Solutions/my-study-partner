@@ -6,7 +6,8 @@ import CreatedDiscussions from "../../components/Profile/CreatedDiscussions";
 import EnrolledGroups from "../../components/Profile/EnrolledGroups";
 import SettingsSection from "../../components/Profile/SettingsSection";
 import { useStoredContext } from "../../context/useStoredContext";
-import { LogOut } from "lucide-react";
+import { LogOut, UserCircle } from "lucide-react";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function ProfilePage() {
@@ -53,18 +54,24 @@ export default function ProfilePage() {
         Loading profile...
       </div>
     );
-
+  const avatarUrl = user?.profile?.avatarUrl;
   return (
     <div className="flex max-w-7xl mx-auto p-6 gap-8">
       {/* -------- LEFT PROFILE INFO PANEL -------- */}
       <aside className="w-72 bg-white dark:bg-gray-900 shadow-lg rounded-2xl border dark:border-gray-700 p-6 h-fit flex flex-col items-center text-center">
         {/* Profile Picture */}
         <div className="mb-4">
-          <img
-            src={user?.profile?.avatarUrl || "/default-avatar.png"}
-            className="w-28 h-28 rounded-full object-cover shadow-md border dark:border-gray-600"
-            alt="avatar"
-          />
+          {avatarUrl ? (
+            <img
+              src={user?.profile?.avatarUrl || "/default-avatar.png"}
+              className="w-28 h-28 rounded-full object-cover shadow-md border dark:border-gray-600"
+              alt="avatar"
+            />
+          ) : (
+            <div className="w-28 h-28 rounded-full border-4 border-white dark:border-gray-800 shadow flex items-center justify-center bg-gray-200 dark:bg-gray-700">
+              <UserCircle className="w-20 h-20 text-gray-500 dark:text-gray-400" />
+            </div>
+          )}
         </div>
 
         {/* Username */}

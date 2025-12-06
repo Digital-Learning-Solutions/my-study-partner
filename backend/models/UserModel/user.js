@@ -14,9 +14,9 @@ const userSchema = new mongoose.Schema(
         joinedAt: { type: Date, default: Date.now },
         // per-group personal stats
         stats: {
-          totalGames: { type: Number, default: 0 },
-          totalScore: { type: Number, default: 0 },
-          bestScore: { type: Number, default: 0 },
+          totalGames: { type: Number, default: 1 },
+          totalScore: { type: Number, default: 10 },
+          bestScore: { type: Number, default: 10 },
         },
       },
     ],

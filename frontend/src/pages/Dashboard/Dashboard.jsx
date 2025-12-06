@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // src/pages/Dashboard.jsx
 import { useEffect, useMemo, useState } from "react";
 import {

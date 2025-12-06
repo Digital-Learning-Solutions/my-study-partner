@@ -24,6 +24,7 @@ export const StoredProvider = ({ children }) => {
       });
 
       const data = await res.json();
+      console.log("User", data);
 
       if (res.ok) {
         setUser(data.user);

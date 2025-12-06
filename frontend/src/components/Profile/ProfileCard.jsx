@@ -42,7 +42,7 @@ export default function ProfileCard({
             />
           ) : (
             <div className="w-28 h-28 rounded-full border-4 border-white dark:border-gray-800 shadow flex items-center justify-center bg-gray-200 dark:bg-gray-700">
-              <UserCircle className="w-20 h-20 text-gray-500 dark:text-gray-400" />
+              <Camera className="w-20 h-20 text-gray-500 dark:text-gray-400" />
             </div>
           )}
 
