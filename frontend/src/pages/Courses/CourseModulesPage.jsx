@@ -78,6 +78,8 @@ export default function CourseModulesPage() {
         alert("✅ Enrolled successfully!");
         setIsEnrolled(true);
         setCourse((prev) => ({ ...prev, enrollCount: prev.enrollCount + 1 }));
+        // Refresh page after 1 second to fetch updated user data
+        setTimeout(() => window.location.reload(), 100);
       } else {
         alert(data.message || "Enrollment failed");
       }
