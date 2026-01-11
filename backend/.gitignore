@@ -3,3 +3,8 @@ node_modules/
 temp/*.wav
 transcripts/*.txt
 notes/*.pdf
+temp
+transcripts
+uploads
+notes
+*.wav
