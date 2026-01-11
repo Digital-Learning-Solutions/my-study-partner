@@ -78,6 +78,9 @@ export default function CourseModulesPage() {
         alert("✅ Enrolled successfully!");
         setIsEnrolled(true);
         setCourse((prev) => ({ ...prev, enrollCount: prev.enrollCount + 1 }));
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } else {
         alert(data.message || "Enrollment failed");
       }
